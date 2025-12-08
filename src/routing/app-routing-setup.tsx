@@ -38,11 +38,13 @@ import {
   AccountTeamsStarterPage,
   AccountUserProfilePage,
 } from '@/pages/account';
+import AccountPage from '@/pages/account copy/page';
 import {
   AuthAccountDeactivatedPage,
   AuthWelcomeMessagePage,
 } from '@/pages/auth';
 import { DefaultPage, Demo1DarkSidebarPage } from '@/pages/dashboards';
+import MemberShipPage from '@/pages/member-ship/page';
 import {
   NetworkAppRosterPage,
   NetworkAuthorPage,
@@ -57,6 +59,7 @@ import {
   NetworkUserTableTeamCrewPage,
   NetworkVisitorsPage,
 } from '@/pages/network';
+import OverviewPage from '@/pages/overview/page';
 import {
   CampaignsCardPage,
   CampaignsListPage,
@@ -78,6 +81,8 @@ import {
   ProjectColumn2Page,
   ProjectColumn3Page,
 } from '@/pages/public-profile';
+import ResidentialProxiesPage from '@/pages/residential-proxies/page';
+import RotatingIspPage from '@/pages/rotating-isp/page';
 import { AllProductsPage, DashboardPage } from '@/pages/store-admin';
 import {
   MyOrdersPage,
@@ -92,6 +97,10 @@ import {
   StoreClientPage,
   WishlistPage,
 } from '@/pages/store-client';
+import UnlimitedProxiesPage from '@/pages/ulimited-proxies/page';
+import UniversalScrapingApiPage from '@/pages/universal-scraping-api/page';
+import VideoDownloaderPage from '@/pages/video-downloader/page';
+import WalletPage from '@/pages/wallet/page';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 export function AppRoutingSetup() {
@@ -101,6 +110,23 @@ export function AppRoutingSetup() {
         {/* <Route element={<RequireAuth />}> */}
         <Route element={<Demo1Layout />}>
           <Route path="/" element={<DefaultPage />} />
+          {/* ------------ */}
+          <Route path="/overview" element={<OverviewPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/wallet" element={<WalletPage />} />
+          <Route
+            path="/residential-proxies"
+            element={<ResidentialProxiesPage />}
+          />
+          <Route
+            path="/universal-scraping-api"
+            element={<UniversalScrapingApiPage />}
+          />
+          <Route path="/video-downloader" element={<VideoDownloaderPage />} />
+          <Route path="/ulimited-proxies" element={<UnlimitedProxiesPage />} />
+          <Route path="/rotating-isp" element={<RotatingIspPage />} />
+          <Route path="/member-ship" element={<MemberShipPage />} />
+          {/* ------------ */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route
             path="/public-profile/profiles/default/"

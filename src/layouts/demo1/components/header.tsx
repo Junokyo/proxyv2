@@ -114,14 +114,14 @@ export function Header() {
         </div>
 
         {/* Main Content (MegaMenu or Breadcrumbs) */}
-        {pathname.startsWith('/account') ? (
+        {/* {pathname.startsWith('/account') ? (
           <Breadcrumb />
         ) : (
           !mobileMode && <MegaMenu />
-        )}
+        )} */}
 
         {/* HeaderTopbar */}
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-center justify-end gap-3">
           {pathname.startsWith('/store-client') ? (
             <StoreClientTopbar />
           ) : (

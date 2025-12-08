@@ -238,7 +238,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
         <DropdownMenuSeparator />
 
         {/* Footer */}
-        <DropdownMenuItem
+        {/* <DropdownMenuItem
           className="flex items-center gap-2"
           onSelect={(event) => event.preventDefault()}
         >
@@ -251,7 +251,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
               onCheckedChange={handleThemeToggle}
             />
           </div>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
         <div className="p-2 mt-1">
           <Button
             variant="outline"

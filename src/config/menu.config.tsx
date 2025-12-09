@@ -10,6 +10,7 @@ import {
   Building,
   CalendarCheck,
   Captions,
+  ChartBarStacked,
   CheckCircle,
   Code,
   Codepen,
@@ -110,6 +111,39 @@ export const MENU_SIDEBAR: MenuConfig = [
     title: 'Account',
     icon: UserCircle,
     path: '/account',
+  },
+
+  { heading: 'Admin' },
+
+  {
+    title: 'Categories',
+    icon: ChartBarStacked,
+    children: [
+      {
+        title: 'User Category',
+        path: '/user-category',
+      },
+      {
+        title: 'Proxy Package Category',
+        path: '/proxy-package-category',
+      },
+      {
+        title: 'Setting Category',
+        path: '/setting-category',
+      },
+      {
+        title: 'Log Category',
+        path: '/log-category',
+      },
+      {
+        title: 'IP List Category',
+        path: '/ip-list-category',
+      },
+      {
+        title: 'Billing History Category',
+        path: '/billing-history-category',
+      },
+    ],
   },
 ];
 

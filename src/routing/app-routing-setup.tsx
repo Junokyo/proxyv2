@@ -43,6 +43,12 @@ import {
   AuthAccountDeactivatedPage,
   AuthWelcomeMessagePage,
 } from '@/pages/auth';
+import BillingHistoryCategoryPage from '@/pages/category/billing-history-category/page';
+import IPListCategoryPage from '@/pages/category/ip-list-category/page';
+import LogsCategoryPage from '@/pages/category/log-category/page';
+import ProxyPackageCategoryPage from '@/pages/category/proxy-package-category/page';
+import SettingsCategoryPage from '@/pages/category/setting-category/page';
+import UserCategoryPage from '@/pages/category/user-category/page';
 import { DefaultPage, Demo1DarkSidebarPage } from '@/pages/dashboards';
 import MemberShipPage from '@/pages/member-ship/page';
 import {
@@ -109,7 +115,7 @@ export function AppRoutingSetup() {
       <Route>
         {/* <Route element={<RequireAuth />}> */}
         <Route element={<Demo1Layout />}>
-          <Route path="/" element={<DefaultPage />} />
+          <Route path="/" element={<OverviewPage />} />
           {/* ------------ */}
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/account" element={<AccountPage />} />
@@ -126,6 +132,18 @@ export function AppRoutingSetup() {
           <Route path="/ulimited-proxies" element={<UnlimitedProxiesPage />} />
           <Route path="/rotating-isp" element={<RotatingIspPage />} />
           <Route path="/member-ship" element={<MemberShipPage />} />
+          <Route path="/user-category" element={<UserCategoryPage />} />
+          <Route
+            path="/proxy-package-category"
+            element={<ProxyPackageCategoryPage />}
+          />
+          <Route path="/setting-category" element={<SettingsCategoryPage />} />
+          <Route path="/log-category" element={<LogsCategoryPage />} />
+          <Route path="/ip-list-category" element={<IPListCategoryPage />} />
+          <Route
+            path="/billing-history-category"
+            element={<BillingHistoryCategoryPage />}
+          />
           {/* ------------ */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route

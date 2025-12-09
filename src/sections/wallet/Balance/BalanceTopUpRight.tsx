@@ -1,6 +1,17 @@
 // TopUpRight.tsx
 import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
+import { useNotification } from '@/providers/notification-provider';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface TopUpRightProps {
   amount: number;
@@ -23,8 +34,46 @@ const cryptoList = [
 export const TopUpRight: React.FC<TopUpRightProps> = ({ amount }) => {
   const [tab, setTab] = useState<PaymentTab>('crypto');
   const [selectedCrypto, setSelectedCrypto] = useState<string>('USDT-TRC20');
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const { addNotification } = useNotification();
 
   const total = amount * 1.05; // ví dụ thêm 5% fee cho giống 1050
+
+  const getPaymentMethodName = () => {
+    switch (tab) {
+      case 'crypto':
+        return (
+          cryptoList.find((c) => c.code === selectedCrypto)?.label || 'Crypto'
+        );
+      case 'card':
+        return 'Credit Card';
+      case 'alipay':
+        return 'Alipay';
+      case 'paypal':
+        return 'PayPal/Credit Card/Installment';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const handleContinueToPay = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmPayment = () => {
+    // Add notification
+    addNotification({
+      type: 'topup',
+      title: 'Top-up Request Submitted',
+      description: `Your top-up request of $${total.toFixed(2)} has been submitted successfully.`,
+      time: 'Just now',
+      amount: total,
+      paymentMethod: getPaymentMethodName(),
+    });
+
+    setShowConfirmDialog(false);
+    // Here you would typically call an API to process the payment
+  };
 
   return (
     <div className="space-y-4">
@@ -154,10 +203,60 @@ export const TopUpRight: React.FC<TopUpRightProps> = ({ amount }) => {
 
       {/* Bottom button card */}
       <div className="rounded-2xl bg-white p-6 shadow-sm">
-        <button className="flex w-full items-center justify-center rounded-xl bg-blue-500 py-3 text-sm font-semibold text-white hover:bg-blue-600">
+        <button
+          onClick={handleContinueToPay}
+          className="flex w-full items-center justify-center rounded-xl bg-blue-500 py-3 text-sm font-semibold text-white hover:bg-blue-600"
+        >
           Continue to Pay
         </button>
       </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
+            <AlertDialogDescription>
+              <div className="space-y-2 mt-2">
+                <p>Please confirm your payment details:</p>
+                <div className="bg-slate-50 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Amount:</span>
+                    <span className="font-semibold">${amount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Fee:</span>
+                    <span className="font-semibold">
+                      ${(total - amount).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-200 pt-2">
+                    <span className="text-slate-800 font-semibold">Total:</span>
+                    <span className="font-bold text-blue-600">
+                      ${total.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between mt-2">
+                    <span className="text-slate-600">Payment Method:</span>
+                    <span className="font-semibold">
+                      {getPaymentMethodName()}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 mt-4">
+                  Are you sure you want to proceed with this payment?
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmPayment}>
+              Confirm & Pay
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

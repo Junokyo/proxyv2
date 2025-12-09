@@ -8,6 +8,7 @@ import KeycloakProvider from './auth/providers/keycloak.provider';
 import { AuthProvider } from './auth/providers/supabase-provider';
 import { I18nProvider } from './providers/i18n-provider';
 import { ModulesProvider } from './providers/modules-provider';
+import { NotificationProvider } from './providers/notification-provider';
 import { QueryProvider } from './providers/query-provider';
 import { SettingsProvider } from './providers/settings-provider';
 import { ThemeProvider } from './providers/theme-provider';
@@ -28,14 +29,16 @@ export function App() {
                 <HelmetProvider>
                   <TooltipsProvider>
                     <QueryProvider>
-                      <LoadingBarContainer>
-                        <BrowserRouter basename={BASE_URL}>
-                          <Toaster />
-                          <ModulesProvider>
-                            <AppRouting />
-                          </ModulesProvider>
-                        </BrowserRouter>
-                      </LoadingBarContainer>
+                      <NotificationProvider>
+                        <LoadingBarContainer>
+                          <BrowserRouter basename={BASE_URL}>
+                            <Toaster />
+                            <ModulesProvider>
+                              <AppRouting />
+                            </ModulesProvider>
+                          </BrowserRouter>
+                        </LoadingBarContainer>
+                      </NotificationProvider>
                     </QueryProvider>
                   </TooltipsProvider>
                 </HelmetProvider>

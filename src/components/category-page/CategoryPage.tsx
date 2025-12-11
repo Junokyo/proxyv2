@@ -58,6 +58,7 @@ export function CategoryPage<TData extends { id: string | number }>(
     pageSizes = [5, 10, 25, 50, 100],
     toolbarActions,
     isLoading = false,
+    onRowClick,
   } = props;
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -218,6 +219,7 @@ export function CategoryPage<TData extends { id: string | number }>(
             table={table}
             isLoading={isLoading}
             recordCount={filteredData.length}
+            onRowClick={onRowClick}
           >
             {/* no internal toolbar here — actions are outside card per request */}
             <DataGridTable />

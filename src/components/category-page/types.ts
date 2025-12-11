@@ -43,6 +43,9 @@ export interface CategoryPageProps<TData extends { id: string | number }> {
 
   // Loading state
   isLoading?: boolean;
+
+  // Row click handler
+  onRowClick?: (row: TData) => void;
 }
 
 export interface FormFieldConfig {

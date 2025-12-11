@@ -3,9 +3,7 @@
 
 import { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Eye } from 'lucide-react';
 import { z } from 'zod';
-import { Button } from '@/components/ui/button';
 import { DataGridColumnHeader } from '@/components/ui/data-grid-column-header';
 import { CategoryPage, FormFieldConfig } from '@/components/category-page';
 import { UserDetailModal } from './UserDetailModal';
@@ -35,6 +33,15 @@ export interface Account {
   proxiesRemaining?: number;
   ipCount?: number;
   notes?: string;
+
+  // Thông tin mở rộng cho modal
+  walletBalance?: number; // Số dư ví
+  totalProxiesPurchased?: number; // Tổng số proxy đã mua
+  totalBandwidthUsed?: number; // Tổng băng thông đã dùng (GB)
+  totalRequests?: number; // Tổng số request
+  totalTraffic?: number; // Tổng traffic (GB)
+  lastLoginIP?: string; // IP login gần nhất
+  lastLoginTime?: string; // Thời gian login gần nhất
 }
 
 // 3. Các trường form
@@ -222,42 +229,20 @@ const sampleData: Account[] = [
   },
 ];
 
-// 6. Component chính - truyền columns đã thêm nút view vào CategoryPage
+// 6. Component chính - click vào row để xem chi tiết
 export function UserCategoryView() {
   const [selectedUser, setSelectedUser] = useState<Account | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
 
-  // thêm column view riêng cho user category
-  const viewColumn: ColumnDef<Account> = {
-    id: 'view',
-    header: () => (
-      <div className="text-accent-foreground font-normal text-[0.8125rem]">
-        Xem
-      </div>
-    ),
-    enableSorting: false,
-    cell: ({ row }) => {
-      const user = row.original;
-      return (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setSelectedUser(user);
-            setViewOpen(true);
-          }}
-          title="Xem chi tiết"
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
-      );
-    },
-    size: 80,
+  // Handler khi click vào row
+  const handleRowClick = (user: Account) => {
+    setSelectedUser(user);
+    setViewOpen(true);
   };
 
-  // chèn viewColumn trước các columns gốc (hoặc sau tùy UX)
+  // Sử dụng baseColumns trực tiếp, không cần column view nữa
   const columns: ColumnDef<Account>[] = useMemo(() => {
-    return [viewColumn, ...baseColumns];
+    return baseColumns;
   }, []);
 
   // handlers (bạn có thể replace bằng API thật)
@@ -285,6 +270,7 @@ export function UserCategoryView() {
         onAdd={handleAdd}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onRowClick={handleRowClick}
         searchKeys={['name', 'email', 'role']}
         searchPlaceholder="Tìm kiếm tài khoản..."
         addDialogTitle="Thêm tài khoản mới"

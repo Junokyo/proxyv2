@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ContactDialog } from '@/components/contact/ContactDialog';
 
 type RotatingPlanId =
   | '1gb'
@@ -57,6 +58,7 @@ const ROTATING_PLANS: RotatingPlan[] = [
 
 export default function RotatingIspPurchasePlanSection() {
   const [selectedId, setSelectedId] = useState<RotatingPlanId>('350gb');
+  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
 
   const selectedPlan =
     ROTATING_PLANS.find((p) => p.id === selectedId) ?? ROTATING_PLANS[0];
@@ -65,6 +67,14 @@ export default function RotatingIspPurchasePlanSection() {
     selectedPlan.gb && selectedPlan.pricePerGb
       ? selectedPlan.gb * selectedPlan.pricePerGb
       : 0;
+
+  const handlePlanClick = (planId: RotatingPlanId) => {
+    if (planId === 'custom') {
+      setIsContactDialogOpen(true);
+    } else {
+      setSelectedId(planId);
+    }
+  };
 
   return (
     <div className="w-full space-y-4">
@@ -102,10 +112,10 @@ export default function RotatingIspPurchasePlanSection() {
                     <button
                       key={plan.id}
                       type="button"
-                      onClick={() => setSelectedId(plan.id)}
+                      onClick={() => handlePlanClick(plan.id)}
                       className={[
                         'relative flex h-24 flex-col items-center justify-center rounded-xl border text-sm font-medium transition',
-                        isActive
+                        isActive && !isCustom
                           ? 'border-indigo-500 bg-indigo-50/60 shadow-[0_0_0_1px_rgba(79,70,229,0.4)] text-indigo-700'
                           : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:text-indigo-600',
                       ].join(' ')}
@@ -254,6 +264,10 @@ export default function RotatingIspPurchasePlanSection() {
           </div>
         </div>
       </div>
+      <ContactDialog
+        open={isContactDialogOpen}
+        onOpenChange={setIsContactDialogOpen}
+      />
     </div>
   );
 }

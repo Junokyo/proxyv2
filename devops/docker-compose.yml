@@ -1,0 +1,16 @@
+networks:
+  default:
+    external:
+      name: share-network
+
+services:
+  proxy-client:
+    image: $IMAGE
+    container_name: proxy-client
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 5001:80

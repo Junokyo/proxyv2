@@ -14,4 +14,23 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 3000,
   },
+  server: {
+    host: '::',
+    port: 8080,
+    proxy: {
+      '/graphql': {
+        target: 'https://proxy.forlike.pro/graphql',
+        changeOrigin: true,
+      },
+    },
+  },
+
+  preview: {
+    host: '::',
+    port: 80,
+    allowedHosts: process.env.ALLOWED_HOSTS?.split(',') || [
+      'localhost',
+      'proxy.forlike.pro',
+    ],
+  },
 });

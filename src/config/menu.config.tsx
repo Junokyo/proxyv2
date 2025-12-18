@@ -65,10 +65,11 @@ export const MENU_SIDEBAR: MenuConfig = [
     icon: LayoutGrid,
     path: '/overview',
   },
-  { heading: 'Products' },
+  { heading: 'Products', requireAuth: true },
   {
     title: 'Proxies',
     icon: UserCircle,
+    requireAuth: true,
     children: [
       { title: 'Residential Proxies', path: '/residential-proxies' },
       { title: 'Unlimited Proxies', path: '/ulimited-proxies' },
@@ -80,6 +81,7 @@ export const MENU_SIDEBAR: MenuConfig = [
   {
     title: 'Scraping Automation',
     icon: UserCircle,
+    requireAuth: true,
     children: [
       { title: 'Universal Scraping API', path: '/universal-scraping-api' },
       { title: 'Video Data API', path: '/video-downloader' },
@@ -96,28 +98,33 @@ export const MENU_SIDEBAR: MenuConfig = [
   //     { title: 'Proxy Manager', path: '#' },
   //   ],
   // },
-  { heading: 'Menu' },
+  { heading: 'Menu', requireAuth: true },
   {
     title: 'Wallet',
     icon: Wallet,
     path: '/wallet',
+    requireAuth: true,
   },
   {
     title: 'Member ship',
     icon: IdCardLanyard,
     path: '/member-ship',
+    requireAuth: true,
   },
   {
     title: 'Account',
     icon: UserCircle,
     path: '/account',
+    requireAuth: true,
   },
 
-  { heading: 'Admin' },
+  { heading: 'Admin', requireAuth: true, roles: ['admin'] },
 
   {
     title: 'Categories',
     icon: ChartBarStacked,
+    requireAuth: true,
+    roles: ['admin'],
     children: [
       {
         title: 'User Category',

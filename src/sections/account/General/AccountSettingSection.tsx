@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
+import { useKC } from '@/auth/providers/keycloak.provider';
 
 const AccountSettingsSection: React.FC = () => {
   const [email, setEmail] = useState('chickendev@gmail.com');
   const [phoneCode, setPhoneCode] = useState('+1');
   const [phone, setPhone] = useState('');
+
+  const { user } = useKC();
+
+  const displayName =
+    user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user?.username || 'User';
+
+  const displayEmail = user?.email || '';
 
   return (
     <div className="w-full rounded-2xl bg-white p-4 shadow-sm sm:p-6">
@@ -19,7 +29,7 @@ const AccountSettingsSection: React.FC = () => {
           </label>
           <input
             type="text"
-            value="lu98kir38I"
+            value={displayName}
             disabled
             className="h-9 w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 outline-none"
           />
@@ -33,7 +43,7 @@ const AccountSettingsSection: React.FC = () => {
             </label>
             <input
               type="email"
-              value={email}
+              value={displayEmail}
               onChange={(e) => setEmail(e.target.value)}
               className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500"
             />

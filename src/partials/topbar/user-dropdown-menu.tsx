@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useAuth } from '@/auth/context/auth-context';
+import { useKC } from '@/auth/providers/keycloak.provider';
 import { I18N_LANGUAGES } from '@/i18n/config';
 import { Language } from '@/i18n/types';
 import {
@@ -9,14 +9,12 @@ import {
   FileText,
   Globe,
   IdCard,
-  Moon,
   Settings,
   Shield,
   SquareCode,
   UserCircle,
   Users,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 import { Link } from 'react-router-dom';
 import { toAbsoluteUrl } from '@/lib/helpers';
 import { useLanguage } from '@/providers/i18n-provider';
@@ -34,19 +32,30 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Switch } from '@/components/ui/switch';
 
 export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
-  const { logout, user } = useAuth();
+  const { logout, user, authenticated, login, ready } = useKC();
   const { currenLanguage, changeLanguage } = useLanguage();
-  const { theme, setTheme } = useTheme();
 
-  // Use display data from currentUser
+  if (!ready) {
+    return (
+      <div className="size-9 rounded-full bg-gray-200 animate-pulse shrink-0" />
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <Button variant="primary" size="sm" onClick={() => login()}>
+        Login
+      </Button>
+    );
+  }
+
+  // Use display data from Keycloak user
   const displayName =
-    user?.fullname ||
-    (user?.first_name && user?.last_name
-      ? `${user.first_name} ${user.last_name}`
-      : user?.username || 'User');
+    user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user?.username || 'User';
 
   const displayEmail = user?.email || '';
   // const displayAvatar = user?.pic || toAbsoluteUrl('/media/avatars/300-2.png');
@@ -54,10 +63,6 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
 
   const handleLanguage = (lang: Language) => {
     changeLanguage(lang);
-  };
-
-  const handleThemeToggle = (checked: boolean) => {
-    setTheme(checked ? 'dark' : 'light');
   };
 
   return (
@@ -257,7 +262,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
             variant="outline"
             size="sm"
             className="w-full"
-            onClick={logout}
+            onClick={() => logout()}
           >
             Logout
           </Button>

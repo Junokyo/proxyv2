@@ -6,6 +6,7 @@ import { LoadingBarContainer } from 'react-top-loading-bar';
 import { Toaster } from '@/components/ui/sonner';
 import KeycloakProvider from './auth/providers/keycloak.provider';
 import { AuthProvider } from './auth/providers/supabase-provider';
+import { GraphQLProvider } from './providers/graphql-provider';
 import { I18nProvider } from './providers/i18n-provider';
 import { ModulesProvider } from './providers/modules-provider';
 import { NotificationProvider } from './providers/notification-provider';
@@ -33,9 +34,11 @@ export function App() {
                         <LoadingBarContainer>
                           <BrowserRouter basename={BASE_URL}>
                             <Toaster />
-                            <ModulesProvider>
-                              <AppRouting />
-                            </ModulesProvider>
+                            <GraphQLProvider>
+                              <ModulesProvider>
+                                <AppRouting />
+                              </ModulesProvider>
+                            </GraphQLProvider>
                           </BrowserRouter>
                         </LoadingBarContainer>
                       </NotificationProvider>

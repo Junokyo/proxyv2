@@ -1,6 +1,6 @@
 // src/store/auth.store.ts
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type AppUser = {
   id: string;
@@ -11,6 +11,7 @@ export type AppUser = {
   emailVerified?: boolean;
   roles: string[];
   resourceAccess?: Record<string, { roles: string[] }>;
+  isAdmin?: boolean;
 };
 
 type AuthState = {
@@ -37,12 +38,11 @@ export const useAuthStore = create<AuthState>()(
       reset: () => set({ ready: true, authenticated: false, user: null }),
     }),
     {
-      name: "auth-ui",
+      name: 'auth-ui',
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
         user: s.user,
         authenticated: s.authenticated,
-        ready: s.ready,
       }),
     },
   ),

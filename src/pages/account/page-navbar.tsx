@@ -6,7 +6,8 @@ import { Container } from '@/components/common/container';
 
 const PageNavbar = () => {
   const { settings } = useSettings();
-  const accountMenuConfig = MENU_SIDEBAR?.['3']?.children;
+  // const accountMenuConfig = MENU_SIDEBAR?.['3']?.children;
+  const accountMenuConfig = [{}];
 
   if (accountMenuConfig && settings?.layout === 'demo1') {
     return (

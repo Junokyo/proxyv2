@@ -5,6 +5,24 @@ import { enqueueSnackbar } from 'notistack';
 import { keycloak } from '../lib/keycloak';
 import { AppUser, useAuthStore } from '../store/auth.store';
 
+// StrictMode (dev) sẽ mount/unmount/mount lại và chạy useEffect 2 lần.
+// keycloak-js chỉ cho phép init() một lần, nên cần cache promise ở module scope.
+let keycloakInitPromise: Promise<boolean> | null = null;
+
+function initKeycloakOnce() {
+  if (!keycloakInitPromise) {
+    keycloakInitPromise = keycloak.init({
+      onLoad: 'check-sso',
+      checkLoginIframe: false,
+      pkceMethod: 'S256',
+      silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+      silentCheckSsoFallback: false,
+      flow: 'standard',
+    });
+  }
+  return keycloakInitPromise;
+}
+
 type KCContext = {
   ready: boolean;
   authenticated: boolean;
@@ -38,19 +56,52 @@ export default function KeycloakProvider({
   } = useAuthStore();
   const mounted = useRef(true);
 
+  const loadUser = async () => {
+    const p = await keycloak.loadUserProfile();
+    const tokenParsed = keycloak.tokenParsed;
+    const roles = [
+      ...(tokenParsed?.realm_access?.roles ?? []),
+      ...Object.values(tokenParsed?.resource_access ?? {}).flatMap(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (r: any) => r?.roles ?? [],
+      ),
+    ];
+
+    const resourceAccess = tokenParsed?.resource_access
+      ? Object.fromEntries(
+          Object.entries(tokenParsed.resource_access).map(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ([k, v]: any) => [k, { roles: v?.roles ?? [] }],
+          ),
+        )
+      : undefined;
+
+    // Lấy roles cụ thể của client này (test-web-client) để check quyền chuyên sâu
+    const clientRoles =
+      tokenParsed?.resource_access?.['test-web-client']?.roles ?? [];
+
+    const u: AppUser = {
+      id: p.id!,
+      username:
+        (keycloak.tokenParsed?.preferred_username as string) ?? p.username!,
+      firstName: p.firstName ?? undefined,
+      lastName: p.lastName ?? undefined,
+      email: p.email ?? (keycloak.tokenParsed?.email as string | undefined),
+      roles, // Tất cả roles (Realm + All Clients)
+      resourceAccess,
+      isAdmin: clientRoles.includes('admin'),
+      // Có thể thêm các helper khác ở đây sau này
+      // isEditor: clientRoles.includes('editor'),
+    };
+    setUser(u);
+  };
+
   useEffect(() => {
     mounted.current = true;
 
     (async () => {
       try {
-        const auth = await keycloak.init({
-          onLoad: 'check-sso',
-          checkLoginIframe: false,
-          pkceMethod: 'S256',
-          silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
-          silentCheckSsoFallback: false,
-          flow: 'standard',
-        });
+        const auth = await initKeycloakOnce();
 
         if (!mounted.current) return;
 
@@ -59,41 +110,7 @@ export default function KeycloakProvider({
         if (auth) {
           // lấy profile + roles
           try {
-            const p = await keycloak.loadUserProfile();
-            const tokenParsed = keycloak.tokenParsed;
-            const roles = [
-              ...(tokenParsed?.realm_access?.roles ?? []),
-              ...Object.values(tokenParsed?.resource_access ?? {}).flatMap(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (r: any) => r?.roles ?? [],
-              ),
-            ];
-
-            const resourceAccess = tokenParsed?.resource_access
-              ? Object.fromEntries(
-                  Object.entries(tokenParsed.resource_access).map(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    ([k, v]: any) => [k, { roles: v?.roles ?? [] }],
-                  ),
-                )
-              : undefined;
-            const u: AppUser = {
-              id: p.id!,
-              username:
-                (keycloak.tokenParsed?.preferred_username as string) ??
-                p.username!,
-              // name:
-              //   p.firstName || p.lastName
-              //     ? `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim()
-              //     : p.username!,
-              firstName: p.firstName ?? undefined,
-              lastName: p.lastName ?? undefined,
-              email:
-                p.email ?? (keycloak.tokenParsed?.email as string | undefined),
-              roles,
-              resourceAccess,
-            };
-            setUser(u);
+            await loadUser();
           } catch {
             // ignore: vẫn coi là authenticated nhưng chưa có profile
           }
@@ -109,9 +126,15 @@ export default function KeycloakProvider({
     })();
 
     // token lifecycle
-    keycloak.onAuthSuccess = () => {
+    keycloak.onAuthSuccess = async () => {
       if (!mounted.current) return;
       setAuthenticated(true);
+      // sau redirect login, đôi khi cần load profile lại để SignInPage nhận state mới
+      try {
+        await loadUser();
+      } catch {
+        // ignore
+      }
     };
 
     keycloak.onAuthLogout = () => {

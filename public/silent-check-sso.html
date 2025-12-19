@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Silent SSO</title>
+  </head>
+  <body>
+    <script>
+      // Keycloak uses this page for silent SSO checks (check-sso).
+      // It must exist at the exact URL configured by `silentCheckSsoRedirectUri`.
+      parent.postMessage(location.href, location.origin);
+    </script>
+  </body>
+</html>
+

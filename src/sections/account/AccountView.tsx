@@ -28,9 +28,7 @@ export default function AccountView() {
       <div className="inline-flex items-center pl-5">
         {/* Header */}
         <div className="flex flex-col gap-2">
-          <h1 className="text-lg font-semibold text-slate-900">
-            Metronic account
-          </h1>
+          <h1 className="text-lg font-semibold text-slate-900">User account</h1>
 
           {/* Divider */}
           <div className="h-px w-full bg-slate-200 mt-2" />

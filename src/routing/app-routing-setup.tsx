@@ -112,12 +112,14 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 export function AppRoutingSetup() {
   return (
     <Routes>
-      <Route>
-        {/* <Route element={<RequireAuth />}> */}
+      <Route element={<Demo1Layout />}>
+        <Route path="/" element={<OverviewPage />} />
+        <Route path="/overview" element={<OverviewPage />} />
+      </Route>
+
+      <Route element={<RequireAuth />}>
         <Route element={<Demo1Layout />}>
-          <Route path="/" element={<OverviewPage />} />
           {/* ------------ */}
-          <Route path="/overview" element={<OverviewPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/wallet" element={<WalletPage />} />
           <Route

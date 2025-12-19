@@ -1,6 +1,7 @@
 'use client';
 
-import { JSX, useCallback } from 'react';
+import { JSX, useCallback, useMemo } from 'react';
+import { useKC } from '@/auth/providers/keycloak.provider';
 import { Link, useLocation } from 'react-router-dom';
 import { MENU_SIDEBAR } from '@/config/menu.config';
 import { MenuConfig, MenuItem } from '@/config/types';
@@ -19,6 +20,32 @@ import { Badge } from '@/components/ui/badge';
 
 export function SidebarMenu() {
   const { pathname } = useLocation();
+  const { authenticated, user } = useKC();
+
+  // Filter menu items based on authentication status and roles
+  const filteredMenu = useMemo(() => {
+    return MENU_SIDEBAR.filter((item) => {
+      // 1. Check Auth
+      if (item.requireAuth && !authenticated) {
+        return false;
+      }
+
+      // 2. Check Roles
+      if (item.roles && item.roles.length > 0) {
+        // If user is not logged in but roles are required, hide
+        if (!user) return false;
+
+        // Check if user has at least one of the required roles
+        const hasRequiredRole = item.roles.some((role) =>
+          user.roles?.includes(role),
+        );
+
+        if (!hasRequiredRole) return false;
+      }
+
+      return true;
+    });
+  }, [authenticated, user]);
 
   // Memoize matchPath to prevent unnecessary re-renders
   const matchPath = useCallback(
@@ -218,7 +245,7 @@ export function SidebarMenu() {
         collapsible
         classNames={classNames}
       >
-        {buildMenu(MENU_SIDEBAR)}
+        {buildMenu(filteredMenu)}
       </AccordionMenu>
     </div>
   );

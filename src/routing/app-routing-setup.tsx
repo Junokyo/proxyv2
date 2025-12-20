@@ -115,10 +115,8 @@ export function AppRoutingSetup() {
       <Route element={<Demo1Layout />}>
         <Route path="/" element={<OverviewPage />} />
         <Route path="/overview" element={<OverviewPage />} />
-      </Route>
 
-      <Route element={<RequireAuth />}>
-        <Route element={<Demo1Layout />}>
+        <Route element={<RequireAuth />}>
           {/* ------------ */}
           <Route path="/account" element={<AccountPage />} />
           <Route path="/wallet" element={<WalletPage />} />

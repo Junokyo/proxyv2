@@ -4,7 +4,7 @@ import { ResidentProxiesTrafficChartCard } from './resident-proxies-traffic-char
 
 export default function ResidentialProxiesView() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="w-full max-w-full flex flex-col gap-6 overflow-x-hidden">
       <div className="w-full md:col-span-12">
         <ProxyPlanCard
           title="Residential Proxies"

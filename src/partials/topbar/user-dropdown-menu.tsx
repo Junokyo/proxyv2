@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useKC } from '@/auth/providers/keycloak.provider';
 import { I18N_LANGUAGES } from '@/i18n/config';
 import { Language } from '@/i18n/types';
@@ -36,6 +36,24 @@ import {
 export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
   const { logout, user, authenticated, login, ready } = useKC();
   const { currenLanguage, changeLanguage } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Prevent scroll on mobile when dropdown opens
+  useEffect(() => {
+    if (isOpen && window.innerWidth < 640) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+
+      return () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
 
   if (!ready) {
     return (
@@ -66,9 +84,16 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false} open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64" side="bottom" align="end">
+      <DropdownMenuContent
+        className="w-64"
+        side="bottom"
+        align="end"
+        sideOffset={8}
+        alignOffset={0}
+        collisionPadding={8}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-3">
           <div className="flex items-center gap-2">

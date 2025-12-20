@@ -4,19 +4,19 @@ export function ActionSection() {
       {/* LEFT COLUMN */}
       <div className="flex flex-col gap-6">
         {/* Exchange CDKey */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
           <div className="text-sm font-semibold text-slate-800 flex items-center gap-2">
             <span className="text-slate-500 text-base">🔑</span>
             Exchange CDKey
           </div>
 
-          <div className="mt-3 flex w-full gap-3">
+          <div className="mt-3 flex flex-col sm:flex-row w-full gap-3">
             <input
               type="text"
               placeholder="CDKey"
               className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none"
             />
-            <button className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+            <button className="w-full sm:w-auto rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 whitespace-nowrap">
               Exchange
             </button>
           </div>

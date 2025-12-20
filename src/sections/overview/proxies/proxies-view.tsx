@@ -21,16 +21,17 @@ export default function ProxiesView() {
     setCurrentTab(value);
   }, []);
   return (
-    <div className="w-full">
-      <div className="w-full flex flex-direction-column gap-1 justify-between border rounded-lg p-2 ">
+    <div className="w-full max-w-full overflow-x-hidden">
+      {/* Mobile: horizontal scroll, Desktop: grid */}
+      <div className="w-full max-w-full flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-3 border rounded-lg p-2 sm:p-3 overflow-x-auto sm:overflow-x-visible scrollbar-hide">
         {/* Tab group */}
         {TABS_DATA.map((tab) => (
           <div
             key={tab.value}
             className={
-              'rounded-lg transition cursor-pointer ' +
+              'rounded-lg transition cursor-pointer flex-shrink-0 sm:flex-shrink min-w-[140px] sm:min-w-0 max-w-full ' +
               (currentTab === tab.value
-                ? 'bg-slate-200' // active
+                ? 'bg-slate-200 ring-2 ring-slate-300' // active
                 : 'hover:bg-slate-100') // inactive
             }
             onClick={() => handleChangeTab(tab.value)}
@@ -41,7 +42,7 @@ export default function ProxiesView() {
       </div>
 
       {/* Nội dung tab */}
-      <div className="mt-4 text-sm text-slate-600">
+      <div className="mt-4 text-sm text-slate-600 w-full max-w-full overflow-x-hidden">
         {currentTab === 'rp' && <ResidentialProxiesView />}
         {currentTab === 'up' && <UlimitedProxiesView />}
         {currentTab === 'isp' && <IspProxiesView />}

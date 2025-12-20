@@ -49,8 +49,17 @@ export function SidebarMenu() {
 
   // Memoize matchPath to prevent unnecessary re-renders
   const matchPath = useCallback(
-    (path: string): boolean =>
-      path === pathname || (path.length > 1 && pathname.startsWith(path)),
+    (path: string): boolean => {
+      // Normalize paths: treat "/" and "/overview" as equivalent
+      const normalizedPathname = pathname === '/' ? '/overview' : pathname;
+      const normalizedPath = path === '/' ? '/overview' : path;
+
+      return (
+        normalizedPath === normalizedPathname ||
+        (normalizedPath.length > 1 &&
+          normalizedPathname.startsWith(normalizedPath))
+      );
+    },
     [pathname],
   );
 
@@ -236,10 +245,13 @@ export function SidebarMenu() {
     return <AccordionMenuLabel key={index}>{item.heading}</AccordionMenuLabel>;
   };
 
+  // Normalize selectedValue: treat "/" as "/overview" for menu selection
+  const normalizedSelectedValue = pathname === '/' ? '/overview' : pathname;
+
   return (
     <div className="kt-scrollable-y-hover flex grow shrink-0 py-5 px-5 lg:max-h-[calc(100vh-5.5rem)]">
       <AccordionMenu
-        selectedValue={pathname}
+        selectedValue={normalizedSelectedValue}
         matchPath={matchPath}
         type="single"
         collapsible

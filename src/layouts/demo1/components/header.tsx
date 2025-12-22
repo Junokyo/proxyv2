@@ -77,14 +77,28 @@ export function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent
-                  className="p-0 gap-0 w-[275px]"
+                  className="p-0 gap-0 w-[275px] flex flex-col"
                   side="left"
                   close={false}
                 >
                   <SheetHeader className="p-0 space-y-0" />
-                  <SheetBody className="p-0 overflow-y-auto">
+                  <SheetBody className="p-0 overflow-y-auto flex-1">
                     <SidebarMenu />
                   </SheetBody>
+                  <div className="p-4 border-t border-border">
+                    <UserDropdownMenu
+                      trigger={
+                        <div className="flex items-center gap-3 cursor-pointer">
+                          <img
+                            className="size-9 rounded-full border-2 border-green-500 shrink-0"
+                            src={toAbsoluteUrl('/media/avatars/300-2.png')}
+                            alt="User Avatar"
+                          />
+                          <span className="text-sm font-medium">Account</span>
+                        </div>
+                      }
+                    />
+                  </div>
                 </SheetContent>
               </Sheet>
             )}

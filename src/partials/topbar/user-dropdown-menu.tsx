@@ -63,7 +63,12 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
 
   if (!authenticated) {
     return (
-      <Button variant="primary" size="sm" onClick={() => login()}>
+      <Button
+        variant="primary"
+        size="sm"
+        onClick={() => login()}
+        className="shrink-0 min-w-[70px] font-medium"
+      >
         Login
       </Button>
     );

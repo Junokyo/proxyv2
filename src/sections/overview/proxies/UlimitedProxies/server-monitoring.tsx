@@ -31,14 +31,14 @@ function MonitoringMetricCard({ title }: MonitoringMetricCardProps) {
 
 export function ServerMonitoringCard() {
   return (
-    <div className="w-full  p-1 ">
+    <div className="w-full p-1">
       {/* Filter row */}
       <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-wrap items-center gap-4">
           {/* Server select */}
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm min-w-0">
             <span className="text-slate-600">Server:</span>
-            <div className="flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-600 min-w-[160px]">
+            <div className="flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-600 w-full min-w-0 sm:w-auto sm:min-w-[160px]">
               <span className="truncate">All servers</span>
               <Icon
                 icon="mdi:chevron-down"
@@ -48,9 +48,9 @@ export function ServerMonitoringCard() {
           </div>
 
           {/* Period range */}
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm min-w-0">
             <span className="text-slate-600">Period:</span>
-            <div className="flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-600 min-w-[210px]">
+            <div className="flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-600 w-full min-w-0 sm:w-auto sm:min-w-[210px]">
               <span className="truncate">2025-10-26 - 2025-11-25</span>
               <Icon
                 icon="mdi:calendar-outline"

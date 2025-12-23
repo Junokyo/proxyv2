@@ -1,78 +1,20 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { useKC } from '@/auth/providers/keycloak.provider';
-import { I18N_LANGUAGES } from '@/i18n/config';
-import { Language } from '@/i18n/types';
-import {
-  BetweenHorizontalStart,
-  Coffee,
-  CreditCard,
-  FileText,
-  Globe,
-  IdCard,
-  Settings,
-  Shield,
-  SquareCode,
-  UserCircle,
-  Users,
-} from 'lucide-react';
+import { UserCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toAbsoluteUrl } from '@/lib/helpers';
-import { useLanguage } from '@/providers/i18n-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
 export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
-  const { logout, user, authenticated, login, ready } = useKC();
-  const { currenLanguage, changeLanguage } = useLanguage();
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Prevent scroll on mobile when dropdown opens
-  useEffect(() => {
-    if (isOpen && window.innerWidth < 640) {
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-
-      return () => {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [isOpen]);
-
-  if (!ready) {
-    return (
-      <div className="size-9 rounded-full bg-gray-200 animate-pulse shrink-0" />
-    );
-  }
-
-  if (!authenticated) {
-    return (
-      <Button
-        variant="primary"
-        size="sm"
-        onClick={() => login()}
-        className="shrink-0 min-w-[70px] font-medium"
-      >
-        Login
-      </Button>
-    );
-  }
+  const { logout, user } = useKC();
 
   // Use display data from Keycloak user
   const displayName =
@@ -84,12 +26,8 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
   // const displayAvatar = user?.pic || toAbsoluteUrl('/media/avatars/300-2.png');
   const displayAvatar = toAbsoluteUrl('/media/avatars/300-2.png');
 
-  const handleLanguage = (lang: Language) => {
-    changeLanguage(lang);
-  };
-
   return (
-    <DropdownMenu modal={false} open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-64"

@@ -4,7 +4,7 @@ import { ServerListCard } from './ulimited-proxies-server';
 
 export default function UlimitedProxiesView() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="w-full max-w-full overflow-x-hidden flex flex-col gap-6 min-w-0">
       <div className="w-full md:col-span-12">
         <ProxyPlanCard
           title="Unlimited Proxies"

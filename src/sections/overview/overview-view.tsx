@@ -18,7 +18,7 @@ export default function OverviewView() {
     <div className="w-full max-w-full overflow-x-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-2 sm:px-5 max-w-full">
         {/* Tab group */}
-        <div className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-1 py-1 w-full sm:w-auto overflow-x-auto max-w-full">
+        <div className="flex flex-wrap items-center rounded-2xl border border-slate-200 bg-slate-50 px-1 py-1 w-full sm:w-auto max-w-full gap-1">
           {TABS_DATA.map((tab) => (
             <button
               key={tab.value}

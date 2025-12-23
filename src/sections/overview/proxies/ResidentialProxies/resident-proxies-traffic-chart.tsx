@@ -56,9 +56,9 @@ export function ResidentProxiesTrafficChartCard({
 
         {/* Bottom axis labels */}
         <div className="absolute bottom-1 left-0 right-0 px-2">
-          <div className="flex justify-between text-[10px] text-slate-300">
+          <div className="flex w-full min-w-0 gap-1 text-[10px] text-slate-300">
             {DATES.map((d) => (
-              <span key={d} className="truncate">
+              <span key={d} className="flex-1 w-0 min-w-0 truncate text-center">
                 {d}
               </span>
             ))}

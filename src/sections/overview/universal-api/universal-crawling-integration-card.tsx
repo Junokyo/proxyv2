@@ -41,9 +41,9 @@ export default function UniversalCrawlingIntegrationCard() {
   };
 
   return (
-    <div className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col lg:flex-row gap-6">
+    <div className="w-full rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm flex flex-col lg:flex-row gap-4 sm:gap-6">
       {/* LEFT */}
-      <div className="flex-1 flex flex-col gap-4">
+      <div className="flex-1 flex flex-col gap-4 min-w-0">
         {/* Icon + Title */}
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl">
@@ -96,7 +96,7 @@ export default function UniversalCrawlingIntegrationCard() {
       {/* RIGHT */}
       <div className="w-full lg:max-w-xl rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden flex flex-col">
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 bg-white px-3 pt-2">
+        <div className="flex flex-wrap border-b border-slate-200 bg-white px-3 pt-2 gap-x-1">
           {LANG_TABS.map((lang) => {
             const active = currentLang === lang;
             return (
@@ -104,7 +104,7 @@ export default function UniversalCrawlingIntegrationCard() {
                 key={lang}
                 onClick={() => setCurrentLang(lang)}
                 className={
-                  'px-3 py-2 text-xs font-medium rounded-t-md transition ' +
+                  'px-3 py-2 text-xs font-medium rounded-t-md transition whitespace-nowrap ' +
                   (active
                     ? 'text-indigo-600 border-b-2 border-indigo-600'
                     : 'text-slate-500 hover:text-slate-800')

@@ -22,14 +22,14 @@ export default function ProxiesView() {
   }, []);
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      {/* Mobile: horizontal scroll, Desktop: grid */}
-      <div className="w-full max-w-full flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-3 border rounded-lg p-2 sm:p-3 overflow-x-auto sm:overflow-x-visible scrollbar-hide">
+      {/* Mobile: wrap, Desktop: grid */}
+      <div className="w-full max-w-full flex flex-wrap sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-3 border rounded-lg p-2 sm:p-3 overflow-x-hidden sm:overflow-x-visible">
         {/* Tab group */}
         {TABS_DATA.map((tab) => (
           <div
             key={tab.value}
             className={
-              'rounded-lg transition cursor-pointer flex-shrink-0 sm:flex-shrink min-w-[140px] sm:min-w-0 max-w-full ' +
+              'rounded-lg transition cursor-pointer flex-1 basis-1/2 min-w-0 sm:basis-auto sm:flex-initial max-w-full ' +
               (currentTab === tab.value
                 ? 'bg-slate-200 ring-2 ring-slate-300' // active
                 : 'hover:bg-slate-100') // inactive

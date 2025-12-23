@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useKC } from '@/auth/providers/keycloak.provider';
 import { StoreClientTopbar } from '@/pages/store-client/components/common/topbar';
 import { SearchDialog } from '@/partials/dialogs/search/search-dialog';
 import { AppsDropdownMenu } from '@/partials/topbar/apps-dropdown-menu';
@@ -38,6 +39,7 @@ export function Header() {
 
   const { pathname } = useLocation();
   const mobileMode = useIsMobile();
+  const { authenticated, ready, login } = useKC();
 
   const scrollPosition = useScrollPosition();
   const headerSticky: boolean = scrollPosition > 0;
@@ -86,18 +88,31 @@ export function Header() {
                     <SidebarMenu />
                   </SheetBody>
                   <div className="p-4 border-t border-border">
-                    <UserDropdownMenu
-                      trigger={
-                        <div className="flex items-center gap-3 cursor-pointer">
-                          <img
-                            className="size-9 rounded-full border-2 border-green-500 shrink-0"
-                            src={toAbsoluteUrl('/media/avatars/300-2.png')}
-                            alt="User Avatar"
-                          />
-                          <span className="text-sm font-medium">Account</span>
-                        </div>
-                      }
-                    />
+                    {!ready ? (
+                      <div className="size-9 rounded-full bg-gray-200 animate-pulse shrink-0" />
+                    ) : !authenticated ? (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => login()}
+                        className="w-full shrink-0 font-medium"
+                      >
+                        Login
+                      </Button>
+                    ) : (
+                      <UserDropdownMenu
+                        trigger={
+                          <div className="flex items-center gap-3 cursor-pointer">
+                            <img
+                              className="size-9 rounded-full border-2 border-green-500 shrink-0"
+                              src={toAbsoluteUrl('/media/avatars/300-2.png')}
+                              alt="User Avatar"
+                            />
+                            <span className="text-sm font-medium">Account</span>
+                          </div>
+                        }
+                      />
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>
@@ -190,15 +205,28 @@ export function Header() {
                   </Button>
                 }
               />
-              <UserDropdownMenu
-                trigger={
-                  <img
-                    className="size-9 rounded-full border-2 border-green-500 shrink-0 cursor-pointer"
-                    src={toAbsoluteUrl('/media/avatars/300-2.png')}
-                    alt="User Avatar"
-                  />
-                }
-              />
+              {!ready ? (
+                <div className="size-9 rounded-full bg-gray-200 animate-pulse shrink-0" />
+              ) : !authenticated ? (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => login()}
+                  className="shrink-0 min-w-[70px] font-medium"
+                >
+                  Login
+                </Button>
+              ) : (
+                <UserDropdownMenu
+                  trigger={
+                    <img
+                      className="size-9 rounded-full border-2 border-green-500 shrink-0 cursor-pointer"
+                      src={toAbsoluteUrl('/media/avatars/300-2.png')}
+                      alt="User Avatar"
+                    />
+                  }
+                />
+              )}
             </>
           )}
         </div>

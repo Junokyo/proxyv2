@@ -41,62 +41,75 @@ export default function UniversalCrawlingIntegrationCard() {
   };
 
   return (
-    <div className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col lg:flex-row gap-6">
+    <div className="relative w-full overflow-hidden rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-white to-amber-50/30 p-5 sm:p-6 lg:p-8 shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col lg:flex-row gap-6 lg:gap-8">
+      {/* Top gradient bar */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500"></div>
+
       {/* LEFT */}
-      <div className="flex-1 flex flex-col gap-4">
+      <div className="flex-1 flex flex-col gap-5">
         {/* Icon + Title */}
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg flex-shrink-0">
             <Iconify
-              icon="ant-design:code-outlined"
-              width={28}
-              className="text-blue-500"
+              icon="solar:code-bold-duotone"
+              width={32}
+              className="text-white"
             />
           </div>
 
-          <div>
-            <div className="text-[18px] font-semibold text-slate-900">
+          <div className="flex-1">
+            <div className="text-lg sm:text-xl font-bold text-slate-900 mb-2">
               Integration with Universal Crawling API
             </div>
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="text-sm sm:text-base text-slate-600">
               Quick-start guide to integrate your crawling API into any stack.
             </p>
           </div>
         </div>
 
-        {/* Steps */}
-        <ol className="list-decimal pl-5 space-y-1 text-sm text-slate-600">
-          <li>Enter Universal Crawling API User Credentials Token.</li>
-          <li>
-            Add your target{' '}
-            <a
-              href="https://www.google.com/"
-              className="text-indigo-600 hover:underline"
-            >
-              https://www.google.com/
-            </a>
-            .
-          </li>
-          <li>
-            Select rendering type{' '}
-            <span className="text-indigo-600">html/png</span>.
-          </li>
-          <li>
-            Run the code in your terminal or insert it into your code base.
-          </li>
-        </ol>
+        {/* Steps with better styling */}
+        <div className="space-y-3">
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50/50 border border-amber-100">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-white text-xs font-bold flex-shrink-0">1</div>
+            <div className="text-sm text-slate-700">Enter Universal Crawling API User Credentials Token.</div>
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50/50 border border-amber-100">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-white text-xs font-bold flex-shrink-0">2</div>
+            <div className="text-sm text-slate-700">
+              Add your target{' '}
+              <a
+                href="https://www.google.com/"
+                className="text-amber-600 hover:text-amber-700 font-semibold underline"
+              >
+                https://www.google.com/
+              </a>
+              .
+            </div>
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50/50 border border-amber-100">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-white text-xs font-bold flex-shrink-0">3</div>
+            <div className="text-sm text-slate-700">
+              Select rendering type{' '}
+              <span className="px-2 py-0.5 rounded bg-amber-200 text-amber-800 font-semibold text-xs">html/png</span>.
+            </div>
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50/50 border border-amber-100">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-white text-xs font-bold flex-shrink-0">4</div>
+            <div className="text-sm text-slate-700">Run the code in your terminal or insert it into your code base.</div>
+          </div>
+        </div>
 
         {/* CTA */}
-        <button className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-800">
-          Start free trial
-          <span>›</span>
+        <button className="self-start inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 px-5 py-3 text-sm font-bold text-white hover:from-yellow-600 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all">
+          <span>Start Free Trial</span>
+          <span className="text-base">→</span>
         </button>
       </div>
 
-      {/* RIGHT */}
-      <div className="w-full lg:max-w-xl rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden flex flex-col">
-        {/* Tabs */}
-        <div className="flex border-b border-slate-200 bg-white px-3 pt-2">
+      {/* RIGHT - Code Block */}
+      <div className="w-full lg:max-w-xl rounded-2xl border-2 border-amber-200 bg-slate-900 overflow-hidden flex flex-col shadow-xl">
+        {/* Tabs with horizontal scroll on mobile */}
+        <div className="flex border-b-2 border-amber-500/30 bg-slate-800 px-2 pt-2 overflow-x-auto">
           {LANG_TABS.map((lang) => {
             const active = currentLang === lang;
             return (
@@ -104,10 +117,10 @@ export default function UniversalCrawlingIntegrationCard() {
                 key={lang}
                 onClick={() => setCurrentLang(lang)}
                 className={
-                  'px-3 py-2 text-xs font-medium rounded-t-md transition ' +
+                  'px-3 py-2 text-xs font-bold rounded-t-lg transition whitespace-nowrap ' +
                   (active
-                    ? 'text-indigo-600 border-b-2 border-indigo-600'
-                    : 'text-slate-500 hover:text-slate-800')
+                    ? 'text-white bg-slate-900 border-b-2 border-amber-500'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700')
                 }
               >
                 {lang}
@@ -116,18 +129,18 @@ export default function UniversalCrawlingIntegrationCard() {
           })}
         </div>
 
-        {/* Code block */}
-        <div className="relative bg-[#071b4b] text-slate-50 text-xs font-mono p-4 min-h-[180px]">
+        {/* Code block with gradient accent */}
+        <div className="relative bg-slate-900 text-slate-50 text-xs font-mono p-4 min-h-[180px] sm:min-h-[200px] overflow-x-auto">
           {/* Copy button */}
           <button
             onClick={handleCopy}
-            className="absolute right-3 top-3 inline-flex items-center justify-center rounded-md bg-white/10 px-2 py-1 text-[11px] text-slate-100 hover:bg-white/20"
+            className="absolute right-3 top-3 inline-flex items-center gap-1.5 justify-center rounded-lg bg-gradient-to-r from-yellow-500 to-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:from-yellow-600 hover:to-amber-700 shadow-lg z-10 transition-all"
           >
-            <Iconify icon="mdi:content-copy" width={14} />
-            <span className="ml-1">Copy</span>
+            <Iconify icon="solar:copy-bold" width={14} />
+            <span>Copy</span>
           </button>
 
-          <pre className="whitespace-pre-wrap break-all pr-10">
+          <pre className="whitespace-pre-wrap break-all pr-20 text-green-400">
             <code>{code}</code>
           </pre>
         </div>

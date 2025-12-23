@@ -1,73 +1,88 @@
 export function ActionSection() {
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* LEFT COLUMN */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 sm:gap-6">
         {/* Exchange CDKey */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
-          <div className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-            <span className="text-slate-500 text-base">🔑</span>
-            Exchange CDKey
+        <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-white to-yellow-50/50 p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500"></div>
+          
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 text-white text-xl shadow-md">
+              🔑
+            </div>
+            <div className="text-base sm:text-lg font-bold text-slate-900">
+              Exchange CDKey
+            </div>
           </div>
 
-          <div className="mt-3 flex flex-col sm:flex-row w-full gap-3">
+          <div className="flex flex-col sm:flex-row w-full gap-3">
             <input
               type="text"
-              placeholder="CDKey"
-              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none"
+              placeholder="Enter your CDKey"
+              className="flex-1 rounded-xl border-2 border-amber-200 px-4 py-3 text-sm text-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none transition-all"
             />
-            <button className="w-full sm:w-auto rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 whitespace-nowrap">
-              Exchange
+            <button className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 px-5 py-3 text-sm font-bold text-white hover:from-yellow-600 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all whitespace-nowrap">
+              Exchange Now
             </button>
           </div>
         </div>
 
         {/* Affiliate program */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-            <span className="text-orange-500">🏆</span>
-            Affiliate program
+        <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-white via-amber-50/30 to-orange-50/50 p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-400"></div>
+          
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white text-xl shadow-md">
+              🏆
+            </div>
+            <div className="text-base sm:text-lg font-bold text-slate-900">
+              Affiliate Program
+            </div>
           </div>
 
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="text-sm sm:text-base text-slate-700 mb-5">
             Invite friends and get{' '}
-            <span className="text-orange-500 font-semibold">
+            <span className="text-amber-600 font-bold text-lg">
               10% commission
-            </span>
+            </span> on their purchases!
           </p>
 
           {/* Withdrawable */}
-          <div className="mt-4 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-slate-500">Withdrawable</div>
-              <div className="text-2xl font-semibold text-slate-900">$0</div>
-            </div>
+          <div className="mb-5 p-4 rounded-xl bg-gradient-to-br from-yellow-100 to-amber-100 border border-amber-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs font-medium text-slate-600 mb-1">Available Balance</div>
+                <div className="text-3xl font-bold text-slate-900">$0</div>
+              </div>
 
-            <button className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-              Extract ›
-            </button>
+              <button className="rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 px-4 py-2 text-sm font-bold text-white hover:from-yellow-600 hover:to-amber-700 shadow-md hover:shadow-lg transition-all">
+                Withdraw →
+              </button>
+            </div>
           </div>
 
           {/* Invitation code */}
-          <div className="mt-4">
-            <label className="text-xs text-slate-500">Invitation code:</label>
-            <div className="mt-1 flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
+          <div className="mb-4">
+            <label className="text-xs font-semibold text-slate-600 mb-2 block">Your Invitation Code:</label>
+            <div className="flex items-center gap-2 rounded-xl border-2 border-amber-200 bg-white px-4 py-3 text-sm font-mono font-semibold text-slate-900">
               B9BL23XJ
-              <button className="ml-auto text-slate-400 hover:text-slate-600 text-lg">
-                📋
+              <button className="ml-auto flex items-center gap-1 text-amber-600 hover:text-amber-700 transition-colors">
+                <span className="text-base">📋</span>
+                <span className="text-xs font-bold">Copy</span>
               </button>
             </div>
           </div>
 
           {/* Invitation link */}
-          <div className="mt-3">
-            <label className="text-xs text-slate-500">Invitation link:</label>
-            <div className="mt-1 flex items-center gap-2 overflow-hidden rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
-              <span className="truncate">
+          <div>
+            <label className="text-xs font-semibold text-slate-600 mb-2 block">Your Invitation Link:</label>
+            <div className="flex items-center gap-2 overflow-hidden rounded-xl border-2 border-amber-200 bg-white px-4 py-3">
+              <span className="truncate text-sm text-slate-700">
                 https://www.lunaproxy.com/register?invitation_XXXXXX
               </span>
-              <button className="text-slate-400 hover:text-slate-600 text-lg">
-                📋
+              <button className="flex-shrink-0 text-amber-600 hover:text-amber-700 transition-colors">
+                <span className="text-base">📋</span>
               </button>
             </div>
           </div>
@@ -75,38 +90,70 @@ export function ActionSection() {
       </div>
 
       {/* RIGHT COLUMN */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 sm:gap-6">
         {/* Support contact */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="text-sm font-semibold text-slate-900">
-            Have any questions about our products or need a customized package?
-          </div>
-
-          <div className="mt-3 flex items-center gap-3 text-xl">
-            <span className="text-slate-500 cursor-pointer hover:text-slate-700">
-              📘
-            </span>
-            <span className="text-slate-500 cursor-pointer hover:text-slate-700">
-              ❌
-            </span>
-            <span className="text-slate-500 cursor-pointer hover:text-slate-700">
+        <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-white to-blue-50/50 p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-amber-400 to-yellow-400"></div>
+          
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xl shadow-md">
               💬
-            </span>
+            </div>
+            <div className="text-base sm:text-lg font-bold text-slate-900">
+              Need Help?
+            </div>
           </div>
 
-          <button className="mt-4 w-full rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1">
-            🎧 Let's talk
+          <p className="text-sm sm:text-base text-slate-700 mb-5">
+            Have any questions about our products or need a customized package?
+          </p>
+
+          <div className="flex items-center gap-4 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <button className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 hover:bg-blue-200 transition-colors text-2xl">
+              📘
+            </button>
+            <button className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 hover:bg-red-200 transition-colors text-2xl">
+              ❌
+            </button>
+            <button className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 hover:bg-green-200 transition-colors text-2xl">
+              💬
+            </button>
+          </div>
+
+          <button className="w-full rounded-xl border-2 border-amber-400 bg-gradient-to-r from-yellow-500 to-amber-600 px-5 py-3 text-sm sm:text-base font-bold text-white hover:from-yellow-600 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+            <span className="text-xl">🎧</span>
+            Let's Talk
           </button>
         </div>
 
-        {/* Promo banner */}
-        {/* <div className="overflow-hidden rounded-xl shadow-sm">
-          <img
-            src="https://i.imgur.com/1QeS3Pk.png"
-            alt="Promo Banner"
-            className="w-full rounded-xl"
-          />
-        </div> */}
+        {/* Quick Stats Card */}
+        <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 sm:p-6 shadow-lg">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500"></div>
+          
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 text-white text-xl shadow-md">
+              📊
+            </div>
+            <div className="text-base sm:text-lg font-bold text-slate-900">
+              Quick Stats
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-amber-100">
+              <span className="text-sm font-medium text-slate-600">Active Services</span>
+              <span className="text-lg font-bold text-amber-600">0</span>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-amber-100">
+              <span className="text-sm font-medium text-slate-600">Total Usage</span>
+              <span className="text-lg font-bold text-amber-600">0 GB</span>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-amber-100">
+              <span className="text-sm font-medium text-slate-600">Referrals</span>
+              <span className="text-lg font-bold text-amber-600">0</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -18,18 +18,18 @@ export function ServerListCard({}: ServerListCardProps) {
     setCurrentTab(value);
   }, []);
   return (
-    <div className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="w-full max-w-full min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm overflow-x-hidden">
       {/* Header + Tabs */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between min-w-0">
         {/* Tabs */}
-        <div className="flex items-center gap-6 text-sm">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm min-w-0">
           {TABS_DATA.map((tab) => (
             <button
               key={tab.value}
               type="button"
               onClick={() => handleChangeTab(tab.value)}
               className={
-                'pb-2 text-sm transition font-medium ' +
+                'pb-2 text-sm transition font-medium whitespace-nowrap ' +
                 (currentTab === tab.value
                   ? 'text-indigo-600 border-b-2 border-indigo-600'
                   : 'text-slate-500 hover:text-slate-900 border-b-2 border-transparent')
@@ -50,9 +50,9 @@ export function ServerListCard({}: ServerListCardProps) {
       {/* Divider */}
       <div className="h-px w-full bg-slate-200 mt-2" />
 
-      <div className="mt-4 text-sm text-slate-600">
+      <div className="mt-4 text-sm text-slate-600 w-full max-w-full min-w-0 overflow-x-hidden">
         {currentTab === 'sl' && (
-          <div className="bg-white p-5">
+          <div className="bg-white p-3 sm:p-5 w-full max-w-full min-w-0 overflow-x-hidden">
             <ServerListTable data={[]} />
           </div>
         )}

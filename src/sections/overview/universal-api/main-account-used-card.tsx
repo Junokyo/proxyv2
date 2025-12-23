@@ -14,62 +14,95 @@ const DATES = [
 
 export default function MainAccountUsedCard() {
   return (
-    <div className="w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="relative w-full overflow-hidden rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-white to-amber-50/30 p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+      {/* Top gradient bar */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500"></div>
+
       {/* Header */}
-      <div className="text-sm font-semibold text-slate-900">
-        Main Account Used
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 shadow-md">
+          <span className="text-xl sm:text-2xl">📊</span>
+        </div>
+        <div>
+          <div className="text-lg sm:text-xl font-bold text-slate-900">
+            Main Account Used
+          </div>
+          <div className="text-sm text-slate-600">
+            Last 30 days: <span className="font-bold text-amber-600">0</span>{' '}
+            Results
+          </div>
+        </div>
       </div>
 
-      {/* Divider */}
-      <div className="mt-3 h-px w-full bg-slate-200" />
-
-      {/* Last 30 days */}
-      <div className="mt-3 text-sm text-slate-600">
-        Last 30 days: <span className="font-semibold text-slate-900">0</span>{' '}
-        Results
-      </div>
-
-      {/* Chart area */}
-      <div className="mt-3 relative h-64 rounded-xl border border-slate-200 bg-slate-50/60 overflow-hidden">
+      {/* Chart area with better mobile responsiveness */}
+      <div className="relative h-64 sm:h-72 rounded-2xl border-2 border-amber-100 bg-gradient-to-br from-white to-yellow-50/30 overflow-hidden">
         {/* Y-axis labels */}
-        <div className="absolute left-2 top-4 bottom-8 flex flex-col justify-between text-[11px] text-slate-400">
+        <div className="absolute left-2 sm:left-3 top-4 bottom-10 sm:bottom-12 flex flex-col justify-between text-xs font-medium text-slate-500">
           <span>1</span>
           <span>0</span>
         </div>
 
         {/* Grid & line */}
-        <div className="absolute inset-x-6 inset-y-4">
+        <div className="absolute left-8 sm:left-10 right-4 sm:right-6 top-4 bottom-10 sm:bottom-12">
           {/* Vertical grid lines */}
           <div className="flex h-full w-full justify-between">
             {Array.from({ length: 10 }).map((_, idx) => (
-              <div key={idx} className="h-full border-l border-slate-100" />
+              <div key={idx} className="h-full border-l border-amber-100/50" />
             ))}
           </div>
 
           {/* Baseline */}
-          <div className="absolute bottom-0 left-0 right-0 border-t border-slate-200" />
+          <div className="absolute bottom-0 left-0 right-0 border-t-2 border-amber-200" />
         </div>
 
-        {/* Fake tooltip ở giữa (Usage: 0 Results) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="rounded-md bg-white/95 px-3 py-2 shadow text-[11px] text-slate-700">
-            <div className="font-medium text-slate-800">2025-11-01</div>
-            <div className="mt-1 flex items-center gap-1">
-              <span className="h-2 w-2 rounded-sm bg-indigo-400" />
-              <span>Usage : 0 Results</span>
+        {/* Enhanced empty state */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="rounded-2xl bg-white border-2 border-amber-200 px-4 sm:px-5 py-3 sm:py-4 shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-3 w-3 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500"></div>
+              <div className="text-xs sm:text-sm font-bold text-slate-800">2025-11-01</div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm text-slate-600">Usage:</span>
+              <span className="text-base sm:text-lg font-bold text-amber-600">0 Results</span>
             </div>
           </div>
         </div>
 
-        {/* X-axis labels */}
-        <div className="absolute bottom-1 left-8 right-4">
-          <div className="flex justify-between text-[10px] text-slate-300">
+        {/* X-axis labels - responsive */}
+        <div className="absolute bottom-2 sm:bottom-3 left-8 sm:left-10 right-4 sm:right-6">
+          {/* Desktop: show all dates */}
+          <div className="hidden sm:flex justify-between text-[10px] text-slate-400 font-medium">
             {DATES.map((d) => (
-              <span key={d} className="truncate">
+              <span key={d} className="truncate max-w-[70px]">
                 {d}
               </span>
             ))}
           </div>
+          {/* Mobile: show fewer dates */}
+          <div className="flex sm:hidden justify-between text-[9px] text-slate-400 font-medium">
+            {DATES.filter((_, idx) => idx % 2 === 0).map((d) => (
+              <span key={d} className="truncate">
+                {d.split('-').slice(1).join('-')}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats summary at bottom */}
+      <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-50 to-amber-50 border border-amber-200">
+          <div className="text-xs text-slate-600 mb-1">Total Results</div>
+          <div className="text-lg sm:text-xl font-bold text-amber-600">0</div>
+        </div>
+        <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-50 to-amber-50 border border-amber-200">
+          <div className="text-xs text-slate-600 mb-1">Success Rate</div>
+          <div className="text-lg sm:text-xl font-bold text-amber-600">0%</div>
+        </div>
+        <div className="col-span-2 sm:col-span-1 p-3 rounded-xl bg-gradient-to-br from-yellow-50 to-amber-50 border border-amber-200">
+          <div className="text-xs text-slate-600 mb-1">Avg Response</div>
+          <div className="text-lg sm:text-xl font-bold text-amber-600">--</div>
         </div>
       </div>
     </div>

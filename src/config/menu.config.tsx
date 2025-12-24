@@ -67,46 +67,46 @@ const REQUIRE_AUTH = import.meta.env.VITE_REQUIRE_AUTH !== 'false';
 
 export const MENU_SIDEBAR: MenuConfig = [
   {
-    title: 'Overview',
+    title: 'Tổng quan',
     icon: LayoutGrid,
     path: '/overview',
   },
-  { heading: 'Products', requireAuth: REQUIRE_AUTH },
+  { heading: 'Sản phẩm', requireAuth: REQUIRE_AUTH },
   {
-    title: 'Proxies',
+    title: 'Proxy',
     icon: UserCircle,
     requireAuth: REQUIRE_AUTH,
     children: [
-      { title: 'Residential Proxies', path: '/residential-proxies' },
-      { title: 'Unlimited Proxies', path: '/ulimited-proxies' },
+      { title: 'Proxy dân cư', path: '/residential-proxies' },
+      { title: 'Proxy không giới hạn', path: '/ulimited-proxies' },
       // { title: 'ISP Proxies', path: '#' },
       // { title: 'Datacenter Proxies', path: '#' },
-      { title: 'Rotating ISP Proxies', path: '/rotating-isp' },
+      { title: 'Proxy ISP xoay vòng', path: '/rotating-isp' },
     ],
   },
   {
-    title: 'Scraping Automation',
+    title: 'Tự động hóa Scraping',
     icon: UserCircle,
     requireAuth: REQUIRE_AUTH,
     children: [
-      { title: 'Universal Scraping API', path: '/universal-scraping-api' },
-      { title: 'Video Data API', path: '/video-downloader' },
+      { title: 'API Scraping đa năng', path: '/universal-scraping-api' },
+      { title: 'API dữ liệu Video', path: '/video-downloader' },
     ],
   },
   // {
-  //   title: 'Proxy Setting',
+  //   title: 'Cài đặt Proxy',
   //   icon: Settings,
   //   children: [
-  //     { title: 'Use Proxy', path: '#' },
-  //     { title: 'Sub-account', path: '#' },
-  //     { title: 'Whitelist', path: '#' },
-  //     { title: 'Proxy Configuration', path: '#' },
-  //     { title: 'Proxy Manager', path: '#' },
+  //     { title: 'Sử dụng Proxy', path: '#' },
+  //     { title: 'Tài khoản phụ', path: '#' },
+  //     { title: 'Danh sách trắng', path: '#' },
+  //     { title: 'Cấu hình Proxy', path: '#' },
+  //     { title: 'Quản lý Proxy', path: '#' },
   //   ],
   // },
   { heading: 'Menu', requireAuth: REQUIRE_AUTH },
   {
-    title: 'Wallet',
+    title: 'Ví tiền',
     icon: Wallet,
     path: '/wallet',
     requireAuth: REQUIRE_AUTH,
@@ -118,54 +118,77 @@ export const MENU_SIDEBAR: MenuConfig = [
     requireAuth: REQUIRE_AUTH,
   },
   {
-    title: 'Member ship',
+    title: 'Dịch vụ Facebook',
+    icon: ThumbsUp,
+    requireAuth: REQUIRE_AUTH,
+    children: [
+      {
+        title: 'Tăng mắt live stream',
+        path: '/facebook-services?tab=livestream',
+      },
+      {
+        title: 'Tăng mắt live vip',
+        path: '/facebook-services?tab=livestream-vip',
+      },
+      { title: 'Tăng like bài viết', path: '/facebook-services?tab=post-like' },
+      { title: 'Tăng view reels', path: '/facebook-services?tab=reels-view' },
+    ],
+  },
+  {
+    title: 'Thành viên',
     icon: IdCardLanyard,
     path: '/member-ship',
     requireAuth: REQUIRE_AUTH,
   },
   {
-    title: 'Account',
+    title: 'Tài khoản',
     icon: UserCircle,
     path: '/account',
     requireAuth: REQUIRE_AUTH,
   },
   {
-    title: 'Order History',
+    title: 'Lịch sử đơn hàng',
     icon: History,
     path: '/order-history',
     requireAuth: REQUIRE_AUTH,
   },
+  {
+    title: 'Hỗ trợ',
+    icon: LifeBuoy,
+    path: '/support',
+    requireAuth: REQUIRE_AUTH,
+  },
 
-  { heading: 'Admin', requireAuth: REQUIRE_AUTH, roles: ['admin'] },
+  { heading: 'Quản trị', requireAuth: REQUIRE_AUTH, roles: ['admin'] },
 
   {
-    title: 'Categories',
+    title: 'Danh mục',
     icon: ChartBarStacked,
     requireAuth: REQUIRE_AUTH,
     roles: ['admin'],
     children: [
       {
-        title: 'User Category',
+        title: 'Danh mục người dùng',
         path: '/user-category',
       },
       {
-        title: 'Proxy Package Category',
+        title: 'Danh mục gói Proxy',
         path: '/proxy-package-category',
       },
       {
-        title: 'Setting Category',
+        title: 'Danh mục cài đặt',
         path: '/setting-category',
       },
       {
-        title: 'Log Category',
+        title: 'Danh mục nhật ký',
         path: '/log-category',
       },
       {
-        title: 'IP List Category',
+        title: 'Danh mục danh sách IP',
         path: '/ip-list-category',
       },
       {
-        title: 'Billing History Category',
+        title: 'Danh mục lịch sử thanh toán',
         path: '/billing-history-category',
       },
     ],

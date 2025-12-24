@@ -10,6 +10,27 @@ interface OrderRecord {
   status: string;
   date: string;
   paymentMethod: string;
+  // Thông tin sản phẩm chi tiết
+  productDetails?: {
+    description?: string;
+    category?: string;
+    sku?: string;
+    specifications?: string;
+  };
+  // Thông tin khách hàng
+  customer?: {
+    name: string;
+    email: string;
+    phone: string;
+    address?: string;
+  };
+  // Thông tin nhà cung cấp
+  supplier?: {
+    name: string;
+    email?: string;
+    phone?: string;
+    company?: string;
+  };
 }
 
 const mockOrders: OrderRecord[] = [
@@ -21,6 +42,26 @@ const mockOrders: OrderRecord[] = [
     status: 'completed',
     date: '15 Dec, 2024',
     paymentMethod: 'Credit Card',
+    customer: {
+      name: 'Nguyễn Văn A',
+      email: 'nguyenvana@email.com',
+      phone: '0901234567',
+      address: '123 Đường Lê Lợi, Quận 1, TP.HCM',
+    },
+    supplier: {
+      name: 'ProxyNet Solutions',
+      company: 'ProxyNet Technology Co., Ltd',
+      email: 'support@proxynet.com',
+      phone: '0287654321',
+    },
+    productDetails: {
+      description:
+        'Gói proxy dân cư 100GB với khả năng xoay vòng IP tự động, phù hợp cho web scraping và thu thập dữ liệu.',
+      category: 'Residential Proxies',
+      sku: 'PROXY-RES-100GB',
+      specifications:
+        'Băng thông: 100GB, IP Pool: 10M+, Locations: 195+ countries, Protocol: HTTP/HTTPS/SOCKS5',
+    },
   },
   {
     id: '2',
@@ -30,6 +71,26 @@ const mockOrders: OrderRecord[] = [
     status: 'completed',
     date: '14 Dec, 2024',
     paymentMethod: 'PayPal',
+    customer: {
+      name: 'Lê Thị Cẩm',
+      email: 'lethicam@gmail.com',
+      phone: '0908765432',
+      address: '456 Nguyễn Huệ, Quận 3, TP.HCM',
+    },
+    supplier: {
+      name: 'DataCenter Proxy Corp',
+      company: 'DC Proxy International',
+      email: 'info@dcproxy.com',
+      phone: '0283456789',
+    },
+    productDetails: {
+      description:
+        'Gói proxy không giới hạn băng thông, tốc độ cao, phù hợp cho các tác vụ cần bandwidth lớn.',
+      category: 'Datacenter Proxies',
+      sku: 'PROXY-DC-UNLIM',
+      specifications:
+        'Băng thông: Unlimited, Tốc độ: 1Gbps, Uptime: 99.9%, Protocol: HTTP/HTTPS',
+    },
   },
   {
     id: '3',
@@ -39,6 +100,26 @@ const mockOrders: OrderRecord[] = [
     status: 'completed',
     date: '13 Dec, 2024',
     paymentMethod: 'Bank Transfer',
+    customer: {
+      name: 'Hoàng Minh Đức',
+      email: 'hoanmduc@tech.vn',
+      phone: '0919876543',
+      address: '789 Võ Văn Tần, Quận 5, TP.HCM',
+    },
+    supplier: {
+      name: 'API Services Ltd',
+      company: 'API Technology Solutions',
+      email: 'sales@apiservices.com',
+      phone: '0289012345',
+    },
+    productDetails: {
+      description:
+        'API thu thập dữ liệu đa năng với khả năng xử lý JavaScript, hỗ trợ captcha solving.',
+      category: 'Scraping API',
+      sku: 'API-SCRAPE-50K',
+      specifications:
+        'Requests: 50,000, JavaScript rendering: Yes, Captcha solving: Included, Response time: <3s',
+    },
   },
   {
     id: '4',
@@ -48,6 +129,26 @@ const mockOrders: OrderRecord[] = [
     status: 'processing',
     date: '12 Dec, 2024',
     paymentMethod: 'Credit Card',
+    customer: {
+      name: 'Phan Văn Em',
+      email: 'phanvanem@business.vn',
+      phone: '0945678901',
+      address: '321 Trần Hưng Đạo, Quận 10, TP.HCM',
+    },
+    supplier: {
+      name: 'ISP Proxy Network',
+      company: 'ISP Solutions Group',
+      email: 'contact@ispproxy.net',
+      phone: '0281234567',
+    },
+    productDetails: {
+      description:
+        'Proxy ISP xoay vòng theo ngày, tốc độ cao, độ ẩn danh tốt cho các chiến dịch marketing.',
+      category: 'ISP Proxies',
+      sku: 'PROXY-ISP-DAILY',
+      specifications:
+        'Rotation: Auto, Speed: High, Anonymity: Elite, Concurrent: 100 threads',
+    },
   },
   {
     id: '5',
@@ -57,6 +158,26 @@ const mockOrders: OrderRecord[] = [
     status: 'completed',
     date: '11 Dec, 2024',
     paymentMethod: 'PayPal',
+    customer: {
+      name: 'Đặng Thị Phương',
+      email: 'dangphuong@media.com',
+      phone: '0967890123',
+      address: '555 Cách Mạng Tháng 8, Quận Tân Bình, TP.HCM',
+    },
+    supplier: {
+      name: 'VideoData Solutions',
+      company: 'Media Analytics Corp',
+      email: 'api@videodata.io',
+      phone: '0285678901',
+    },
+    productDetails: {
+      description:
+        'API thu thập dữ liệu video cao cấp từ các nền tảng phổ biến, bao gồm metadata và analytics.',
+      category: 'Video API',
+      sku: 'API-VIDEO-PREMIUM',
+      specifications:
+        'Platforms: YouTube, TikTok, Instagram, Data: Full metadata, Rate limit: 10K/day',
+    },
   },
   {
     id: '6',

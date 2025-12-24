@@ -15,6 +15,27 @@ interface OrderRecord {
   status: string;
   date: string;
   paymentMethod: string;
+  // Thông tin sản phẩm chi tiết
+  productDetails?: {
+    description?: string;
+    category?: string;
+    sku?: string;
+    specifications?: string;
+  };
+  // Thông tin khách hàng
+  customer?: {
+    name: string;
+    email: string;
+    phone: string;
+    address?: string;
+  };
+  // Thông tin nhà cung cấp
+  supplier?: {
+    name: string;
+    email?: string;
+    phone?: string;
+    company?: string;
+  };
 }
 
 interface OrderDetailModalProps {
@@ -69,18 +90,9 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     }
   };
 
-  const mockOrderItems = [
-    {
-      name: order.product,
-      quantity: 1,
-      price: order.amount,
-      total: order.amount,
-    },
-  ];
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md rounded-2xl p-0">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-0">
         <div className="p-6">
           <DialogHeader className="text-center mb-6">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
@@ -162,21 +174,167 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
               </span>
             </div>
 
-            {/* Order Items */}
-            <div className="pt-4 border-t border-slate-200">
-              <span className="text-sm text-slate-500">Chi tiết sản phẩm</span>
-              <div className="mt-2 space-y-2">
-                {mockOrderItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <span className="text-slate-900">{item.name}</span>
-                    <span className="font-medium text-slate-900">
-                      {item.total}
+            {/* Customer Information */}
+            {order.customer && (
+              <div className="pt-4 border-t border-slate-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon
+                    icon="mdi:account-circle"
+                    className="h-5 w-5 text-slate-600"
+                  />
+                  <span className="text-sm font-semibold text-slate-700">
+                    Thông tin khách hàng
+                  </span>
+                </div>
+                <div className="ml-7 space-y-2">
+                  <div className="flex items-start justify-between">
+                    <span className="text-xs text-slate-500">
+                      Tên khách hàng
+                    </span>
+                    <span className="text-xs text-slate-900 text-right max-w-[60%] font-medium">
+                      {order.customer.name}
                     </span>
                   </div>
-                ))}
+                  <div className="flex items-start justify-between">
+                    <span className="text-xs text-slate-500">Email</span>
+                    <span className="text-xs text-slate-900 text-right max-w-[60%]">
+                      {order.customer.email}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between">
+                    <span className="text-xs text-slate-500">
+                      Số điện thoại
+                    </span>
+                    <span className="text-xs text-slate-900 text-right max-w-[60%]">
+                      {order.customer.phone}
+                    </span>
+                  </div>
+                  {order.customer.address && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs text-slate-500">Địa chỉ</span>
+                      <span className="text-xs text-slate-900 text-right max-w-[60%]">
+                        {order.customer.address}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Supplier Information */}
+            {order.supplier && (
+              <div className="pt-4 border-t border-slate-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon
+                    icon="mdi:truck-delivery"
+                    className="h-5 w-5 text-slate-600"
+                  />
+                  <span className="text-sm font-semibold text-slate-700">
+                    Thông tin nhà cung cấp
+                  </span>
+                </div>
+                <div className="ml-7 space-y-2">
+                  <div className="flex items-start justify-between">
+                    <span className="text-xs text-slate-500">Nhà cung cấp</span>
+                    <span className="text-xs text-slate-900 text-right max-w-[60%] font-medium">
+                      {order.supplier.name}
+                    </span>
+                  </div>
+                  {order.supplier.company && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs text-slate-500">Công ty</span>
+                      <span className="text-xs text-slate-900 text-right max-w-[60%]">
+                        {order.supplier.company}
+                      </span>
+                    </div>
+                  )}
+                  {order.supplier.email && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs text-slate-500">Email</span>
+                      <span className="text-xs text-slate-900 text-right max-w-[60%]">
+                        {order.supplier.email}
+                      </span>
+                    </div>
+                  )}
+                  {order.supplier.phone && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs text-slate-500">
+                        Số điện thoại
+                      </span>
+                      <span className="text-xs text-slate-900 text-right max-w-[60%]">
+                        {order.supplier.phone}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Product Details */}
+            <div className="pt-4 border-t border-slate-200">
+              <div className="flex items-center gap-2 mb-3">
+                <Icon
+                  icon="mdi:package-variant-closed"
+                  className="h-5 w-5 text-slate-600"
+                />
+                <span className="text-sm font-semibold text-slate-700">
+                  Chi tiết sản phẩm
+                </span>
+              </div>
+              <div className="ml-7 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-500">Sản phẩm</span>
+                  <span className="text-xs font-medium text-slate-900 text-right max-w-[60%]">
+                    {order.product}
+                  </span>
+                </div>
+
+                {order.productDetails?.description && (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-slate-500">Mô tả</span>
+                    <p className="text-xs text-slate-700 leading-relaxed">
+                      {order.productDetails.description}
+                    </p>
+                  </div>
+                )}
+
+                {order.productDetails?.category && (
+                  <div className="flex items-start justify-between">
+                    <span className="text-xs text-slate-500">Danh mục</span>
+                    <span className="text-xs text-slate-900 text-right max-w-[60%]">
+                      {order.productDetails.category}
+                    </span>
+                  </div>
+                )}
+
+                {order.productDetails?.sku && (
+                  <div className="flex items-start justify-between">
+                    <span className="text-xs text-slate-500">Mã SKU</span>
+                    <code className="text-xs font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
+                      {order.productDetails.sku}
+                    </code>
+                  </div>
+                )}
+
+                {order.productDetails?.specifications && (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-slate-500">
+                      Thông số kỹ thuật
+                    </span>
+                    <p className="text-xs text-slate-700 leading-relaxed">
+                      {order.productDetails.specifications}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                  <span className="text-xs font-medium text-slate-700">
+                    Tổng tiền
+                  </span>
+                  <span className="text-sm font-bold text-slate-900">
+                    {order.amount}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

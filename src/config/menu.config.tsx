@@ -12,6 +12,7 @@ import {
   Captions,
   ChartBarStacked,
   CheckCircle,
+  Clock,
   Code,
   Codepen,
   Coffee,
@@ -27,6 +28,7 @@ import {
   Grid,
   Heart,
   HelpCircle,
+  History,
   IdCardLanyard,
   Kanban,
   Key,
@@ -59,17 +61,21 @@ import {
 } from 'lucide-react';
 import { type MenuConfig } from './types';
 
+// Đọc biến env để cấu hình requireAuth (default: true)
+// Để tắt auth khi dev: set VITE_REQUIRE_AUTH=false trong file .env
+const REQUIRE_AUTH = import.meta.env.VITE_REQUIRE_AUTH !== 'false';
+
 export const MENU_SIDEBAR: MenuConfig = [
   {
     title: 'Overview',
     icon: LayoutGrid,
     path: '/overview',
   },
-  { heading: 'Products', requireAuth: true },
+  { heading: 'Products', requireAuth: REQUIRE_AUTH },
   {
     title: 'Proxies',
     icon: UserCircle,
-    requireAuth: true,
+    requireAuth: REQUIRE_AUTH,
     children: [
       { title: 'Residential Proxies', path: '/residential-proxies' },
       { title: 'Unlimited Proxies', path: '/ulimited-proxies' },
@@ -81,7 +87,7 @@ export const MENU_SIDEBAR: MenuConfig = [
   {
     title: 'Scraping Automation',
     icon: UserCircle,
-    requireAuth: true,
+    requireAuth: REQUIRE_AUTH,
     children: [
       { title: 'Universal Scraping API', path: '/universal-scraping-api' },
       { title: 'Video Data API', path: '/video-downloader' },
@@ -98,32 +104,44 @@ export const MENU_SIDEBAR: MenuConfig = [
   //     { title: 'Proxy Manager', path: '#' },
   //   ],
   // },
-  { heading: 'Menu', requireAuth: true },
+  { heading: 'Menu', requireAuth: REQUIRE_AUTH },
   {
     title: 'Wallet',
     icon: Wallet,
     path: '/wallet',
-    requireAuth: true,
+    requireAuth: REQUIRE_AUTH,
+  },
+  {
+    title: 'Nạp tiền',
+    icon: Bitcoin,
+    path: '/deposit',
+    requireAuth: REQUIRE_AUTH,
   },
   {
     title: 'Member ship',
     icon: IdCardLanyard,
     path: '/member-ship',
-    requireAuth: true,
+    requireAuth: REQUIRE_AUTH,
   },
   {
     title: 'Account',
     icon: UserCircle,
     path: '/account',
-    requireAuth: true,
+    requireAuth: REQUIRE_AUTH,
+  },
+  {
+    title: 'Order History',
+    icon: History,
+    path: '/order-history',
+    requireAuth: REQUIRE_AUTH,
   },
 
-  { heading: 'Admin', requireAuth: true, roles: ['admin'] },
+  { heading: 'Admin', requireAuth: REQUIRE_AUTH, roles: ['admin'] },
 
   {
     title: 'Categories',
     icon: ChartBarStacked,
-    requireAuth: true,
+    requireAuth: REQUIRE_AUTH,
     roles: ['admin'],
     children: [
       {

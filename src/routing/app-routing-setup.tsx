@@ -50,6 +50,7 @@ import ProxyPackageCategoryPage from '@/pages/category/proxy-package-category/pa
 import SettingsCategoryPage from '@/pages/category/setting-category/page';
 import UserCategoryPage from '@/pages/category/user-category/page';
 import { DefaultPage, Demo1DarkSidebarPage } from '@/pages/dashboards';
+import DepositPage from '@/pages/deposit/page';
 import MemberShipPage from '@/pages/member-ship/page';
 import {
   NetworkAppRosterPage,
@@ -65,6 +66,7 @@ import {
   NetworkUserTableTeamCrewPage,
   NetworkVisitorsPage,
 } from '@/pages/network';
+import OrderHistoryPage from '@/pages/order-history/page';
 import OverviewPage from '@/pages/overview/page';
 import {
   CampaignsCardPage,
@@ -110,16 +112,22 @@ import WalletPage from '@/pages/wallet/page';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 export function AppRoutingSetup() {
+  // Đọc biến env để cấu hình requireAuth (default: true)
+  // Để tắt auth khi dev: set VITE_REQUIRE_AUTH=false trong file .env
+  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH !== 'false';
+
   return (
     <Routes>
       <Route element={<Demo1Layout />}>
         <Route path="/" element={<OverviewPage />} />
         <Route path="/overview" element={<OverviewPage />} />
 
-        <Route element={<RequireAuth />}>
+        <Route element={requireAuth ? <RequireAuth /> : undefined}>
           {/* ------------ */}
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/order-history" element={<OrderHistoryPage />} />
           <Route path="/wallet" element={<WalletPage />} />
+          <Route path="/deposit" element={<DepositPage />} />
           <Route
             path="/residential-proxies"
             element={<ResidentialProxiesPage />}

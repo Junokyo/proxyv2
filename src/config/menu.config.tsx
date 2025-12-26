@@ -40,6 +40,7 @@ import {
   Network,
   Users as PeopleIcon,
   Plug,
+  RefreshCcw,
   ScrollText,
   Settings,
   Share2,
@@ -109,6 +110,12 @@ export const MENU_SIDEBAR: MenuConfig = [
     title: 'Ví tiền',
     icon: Wallet,
     path: '/wallet',
+    requireAuth: REQUIRE_AUTH,
+  },
+  {
+    title: 'Qui Đổi Proxy',
+    icon: RefreshCcw,
+    path: '/proxy-conversion',
     requireAuth: REQUIRE_AUTH,
   },
   {

@@ -51,6 +51,7 @@ import SettingsCategoryPage from '@/pages/category/setting-category/page';
 import UserCategoryPage from '@/pages/category/user-category/page';
 import { DefaultPage, Demo1DarkSidebarPage } from '@/pages/dashboards';
 import DepositPage from '@/pages/deposit/page';
+import ProxyConversionPage from '@/pages/proxy-conversion/page';
 import FacebookServicesPage from '@/pages/facebook-services/page';
 import MemberShipPage from '@/pages/member-ship/page';
 import SupportPage from '@/pages/support/page';
@@ -130,6 +131,7 @@ export function AppRoutingSetup() {
           <Route path="/order-history" element={<OrderHistoryPage />} />
           <Route path="/wallet" element={<WalletPage />} />
           <Route path="/deposit" element={<DepositPage />} />
+          <Route path="/proxy-conversion" element={<ProxyConversionPage />} />
           <Route path="/facebook-services" element={<FacebookServicesPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route

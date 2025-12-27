@@ -53,7 +53,6 @@ import { DefaultPage, Demo1DarkSidebarPage } from '@/pages/dashboards';
 import DepositPage from '@/pages/deposit/page';
 import FacebookServicesPage from '@/pages/facebook-services/page';
 import MemberShipPage from '@/pages/member-ship/page';
-import SupportPage from '@/pages/support/page';
 import {
   NetworkAppRosterPage,
   NetworkAuthorPage,
@@ -70,6 +69,7 @@ import {
 } from '@/pages/network';
 import OrderHistoryPage from '@/pages/order-history/page';
 import OverviewPage from '@/pages/overview/page';
+import ProxyConversionPage from '@/pages/proxy-conversion/page';
 import {
   CampaignsCardPage,
   CampaignsListPage,
@@ -107,6 +107,7 @@ import {
   StoreClientPage,
   WishlistPage,
 } from '@/pages/store-client';
+import SupportPage from '@/pages/support/page';
 import UnlimitedProxiesPage from '@/pages/ulimited-proxies/page';
 import UniversalScrapingApiPage from '@/pages/universal-scraping-api/page';
 import VideoDownloaderPage from '@/pages/video-downloader/page';
@@ -114,9 +115,8 @@ import WalletPage from '@/pages/wallet/page';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 export function AppRoutingSetup() {
-  // Đọc biến env để cấu hình requireAuth (default: true)
-  // Để tắt auth khi dev: set VITE_REQUIRE_AUTH=false trong file .env
-  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH !== 'false';
+  // Đọc biến env để cấu hình requireAuth (default: false)
+  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH === 'true';
 
   return (
     <Routes>
@@ -130,6 +130,7 @@ export function AppRoutingSetup() {
           <Route path="/order-history" element={<OrderHistoryPage />} />
           <Route path="/wallet" element={<WalletPage />} />
           <Route path="/deposit" element={<DepositPage />} />
+          <Route path="/proxy-conversion" element={<ProxyConversionPage />} />
           <Route path="/facebook-services" element={<FacebookServicesPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route

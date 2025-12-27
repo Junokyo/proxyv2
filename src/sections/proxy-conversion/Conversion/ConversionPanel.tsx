@@ -104,9 +104,9 @@ const ConversionPanel: React.FC<ConversionPanelProps> = ({
   const currentBalance = 1250.5;
 
   return (
-    <div className="space-y-4 rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
+    <div className="space-y-3 sm:space-y-4 rounded-2xl bg-white p-3 sm:p-4 md:p-6 shadow-sm max-w-full overflow-hidden">
       {/* TABS CHỌN GÓI */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-1.5 sm:gap-2 md:gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
         {tabs.map(({ key }) => {
           const plan = PLAN_CONFIG[key];
           const active = key === selectedPlan;
@@ -115,29 +115,29 @@ const ConversionPanel: React.FC<ConversionPanelProps> = ({
               key={key}
               type="button"
               onClick={() => onChangePlan(key)}
-              className={`flex flex-col rounded-xl border px-4 py-3 text-left text-sm transition
+              className={`flex flex-col rounded-lg sm:rounded-xl border px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs sm:text-sm transition min-w-0
                 ${
                   active
                     ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-sm'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300'
                 }`}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 min-w-0">
                 <span
-                  className={`h-4 w-4 rounded-full border flex items-center justify-center ${
+                  className={`h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
                     active
                       ? 'border-blue-500 bg-blue-500'
                       : 'border-slate-300 bg-white'
                   }`}
                 >
                   {active && (
-                    <span className="h-2 w-2 rounded-full bg-white" />
+                    <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-white" />
                   )}
                 </span>
-                <Iconify icon={plan.icon} width={18} className="flex-shrink-0" />
-                <span className="font-medium text-xs sm:text-sm">{plan.title}</span>
+                <Iconify icon={plan.icon} width={12} className="flex-shrink-0 sm:w-3.5 lg:w-[18px]" />
+                <span className="font-medium text-[10px] sm:text-xs lg:text-sm truncate min-w-0">{plan.title}</span>
               </div>
-              <span className="mt-1 ml-6 text-xs text-slate-500">
+              <span className="mt-0.5 sm:mt-1 ml-4 sm:ml-5 lg:ml-6 text-[9px] sm:text-xs text-slate-500 truncate">
                 {plan.subLabel}
               </span>
             </button>
@@ -146,79 +146,79 @@ const ConversionPanel: React.FC<ConversionPanelProps> = ({
       </div>
 
       {/* PHẦN QUI ĐỔI CHÍNH */}
-      <div className="mt-4 flex flex-col lg:flex-row gap-5">
+      <div className="mt-3 sm:mt-4 flex flex-col lg:flex-row gap-3 sm:gap-4 md:gap-5">
         {/* Số dư hiện tại */}
-        <div className="w-full lg:w-[280px] flex-shrink-0 flex flex-col justify-between rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-white px-6 py-6">
+        <div className="w-full lg:w-[280px] flex-shrink-0 flex flex-col justify-between rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-white px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
           <div>
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 shadow-lg">
+            <div className="mb-2 sm:mb-3 lg:mb-4 flex h-9 w-9 sm:h-10 sm:w-10 lg:h-12 lg:w-12 items-center justify-center rounded-xl bg-blue-500 shadow-lg">
               <Iconify
                 icon="mdi:wallet-outline"
-                width={24}
-                className="text-white"
+                width={18}
+                className="text-white sm:w-5 lg:w-6"
               />
             </div>
-            <p className="text-sm font-medium text-slate-600">Số Dư Hiện Tại</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">
+            <p className="text-xs sm:text-sm font-medium text-slate-600">Số Dư Hiện Tại</p>
+            <p className="mt-1 sm:mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
               ${currentBalance.toFixed(2)}
             </p>
           </div>
 
-          <button 
+          <button
             onClick={() => window.location.href = '/deposit'}
-            className="mt-6 w-full rounded-lg bg-blue-500 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-600 transition shadow-sm flex items-center justify-center gap-2"
+            className="mt-3 sm:mt-4 lg:mt-6 w-full rounded-lg bg-blue-500 px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm font-semibold text-white hover:bg-blue-600 transition shadow-sm flex items-center justify-center gap-1 sm:gap-1.5 lg:gap-2"
           >
-            <Iconify icon="mdi:plus-circle-outline" width={18} />
+            <Iconify icon="mdi:plus-circle-outline" width={14} className="sm:w-4" />
             Nạp Tiền
           </button>
         </div>
 
         {/* Panel qui đổi */}
-        <div className="flex-1 flex flex-col rounded-lg border border-slate-200 bg-white px-6 py-6">
+        <div className="flex-1 flex flex-col rounded-lg border border-slate-200 bg-white px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 min-w-0">
           {/* header */}
-          <div className="mb-4 flex items-start gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-100 bg-blue-50">
-              <Iconify icon="mdi:swap-horizontal" width={24} className="text-blue-500" />
+          <div className="mb-3 sm:mb-4 flex items-start gap-2 sm:gap-3">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 lg:h-12 lg:w-12 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 flex-shrink-0">
+              <Iconify icon="mdi:swap-horizontal" width={18} className="text-blue-500 sm:w-5 lg:w-6" />
             </div>
-            <div className="flex-1">
-              <p className="text-base font-semibold text-slate-900">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm sm:text-base font-semibold text-slate-900">
                 {currentPlan.conversionTitle}
               </p>
-              <p className="mt-1 text-xs text-slate-500">
-                Qui đổi trực tiếp từ ví sang gói proxy, tất cả các gói đều được hưởng 
-                giá tốt nhất và có thể sử dụng ngay sau khi qui đổi thành công.
+              <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-slate-500">
+                Qui đổi trực tiếp từ ví sang gói proxy, sử dụng ngay sau khi qui đổi thành công.
               </p>
             </div>
           </div>
 
-          <div className="mb-4 h-px w-full bg-slate-200" />
+          <div className="mb-3 sm:mb-4 h-px w-full bg-slate-200" />
 
           {/* Chọn dung lượng */}
-          <div className="mb-4">
-            <p className="mb-3 text-sm font-semibold text-slate-700">
+          <div className="mb-3 sm:mb-4">
+            <p className="mb-2 sm:mb-3 text-xs sm:text-sm font-semibold text-slate-700">
               Chọn Dung Lượng Qui Đổi
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-1.5 sm:gap-2">
               {/* Nút Custom */}
               <button
                 type="button"
                 onClick={handleCustomClick}
-                className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
+                className={`rounded-lg border px-2 sm:px-2.5 lg:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium transition ${
                   isCustom
                     ? 'border-blue-500 bg-blue-50 text-blue-600'
                     : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
                 }`}
               >
-                <Iconify icon="mdi:pencil-outline" width={14} className="inline mr-1" />
-                Tùy Chỉnh
+                <Iconify icon="mdi:pencil-outline" width={10} className="inline mr-0.5 sm:mr-1 sm:w-3" />
+                <span className="hidden sm:inline">Tùy Chỉnh</span>
+                <span className="sm:hidden">TT</span>
               </button>
-              
+
               {/* Các gói preset */}
               {PRESET_PACKAGES.map((pkg) => (
                 <button
                   key={pkg.value}
                   type="button"
                   onClick={() => handlePresetClick(pkg.value)}
-                  className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
+                  className={`rounded-lg border px-2 sm:px-2.5 lg:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium transition whitespace-nowrap ${
                     !isCustom && quantity === pkg.value
                       ? 'border-blue-500 bg-blue-50 text-blue-600'
                       : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
@@ -231,10 +231,10 @@ const ConversionPanel: React.FC<ConversionPanelProps> = ({
           </div>
 
           {/* Input tùy chỉnh và tính toán */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-50 rounded-lg p-4">
+          <div className="flex flex-col gap-3 sm:gap-4 bg-slate-50 rounded-lg p-3 sm:p-4">
             {/* Input số lượng */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
-              <div className="flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              <div className="flex items-center rounded-lg border border-slate-300 bg-white px-2 sm:px-3 py-2 flex-1 sm:flex-initial">
                 <input
                   type="number"
                   min={1}
@@ -243,40 +243,40 @@ const ConversionPanel: React.FC<ConversionPanelProps> = ({
                     setQuantity(Math.max(1, Number(e.target.value) || 1));
                     setIsCustom(true);
                   }}
-                  className="w-20 border-none bg-transparent text-sm font-medium text-slate-700 outline-none"
+                  className="w-full sm:w-16 lg:w-20 border-none bg-transparent text-xs sm:text-sm font-medium text-slate-700 outline-none"
                 />
-                <span className="ml-2 border-l border-slate-200 pl-3 text-xs text-slate-600">
+                <span className="ml-1.5 sm:ml-2 border-l border-slate-200 pl-2 sm:pl-3 text-[10px] sm:text-xs text-slate-600 whitespace-nowrap">
                   {currentPlan.unitText}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <Iconify icon="mdi:information-outline" width={16} />
+              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500">
+                <Iconify icon="mdi:information-outline" width={12} className="sm:w-3.5 flex-shrink-0" />
                 <span>Đơn giá: {currentPlan.subLabel}</span>
               </div>
             </div>
 
             {/* Tổng tiền và nút hành động */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex flex-col items-end justify-center px-4 py-2 bg-white rounded-lg border border-slate-200">
-                <span className="text-xs text-slate-500">Tổng chi phí</span>
-                <span className="text-lg font-bold text-slate-900">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <div className="flex flex-col items-center sm:items-end justify-center px-3 sm:px-4 py-2 bg-white rounded-lg border border-slate-200 flex-1 sm:flex-initial">
+                <span className="text-[10px] sm:text-xs text-slate-500">Tổng chi phí</span>
+                <span className="text-base sm:text-lg lg:text-xl font-bold text-slate-900">
                   ${exchangeAmount.toFixed(2)}
                 </span>
               </div>
 
               <button
                 type="button"
-                className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white hover:from-blue-600 hover:to-blue-700 transition shadow-sm flex items-center justify-center gap-2"
+                className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm font-semibold text-white hover:from-blue-600 hover:to-blue-700 transition shadow-sm flex items-center justify-center gap-1.5 sm:gap-2"
               >
-                <Iconify icon="mdi:check-circle-outline" width={18} />
-                Qui Đổi Ngay
+                <Iconify icon="mdi:check-circle-outline" width={14} className="sm:w-4" />
+                <span>Qui Đổi Ngay</span>
               </button>
             </div>
           </div>
 
           {/* Nút mua gói proxy */}
-          <div className="mt-4 flex justify-end">
+          <div className="mt-3 sm:mt-4 flex justify-center sm:justify-end">
             <button
               type="button"
               onClick={() => {
@@ -289,10 +289,10 @@ const ConversionPanel: React.FC<ConversionPanelProps> = ({
                 };
                 window.location.href = routes[selectedPlan];
               }}
-              className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:border-blue-400 hover:text-blue-600 transition flex items-center gap-2"
+              className="w-full sm:w-auto rounded-lg border border-slate-300 bg-white px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-700 hover:border-blue-400 hover:text-blue-600 transition flex items-center justify-center gap-1.5 sm:gap-2"
             >
-              <Iconify icon="mdi:shopping-outline" width={18} />
-              Mua Gói {currentPlan.title}
+              <Iconify icon="mdi:shopping-outline" width={14} className="sm:w-4" />
+              <span className="truncate">Mua Gói {currentPlan.title}</span>
             </button>
           </div>
         </div>

@@ -40,6 +40,7 @@ import {
   Network,
   Users as PeopleIcon,
   Plug,
+  RefreshCcw,
   ScrollText,
   Settings,
   Share2,
@@ -112,6 +113,12 @@ export const MENU_SIDEBAR: MenuConfig = [
     requireAuth: REQUIRE_AUTH,
   },
   {
+    title: 'Qui Đổi Proxy',
+    icon: RefreshCcw,
+    path: '/proxy-conversion',
+    requireAuth: REQUIRE_AUTH,
+  },
+  {
     title: 'Nạp tiền',
     icon: Bitcoin,
     path: '/deposit',
@@ -159,13 +166,17 @@ export const MENU_SIDEBAR: MenuConfig = [
     requireAuth: REQUIRE_AUTH,
   },
 
-  { heading: 'Quản trị', requireAuth: REQUIRE_AUTH, roles: ['admin'] },
+  {
+    heading: 'Quản trị',
+    requireAuth: REQUIRE_AUTH,
+    //  roles: ['admin']
+  },
 
   {
     title: 'Danh mục',
     icon: ChartBarStacked,
     requireAuth: REQUIRE_AUTH,
-    roles: ['admin'],
+    // roles: ['admin'],
     children: [
       {
         title: 'Danh mục người dùng',

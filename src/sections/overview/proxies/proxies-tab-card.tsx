@@ -28,13 +28,20 @@ export function ProxyTabCard({ title, price, unit }: ProxyCardProps) {
         <div className="hidden sm:block mt-2 sm:mt-3 text-sm sm:text-base font-semibold leading-snug text-slate-900 break-words text-center px-1">
           {title}
         </div>
-
-        {/* Price line */}
-        <div className="hidden sm:block mt-1 text-xs sm:text-sm leading-snug text-slate-500 text-center px-1 break-words">
-          From <span className="font-semibold text-slate-900">{price}</span>
-          {unit}
-        </div>
       </>
+
+      {/* Price line - Always visible on all devices */}
+      <div className="mt-2 text-center">
+        <div className="text-[11px] sm:text-xs text-slate-600 mb-0.5">
+          Starting at
+        </div>
+        <div className="flex items-baseline justify-center gap-1">
+          <span className="text-base sm:text-lg lg:text-base font-bold text-amber-600">
+            {price}
+          </span>
+          <span className="text-[10px] sm:text-xs text-slate-500">{unit}</span>
+        </div>
+      </div>
     </div>
   );
 }

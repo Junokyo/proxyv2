@@ -14,19 +14,13 @@ import {
 } from '@tanstack/react-table';
 import { Pencil, Plus, Search, Settings2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardFooter,
-  CardHeader,
-  CardHeading,
-  CardTable,
-  CardToolbar,
-} from '@/components/ui/card';
+import { Card, CardFooter, CardHeader, CardTable } from '@/components/ui/card';
 import { DataGrid } from '@/components/ui/data-grid';
 import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visibility';
 import { DataGridPagination } from '@/components/ui/data-grid-pagination';
 import { DataGridTable } from '@/components/ui/data-grid-table';
 import { Input } from '@/components/ui/input';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { CategoryDeleteDialog } from './CategoryDeleteDialog';
 import { CategoryFormDialog } from './CategoryFormDialog';
 import { CategoryPageProps } from './types';
@@ -100,24 +94,28 @@ export function CategoryPage<TData extends { id: string | number }>(
       enableSorting: false,
       cell: ({ row }: { row: Row<TData> }) => {
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-3"
               onClick={() => {
                 setSelectedItem(row.original);
                 setEditDialogOpen(true);
               }}
+              aria-label="Chỉnh sửa"
             >
               <Pencil className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               size="sm"
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-3"
               onClick={() => {
                 setSelectedItem(row.original);
                 setDeleteDialogOpen(true);
               }}
+              aria-label="Xóa"
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
@@ -171,64 +169,70 @@ export function CategoryPage<TData extends { id: string | number }>(
 
   return (
     <>
-      {/* Top header row: title + actions (outside the Card) */}
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{title}</h1>
+      {/* Top header row: title + actions (outside the Card) - Responsive */}
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>
           {description && (
             <p className="text-sm text-muted-foreground mt-1">{description}</p>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
           {/* Extra toolbar actions passed from props */}
           {toolbarActions}
           {/* Column visibility uses the table instance directly */}
           <DataGridColumnVisibility
             table={table}
             trigger={
-              <Button variant="outline">
+              <Button variant="outline" size="sm" className="sm:size-auto">
                 <Settings2 className="h-4 w-4" />
-                Cột
+                <span className="hidden sm:inline">Cột</span>
               </Button>
             }
           />
-          <Button onClick={() => setAddDialogOpen(true)}>
+          <Button
+            onClick={() => setAddDialogOpen(true)}
+            size="sm"
+            className="sm:size-auto"
+          >
             <Plus className="h-4 w-4" />
-            Thêm mới
+            <span className="hidden sm:inline">Thêm mới</span>
           </Button>
         </div>
       </div>
 
       {/* Card contains only search + table */}
-      <Card>
-        <CardHeader>
-          <div className="relative w-full max-w-xl">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 w-full"
-            />
-          </div>
-        </CardHeader>
+      <DataGrid
+        table={table}
+        isLoading={isLoading}
+        recordCount={filteredData.length}
+        onRowClick={onRowClick}
+      >
+        <Card>
+          <CardHeader className="px-3 sm:px-5">
+            <div className="relative w-full max-w-xl">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={searchPlaceholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 w-full"
+              />
+            </div>
+          </CardHeader>
 
-        <CardTable>
-          <DataGrid
-            table={table}
-            isLoading={isLoading}
-            recordCount={filteredData.length}
-            onRowClick={onRowClick}
-          >
-            {/* no internal toolbar here — actions are outside card per request */}
-            <DataGridTable />
-            <CardFooter>
-              <DataGridPagination sizes={pageSizes} />
-            </CardFooter>
-          </DataGrid>
-        </CardTable>
-      </Card>
+          <CardTable>
+            <ScrollArea className="w-full">
+              <DataGridTable />
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </CardTable>
+          <CardFooter className="px-3 sm:px-5">
+            <DataGridPagination sizes={pageSizes} />
+          </CardFooter>
+        </Card>
+      </DataGrid>
 
       {/* Add Dialog */}
       <CategoryFormDialog

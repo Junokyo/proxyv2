@@ -2,12 +2,32 @@
 
 import { useState } from 'react';
 import { Icon } from '@iconify/react';
+import { toast } from 'sonner';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 // Contact Channels Data
 const CONTACT_CHANNELS = [
@@ -257,8 +277,98 @@ const REPORT_REQUIREMENTS = [
   },
 ];
 
+// Ticket Types
+type TicketStatus =
+  | 'pending'
+  | 'processing'
+  | 'resolved'
+  | 'rejected'
+  | 'review_requested';
+type TicketCategory =
+  | 'technical'
+  | 'ip-change'
+  | 'refund'
+  | 'billing'
+  | 'account'
+  | 'other';
+
+interface Ticket {
+  id: string;
+  subject: string;
+  category: TicketCategory;
+  description: string;
+  status: TicketStatus;
+  createdAt: string;
+  updatedAt: string;
+  rejectionReason?: string;
+  resolutionNote?: string;
+}
+
+const CATEGORY_LABELS: Record<TicketCategory, string> = {
+  technical: 'Lỗi kỹ thuật / Proxy không hoạt động',
+  'ip-change': 'Yêu cầu đổi IP',
+  refund: 'Yêu cầu hoàn tiền',
+  billing: 'Vấn đề thanh toán',
+  account: 'Vấn đề tài khoản',
+  other: 'Khác',
+};
+
 export default function SupportView() {
   const [activeSection, setActiveSection] = useState('contact');
+  const [isTicketDialogOpen, setIsTicketDialogOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [isTicketDetailOpen, setIsTicketDetailOpen] = useState(false);
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [reviewReason, setReviewReason] = useState('');
+  const [ticketFormData, setTicketFormData] = useState({
+    subject: '',
+    category: '',
+    description: '',
+  });
+
+  // Mock tickets data - in real app, this would come from API
+  const [tickets, setTickets] = useState<Ticket[]>([
+    {
+      id: 'TKT-001',
+      subject: 'Proxy không kết nối được',
+      category: 'technical',
+      description:
+        'Proxy của tôi không thể kết nối được từ sáng nay. Đã thử nhiều lần nhưng vẫn lỗi.',
+      status: 'resolved',
+      createdAt: '2024-01-15 09:30',
+      updatedAt: '2024-01-15 14:20',
+      resolutionNote: 'Đã kiểm tra và thay thế proxy mới. Vui lòng thử lại.',
+    },
+    {
+      id: 'TKT-002',
+      subject: 'Yêu cầu đổi IP',
+      category: 'ip-change',
+      description: 'Cần đổi IP cho proxy số 12345',
+      status: 'processing',
+      createdAt: '2024-01-16 10:15',
+      updatedAt: '2024-01-16 10:15',
+    },
+    {
+      id: 'TKT-003',
+      subject: 'Yêu cầu hoàn tiền',
+      category: 'refund',
+      description: 'Proxy không hoạt động trong 24h đầu, yêu cầu hoàn tiền',
+      status: 'rejected',
+      createdAt: '2024-01-14 08:00',
+      updatedAt: '2024-01-14 16:30',
+      rejectionReason:
+        'Proxy đã hoạt động bình thường sau khi kiểm tra. Không đủ điều kiện hoàn tiền.',
+    },
+    {
+      id: 'TKT-004',
+      subject: 'Lỗi timeout khi sử dụng',
+      category: 'technical',
+      description: 'Gặp lỗi timeout khi sử dụng proxy để crawl dữ liệu',
+      status: 'pending',
+      createdAt: '2024-01-17 11:00',
+      updatedAt: '2024-01-17 11:00',
+    },
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -299,62 +409,202 @@ export default function SupportView() {
     }
   };
 
+  const handleTicketSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Handle ticket submission to API
+    const newTicket: Ticket = {
+      id: `TKT-${String(tickets.length + 1).padStart(3, '0')}`,
+      subject: ticketFormData.subject,
+      category: ticketFormData.category as TicketCategory,
+      description: ticketFormData.description,
+      status: 'pending',
+      createdAt: new Date().toLocaleString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      updatedAt: new Date().toLocaleString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    };
+
+    setTickets((prev) => [newTicket, ...prev]);
+    setIsTicketDialogOpen(false);
+
+    // Show success toast
+    toast.success('Ticket đã được gửi thành công!', {
+      description: `Mã ticket: ${newTicket.id}. Chúng tôi sẽ phản hồi sớm nhất có thể.`,
+      duration: 5000,
+    });
+
+    // Reset form
+    setTicketFormData({
+      subject: '',
+      category: '',
+      description: '',
+    });
+  };
+
+  const handleViewTicketDetail = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setIsTicketDetailOpen(true);
+  };
+
+  const handleRequestReview = () => {
+    if (!selectedTicket || !reviewReason.trim()) {
+      toast.error('Vui lòng nhập lý do yêu cầu xem lại');
+      return;
+    }
+
+    // Update ticket status
+    setTickets((prev) =>
+      prev.map((ticket) =>
+        ticket.id === selectedTicket.id
+          ? { ...ticket, status: 'review_requested' as TicketStatus }
+          : ticket,
+      ),
+    );
+
+    toast.success('Yêu cầu xem lại đã được gửi!', {
+      description: 'Chúng tôi sẽ xem xét lại ticket của bạn.',
+      duration: 5000,
+    });
+
+    setIsReviewDialogOpen(false);
+    setReviewReason('');
+    setIsTicketDetailOpen(false);
+    setSelectedTicket(null);
+  };
+
+  const getTicketStatusBadge = (status: TicketStatus) => {
+    switch (status) {
+      case 'pending':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-700">
+            <Icon icon="mdi:clock-outline" className="h-3.5 w-3.5" />
+            Chờ xử lý
+          </span>
+        );
+      case 'processing':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
+            <Icon icon="mdi:autorenew" className="h-3.5 w-3.5" />
+            Đang xử lý
+          </span>
+        );
+      case 'resolved':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+            <Icon icon="mdi:check-circle" className="h-3.5 w-3.5" />
+            Đã giải quyết
+          </span>
+        );
+      case 'rejected':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+            <Icon icon="mdi:close-circle" className="h-3.5 w-3.5" />
+            Đã từ chối
+          </span>
+        );
+      case 'review_requested':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-xs font-semibold text-purple-700">
+            <Icon icon="mdi:refresh" className="h-3.5 w-3.5" />
+            Yêu cầu xem lại
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const handleTicketFormChange = (field: string, value: string) => {
+    setTicketFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-slate-900 mb-2">
+      <div className="mb-4 sm:mb-6 px-1">
+        <h1 className="text-lg sm:text-xl font-semibold text-slate-900 mb-1 sm:mb-2">
           Hỗ trợ khách hàng
         </h1>
-        <p className="text-sm text-slate-600">
+        <p className="text-xs sm:text-sm text-slate-600">
           Xử lý nhanh - Rõ ràng - Không lòng vòng
         </p>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center gap-3 border-b border-slate-200 mb-6 overflow-x-auto">
-        {[
-          { value: 'contact', label: 'Kênh liên hệ', icon: 'mdi:phone' },
-          {
-            value: 'faq',
-            label: 'FAQ',
-            icon: 'mdi:frequently-asked-questions',
-          },
-          { value: 'status', label: 'Trạng thái hệ thống', icon: 'mdi:server' },
-          { value: 'report', label: 'Báo lỗi', icon: 'mdi:bug' },
-        ].map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setActiveSection(tab.value)}
-            className={
-              'pb-3 px-2 text-sm transition font-medium whitespace-nowrap flex items-center gap-2 ' +
-              (activeSection === tab.value
-                ? 'text-indigo-600 border-b-2 border-indigo-600'
-                : 'text-slate-500 hover:text-slate-900')
-            }
-          >
-            <Icon icon={tab.icon} className="h-4 w-4" />
-            {tab.label}
-          </button>
-        ))}
+      {/* Navigation Tabs - Responsive */}
+      <div className="mb-4 sm:mb-6 -mx-1 px-1">
+        <div className="flex items-center gap-2 sm:gap-3 border-b border-slate-200 overflow-x-auto scrollbar-hide">
+          {[
+            { value: 'contact', label: 'Kênh liên hệ', icon: 'mdi:phone' },
+            {
+              value: 'faq',
+              label: 'FAQ',
+              icon: 'mdi:frequently-asked-questions',
+            },
+            {
+              value: 'status',
+              label: 'Trạng thái hệ thống',
+              icon: 'mdi:server',
+            },
+            { value: 'report', label: 'Báo lỗi', icon: 'mdi:bug' },
+            { value: 'tickets', label: 'Ticket của tôi', icon: 'mdi:ticket' },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setActiveSection(tab.value)}
+              className={
+                'pb-2.5 sm:pb-3 px-3 sm:px-4 text-xs sm:text-sm transition font-medium whitespace-nowrap flex items-center gap-1.5 sm:gap-2 min-h-[44px] flex-shrink-0 ' +
+                (activeSection === tab.value
+                  ? 'text-indigo-600 border-b-2 border-indigo-600'
+                  : 'text-slate-500 hover:text-slate-900 active:text-slate-900 border-b-2 border-transparent')
+              }
+            >
+              <Icon
+                icon={tab.icon}
+                className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0"
+              />
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">
+                {tab.value === 'contact'
+                  ? 'Liên hệ'
+                  : tab.value === 'faq'
+                    ? 'FAQ'
+                    : tab.value === 'status'
+                      ? 'Trạng thái'
+                      : tab.value === 'report'
+                        ? 'Báo lỗi'
+                        : 'Ticket'}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Contact Channels Section */}
       {activeSection === 'contact' && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Warning Banner */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <div className="flex gap-3">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <div className="flex gap-2 sm:gap-3">
               <Icon
                 icon="mdi:shield-alert"
-                className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5"
+                className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-sm text-amber-800">
+              <div className="text-xs sm:text-sm text-amber-800">
                 <p className="font-semibold mb-1">🚫 Cảnh báo quan trọng</p>
-                <p className="mb-2">
+                <p className="mb-1.5 sm:mb-2">
                   Chúng tôi KHÔNG hỗ trợ và sẽ khóa tài khoản nếu phát hiện:
                 </p>
-                <ul className="list-disc list-inside space-y-1">
+                <ul className="list-disc list-inside space-y-0.5 sm:space-y-1 text-xs sm:text-sm">
                   <li>Hack, xâm nhập trái phép</li>
                   <li>Spam email/message</li>
                   <li>Fraud - Lừa đảo tài chính</li>
@@ -366,20 +616,25 @@ export default function SupportView() {
           </div>
 
           {/* Contact Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {CONTACT_CHANNELS.map((channel) => (
               <div
                 key={channel.id}
-                className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm hover:shadow-md transition"
+                className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md transition"
               >
                 <div
-                  className={`flex items-center gap-3 mb-4 p-3 rounded-lg bg-gradient-to-br ${channel.color} text-white`}
+                  className={`flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 p-2.5 sm:p-3 rounded-lg bg-gradient-to-br ${channel.color} text-white`}
                 >
-                  <Icon icon={channel.icon} className="h-6 w-6" />
-                  <div>
-                    <h3 className="font-semibold">{channel.name}</h3>
+                  <Icon
+                    icon={channel.icon}
+                    className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-base truncate">
+                      {channel.name}
+                    </h3>
                     {channel.priority && (
-                      <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full inline-block mt-1">
                         {channel.priority}
                       </span>
                     )}
@@ -387,15 +642,18 @@ export default function SupportView() {
                 </div>
 
                 {channel.description && (
-                  <p className="text-sm text-slate-600 mb-3">
+                  <p className="text-xs sm:text-sm text-slate-600 mb-2 sm:mb-3">
                     {channel.description}
                   </p>
                 )}
 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {channel.items?.map((item, idx) => (
-                    <div key={idx} className="border-l-2 border-slate-200 pl-3">
-                      <div className="text-xs font-semibold text-slate-700 mb-1">
+                    <div
+                      key={idx}
+                      className="border-l-2 border-slate-200 pl-2 sm:pl-3"
+                    >
+                      <div className="text-xs font-semibold text-slate-700 mb-0.5 sm:mb-1">
                         {item.label}
                       </div>
                       {'link' in item && item.link ? (
@@ -403,21 +661,21 @@ export default function SupportView() {
                           href={item.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-indigo-600 hover:underline font-medium flex items-center gap-1"
+                          className="text-xs sm:text-sm text-indigo-600 hover:underline font-medium flex items-center gap-1 break-all"
                         >
-                          {item.value}
+                          <span className="break-all">{item.value}</span>
                           <Icon
                             icon="mdi:open-in-new"
-                            className="h-3.5 w-3.5"
+                            className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0"
                           />
                         </a>
                       ) : (
-                        <div className="text-sm text-slate-600">
+                        <div className="text-xs sm:text-sm text-slate-600 break-words">
                           {item.value}
                         </div>
                       )}
                       {'description' in item && item.description && (
-                        <div className="text-xs text-slate-500 mt-1">
+                        <div className="text-xs text-slate-500 mt-0.5 sm:mt-1 break-words">
                           {item.description}
                         </div>
                       )}
@@ -425,10 +683,10 @@ export default function SupportView() {
                   ))}
 
                   {channel.email && (
-                    <div className="border-l-2 border-slate-200 pl-3">
+                    <div className="border-l-2 border-slate-200 pl-2 sm:pl-3">
                       <a
                         href={`mailto:${channel.email}`}
-                        className="text-sm text-indigo-600 hover:underline font-medium"
+                        className="text-xs sm:text-sm text-indigo-600 hover:underline font-medium break-all"
                       >
                         {channel.email}
                       </a>
@@ -436,15 +694,15 @@ export default function SupportView() {
                   )}
 
                   {channel.statuses && (
-                    <div className="border-l-2 border-slate-200 pl-3">
+                    <div className="border-l-2 border-slate-200 pl-2 sm:pl-3">
                       <div className="text-xs font-semibold text-slate-700 mb-1">
                         Trạng thái ticket
                       </div>
-                      <div className="flex gap-2 flex-wrap">
+                      <div className="flex gap-1.5 sm:gap-2 flex-wrap">
                         {channel.statuses.map((status) => (
                           <span
                             key={status}
-                            className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded"
+                            className="text-xs px-2 py-0.5 sm:py-1 bg-slate-100 text-slate-700 rounded"
                           >
                             {status}
                           </span>
@@ -454,17 +712,27 @@ export default function SupportView() {
                   )}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-200 space-y-2">
+                <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 space-y-1.5 sm:space-y-2">
                   {channel.responseTime && (
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
-                      <Icon icon="mdi:clock-outline" className="h-4 w-4" />
-                      <span>Phản hồi: {channel.responseTime}</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-600">
+                      <Icon
+                        icon="mdi:clock-outline"
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0"
+                      />
+                      <span className="break-words">
+                        Phản hồi: {channel.responseTime}
+                      </span>
                     </div>
                   )}
                   {channel.workingHours && (
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
-                      <Icon icon="mdi:calendar-clock" className="h-4 w-4" />
-                      <span>{channel.workingHours}</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-600">
+                      <Icon
+                        icon="mdi:calendar-clock"
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0"
+                      />
+                      <span className="break-words">
+                        {channel.workingHours}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -476,14 +744,14 @@ export default function SupportView() {
 
       {/* FAQ Section */}
       {activeSection === 'faq' && (
-        <div className="space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <div className="flex gap-3">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <div className="flex gap-2 sm:gap-3">
               <Icon
                 icon="mdi:information"
-                className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5"
+                className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-sm text-blue-800">
+              <div className="text-xs sm:text-sm text-blue-800">
                 <p className="font-semibold">💡 Mẹo</p>
                 <p>
                   Đọc FAQ trước khi hỏi – Tiết kiệm thời gian cho cả hai bên!
@@ -495,32 +763,35 @@ export default function SupportView() {
           {FAQ_DATA.map((category, idx) => (
             <div
               key={idx}
-              className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden"
+              className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden"
             >
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 border-b border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                    <Icon icon={category.icon} className="h-5 w-5" />
+              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-3 sm:p-4 border-b border-slate-200">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-indigo-600 text-white flex-shrink-0">
+                    <Icon
+                      icon={category.icon}
+                      className="h-4 w-4 sm:h-5 sm:w-5"
+                    />
                   </div>
-                  <h3 className="font-semibold text-slate-900">
+                  <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
                     {category.category}
                   </h3>
                 </div>
               </div>
-              <div className="p-4">
+              <div className="p-3 sm:p-4">
                 <Accordion type="single" collapsible className="w-full">
                   {category.items.map((item, itemIdx) => (
                     <AccordionItem
                       key={itemIdx}
                       value={`item-${idx}-${itemIdx}`}
                     >
-                      <AccordionTrigger className="text-left hover:no-underline">
-                        <span className="text-sm font-medium">
+                      <AccordionTrigger className="text-left hover:no-underline py-2 sm:py-3">
+                        <span className="text-xs sm:text-sm font-medium pr-2">
                           {item.question}
                         </span>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="text-sm text-slate-600 whitespace-pre-line bg-slate-50 p-4 rounded-lg">
+                        <div className="text-xs sm:text-sm text-slate-600 whitespace-pre-line bg-slate-50 p-3 sm:p-4 rounded-lg">
                           {item.answer}
                         </div>
                       </AccordionContent>
@@ -535,14 +806,14 @@ export default function SupportView() {
 
       {/* System Status Section */}
       {activeSection === 'status' && (
-        <div className="space-y-6">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-            <div className="flex gap-3">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <div className="flex gap-2 sm:gap-3">
               <Icon
                 icon="mdi:check-circle"
-                className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5"
+                className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-sm text-green-800">
+              <div className="text-xs sm:text-sm text-green-800">
                 <p className="font-semibold">Hệ thống hoạt động tốt</p>
                 <p>
                   Tất cả dịch vụ đang hoạt động bình thường. Khi có sự cố lớn,
@@ -552,26 +823,29 @@ export default function SupportView() {
             </div>
           </div>
 
-          <div className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 border-b border-slate-200">
-              <h3 className="font-semibold text-slate-900">
+          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-3 sm:p-4 border-b border-slate-200">
+              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
                 Trạng thái dịch vụ
               </h3>
-              <p className="text-sm text-slate-600 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
                 Cập nhật theo thời gian thực
               </p>
             </div>
             <div className="divide-y divide-slate-200">
               {SYSTEM_STATUS.map((service, idx) => (
-                <div key={idx} className="p-4 hover:bg-slate-50 transition">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                <div
+                  key={idx}
+                  className="p-3 sm:p-4 hover:bg-slate-50 transition"
+                >
+                  <div className="flex items-center justify-between gap-2 sm:gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       <Icon
                         icon={getStatusIcon(service.status)}
-                        className={`h-5 w-5 ${service.status === 'operational' ? 'text-green-600' : service.status === 'degraded' ? 'text-yellow-600' : 'text-red-600'}`}
+                        className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${service.status === 'operational' ? 'text-green-600' : service.status === 'degraded' ? 'text-yellow-600' : 'text-red-600'}`}
                       />
-                      <div>
-                        <div className="font-medium text-slate-900">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-slate-900 text-xs sm:text-sm truncate">
                           {service.name}
                         </div>
                         <div className="text-xs text-slate-500">
@@ -580,7 +854,7 @@ export default function SupportView() {
                       </div>
                     </div>
                     <span
-                      className={`text-xs px-3 py-1 rounded-full border ${getStatusColor(service.status)}`}
+                      className={`text-xs px-2 sm:px-3 py-1 rounded-full border flex-shrink-0 ${getStatusColor(service.status)}`}
                     >
                       {getStatusText(service.status)}
                     </span>
@@ -594,15 +868,15 @@ export default function SupportView() {
 
       {/* Report Issue Section */}
       {activeSection === 'report' && (
-        <div className="space-y-6">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-            <div className="flex gap-3">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <div className="flex gap-2 sm:gap-3">
               <Icon
                 icon="mdi:alert"
-                className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5"
+                className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-sm text-red-800">
-                <p className="font-semibold mb-2">
+              <div className="text-xs sm:text-sm text-red-800">
+                <p className="font-semibold mb-1.5 sm:mb-2">
                   ⚠️ Quy trình báo lỗi (BẮT BUỘC)
                 </p>
                 <p>
@@ -613,21 +887,24 @@ export default function SupportView() {
             </div>
           </div>
 
-          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-6">
-            <h3 className="font-semibold text-slate-900 mb-4">
+          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm p-4 sm:p-6">
+            <h3 className="font-semibold text-slate-900 mb-3 sm:mb-4 text-sm sm:text-base">
               Thông tin cần cung cấp
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {REPORT_REQUIREMENTS.map((req, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200"
+                  className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-slate-50 rounded-lg border border-slate-200"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white flex-shrink-0">
-                    <Icon icon={req.icon} className="h-4 w-4" />
+                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-indigo-600 text-white flex-shrink-0">
+                    <Icon
+                      icon={req.icon}
+                      className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                    />
                   </div>
-                  <div>
-                    <div className="font-medium text-slate-900 text-sm">
+                  <div className="min-w-0">
+                    <div className="font-medium text-slate-900 text-xs sm:text-sm">
                       {req.label}
                       {req.required && (
                         <span className="text-red-500 ml-1">*</span>
@@ -639,11 +916,11 @@ export default function SupportView() {
             </div>
           </div>
 
-          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-6">
-            <h3 className="font-semibold text-slate-900 mb-4">
+          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm p-4 sm:p-6">
+            <h3 className="font-semibold text-slate-900 mb-3 sm:mb-4 text-sm sm:text-base">
               ❌ Không bảo hành nếu
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {[
                 'Dùng proxy sai mục đích (hack, spam, fraud...)',
                 'Tool hoặc script cấu hình sai',
@@ -653,30 +930,493 @@ export default function SupportView() {
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 text-sm text-slate-700"
+                  className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm text-slate-700"
                 >
                   <Icon
                     icon="mdi:close-circle"
-                    className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5"
+                    className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 flex-shrink-0 mt-0.5"
                   />
-                  <span>{item}</span>
+                  <span className="break-words">{item}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="flex gap-4">
-            <button className="flex-1 py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition flex items-center justify-center gap-2">
-              <Icon icon="mdi:telegram" className="h-5 w-5" />
-              Liên hệ qua Telegram
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <button className="flex-1 py-2.5 sm:py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition flex items-center justify-center gap-2 min-h-[44px] text-sm sm:text-base">
+              <Icon icon="mdi:telegram" className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="whitespace-nowrap">Liên hệ qua Telegram</span>
             </button>
-            <button className="flex-1 py-3 px-4 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition flex items-center justify-center gap-2">
-              <Icon icon="mdi:ticket" className="h-5 w-5" />
-              Tạo Ticket
+            <button
+              onClick={() => setIsTicketDialogOpen(true)}
+              className="flex-1 py-2.5 sm:py-3 px-4 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition flex items-center justify-center gap-2 min-h-[44px] text-sm sm:text-base"
+            >
+              <Icon icon="mdi:ticket" className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="whitespace-nowrap">Tạo Ticket</span>
             </button>
           </div>
         </div>
       )}
+
+      {/* My Tickets Section */}
+      {activeSection === 'tickets' && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <div className="flex gap-2 sm:gap-3">
+              <Icon
+                icon="mdi:information"
+                className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5"
+              />
+              <div className="text-xs sm:text-sm text-blue-800">
+                <p className="font-semibold">💡 Theo dõi ticket</p>
+                <p>
+                  Xem tất cả ticket bạn đã gửi và trạng thái xử lý của chúng.
+                  Bạn có thể yêu cầu xem lại các ticket đã từ chối hoặc giải
+                  quyết không thỏa đáng.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {tickets.length === 0 ? (
+            <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm p-8 sm:p-12 text-center">
+              <Icon
+                icon="mdi:ticket-outline"
+                className="h-12 w-12 sm:h-16 sm:w-16 text-slate-400 mx-auto mb-4"
+              />
+              <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-2">
+                Chưa có ticket nào
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 mb-4">
+                Bạn chưa gửi ticket nào. Hãy tạo ticket mới để được hỗ trợ.
+              </p>
+              <Button
+                onClick={() => setIsTicketDialogOpen(true)}
+                variant="primary"
+                className="min-h-[44px]"
+              >
+                <Icon icon="mdi:plus" className="h-4 w-4 mr-2" />
+                Tạo ticket mới
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3 sm:space-y-4">
+              {tickets.map((ticket) => (
+                <div
+                  key={ticket.id}
+                  className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition overflow-hidden"
+                >
+                  <div className="p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                          <h3 className="text-sm sm:text-base font-semibold text-slate-900 truncate">
+                            {ticket.subject}
+                          </h3>
+                          {getTicketStatusBadge(ticket.status)}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600">
+                          <span className="flex items-center gap-1">
+                            <Icon icon="mdi:tag" className="h-3.5 w-3.5" />
+                            {CATEGORY_LABELS[ticket.category]}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Icon
+                              icon="mdi:identifier"
+                              className="h-3.5 w-3.5"
+                            />
+                            {ticket.id}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Icon
+                              icon="mdi:clock-outline"
+                              className="h-3.5 w-3.5"
+                            />
+                            {ticket.createdAt}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-slate-600 mb-3 line-clamp-2">
+                      {ticket.description}
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                      <Button
+                        onClick={() => handleViewTicketDetail(ticket)}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 sm:flex-initial min-h-[40px] sm:min-h-[36px]"
+                      >
+                        <Icon icon="mdi:eye" className="h-4 w-4 mr-1.5" />
+                        Xem chi tiết
+                      </Button>
+                      {(ticket.status === 'rejected' ||
+                        ticket.status === 'resolved') && (
+                        <Button
+                          onClick={() => {
+                            setSelectedTicket(ticket);
+                            setIsReviewDialogOpen(true);
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 sm:flex-initial min-h-[40px] sm:min-h-[36px]"
+                        >
+                          <Icon icon="mdi:refresh" className="h-4 w-4 mr-1.5" />
+                          Yêu cầu xem lại
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Create Ticket Dialog */}
+      <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
+        <DialogContent
+          className="max-w-2xl w-full max-h-[90vh] overflow-y-auto 
+                     sm:max-h-[85vh] 
+                     bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0
+                     sm:left-[50%] sm:top-[50%] 
+                     sm:translate-x-[-50%] sm:translate-y-[-50%]
+                     sm:bottom-auto sm:right-auto
+                     rounded-t-2xl sm:rounded-xl
+                     p-0 border-0 sm:border shadow-xl"
+        >
+          {/* Mobile drag handle */}
+          <div className="sm:hidden flex justify-center pt-3 pb-2">
+            <div className="w-12 h-1 bg-slate-300 rounded-full" />
+          </div>
+
+          <DialogHeader className="px-4 sm:px-8 pt-4 sm:pt-8 pb-4 sm:pb-6 border-b border-slate-200">
+            <DialogTitle className="text-lg sm:text-2xl font-semibold text-slate-900">
+              Tạo Ticket
+            </DialogTitle>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 sm:mt-2">
+              Vui lòng điền đầy đủ thông tin để chúng tôi có thể hỗ trợ bạn tốt
+              nhất
+            </p>
+          </DialogHeader>
+          <DialogBody className="px-4 sm:px-8 py-4 sm:py-6">
+            <form
+              onSubmit={handleTicketSubmit}
+              className="space-y-5 sm:space-y-6"
+            >
+              {/* Subject */}
+              <div className="space-y-2">
+                <label className="text-sm sm:text-base font-semibold text-slate-900">
+                  Tiêu đề <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Nhập tiêu đề ticket"
+                  value={ticketFormData.subject}
+                  onChange={(e) =>
+                    handleTicketFormChange('subject', e.target.value)
+                  }
+                  required
+                  className="w-full"
+                />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <label className="text-sm sm:text-base font-semibold text-slate-900">
+                  Loại vấn đề <span className="text-red-500">*</span>
+                </label>
+                <Select
+                  value={ticketFormData.category}
+                  onValueChange={(value) =>
+                    handleTicketFormChange('category', value)
+                  }
+                  required
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn loại vấn đề" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="technical">
+                      Lỗi kỹ thuật / Proxy không hoạt động
+                    </SelectItem>
+                    <SelectItem value="ip-change">Yêu cầu đổi IP</SelectItem>
+                    <SelectItem value="refund">Yêu cầu hoàn tiền</SelectItem>
+                    <SelectItem value="billing">Vấn đề thanh toán</SelectItem>
+                    <SelectItem value="account">Vấn đề tài khoản</SelectItem>
+                    <SelectItem value="other">Khác</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <label className="text-sm sm:text-base font-semibold text-slate-900">
+                  Mô tả chi tiết <span className="text-red-500">*</span>
+                </label>
+                <Textarea
+                  placeholder="Mô tả chi tiết vấn đề của bạn. Vui lòng cung cấp đầy đủ thông tin để chúng tôi có thể hỗ trợ bạn nhanh chóng."
+                  value={ticketFormData.description}
+                  onChange={(e) =>
+                    handleTicketFormChange('description', e.target.value)
+                  }
+                  rows={6}
+                  required
+                  className="w-full resize-none"
+                />
+                <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
+                  💡 Vui lòng bao gồm: Username/Order ID, IP proxy (nếu có),
+                  thời điểm xảy ra lỗi, website/dịch vụ đang truy cập
+                </p>
+              </div>
+
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-3 sm:gap-3 pt-6 sm:pt-6 px-0 sm:px-0 border-t border-slate-200 mt-6 sm:mt-8">
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto min-h-[44px] order-2 sm:order-1"
+                  >
+                    Hủy
+                  </Button>
+                </DialogClose>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="w-full sm:w-auto min-h-[44px] order-1 sm:order-2"
+                >
+                  Gửi Ticket
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
+
+      {/* Ticket Detail Dialog */}
+      <Dialog open={isTicketDetailOpen} onOpenChange={setIsTicketDetailOpen}>
+        <DialogContent
+          className="max-w-3xl w-full max-h-[90vh] overflow-y-auto 
+                     sm:max-h-[85vh] 
+                     bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0
+                     sm:left-[50%] sm:top-[50%] 
+                     sm:translate-x-[-50%] sm:translate-y-[-50%]
+                     sm:bottom-auto sm:right-auto
+                     rounded-t-2xl sm:rounded-xl
+                     p-0 border-0 sm:border shadow-xl"
+        >
+          {/* Mobile drag handle */}
+          <div className="sm:hidden flex justify-center pt-3 pb-2">
+            <div className="w-12 h-1 bg-slate-300 rounded-full" />
+          </div>
+
+          {selectedTicket && (
+            <>
+              <DialogHeader className="px-4 sm:px-8 pt-4 sm:pt-8 pb-4 sm:pb-6 border-b border-slate-200">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <DialogTitle className="text-lg sm:text-2xl font-semibold text-slate-900 mb-3 sm:mb-4">
+                      {selectedTicket.subject}
+                    </DialogTitle>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      {getTicketStatusBadge(selectedTicket.status)}
+                      <span className="text-xs sm:text-sm text-slate-600 font-medium">
+                        {selectedTicket.id}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </DialogHeader>
+              <DialogBody className="px-4 sm:px-8 py-4 sm:py-6">
+                <div className="space-y-6 sm:space-y-7">
+                  {/* Ticket Info */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                    <div className="space-y-2">
+                      <label className="text-xs sm:text-sm font-semibold text-slate-600 uppercase tracking-wide">
+                        Loại vấn đề
+                      </label>
+                      <div className="text-sm sm:text-base font-medium text-slate-900">
+                        {CATEGORY_LABELS[selectedTicket.category]}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs sm:text-sm font-semibold text-slate-600 uppercase tracking-wide">
+                        Ngày tạo
+                      </label>
+                      <div className="text-sm sm:text-base font-medium text-slate-900">
+                        {selectedTicket.createdAt}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs sm:text-sm font-semibold text-slate-600 uppercase tracking-wide">
+                        Cập nhật lần cuối
+                      </label>
+                      <div className="text-sm sm:text-base font-medium text-slate-900">
+                        {selectedTicket.updatedAt}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-2.5">
+                    <label className="text-xs sm:text-sm font-semibold text-slate-600 uppercase tracking-wide">
+                      Mô tả
+                    </label>
+                    <div className="text-sm sm:text-base text-slate-900 bg-slate-50 border border-slate-200 p-4 sm:p-5 rounded-lg whitespace-pre-wrap leading-relaxed">
+                      {selectedTicket.description}
+                    </div>
+                  </div>
+
+                  {/* Rejection Reason */}
+                  {selectedTicket.status === 'rejected' &&
+                    selectedTicket.rejectionReason && (
+                      <div className="space-y-2.5">
+                        <label className="text-xs sm:text-sm font-semibold text-red-600 uppercase tracking-wide flex items-center gap-2">
+                          <Icon icon="mdi:alert-circle" className="h-4 w-4" />
+                          Lý do từ chối
+                        </label>
+                        <div className="text-sm sm:text-base text-slate-900 bg-red-50 border-2 border-red-200 p-4 sm:p-5 rounded-lg leading-relaxed">
+                          {selectedTicket.rejectionReason}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Resolution Note */}
+                  {selectedTicket.status === 'resolved' &&
+                    selectedTicket.resolutionNote && (
+                      <div className="space-y-2.5">
+                        <label className="text-xs sm:text-sm font-semibold text-green-600 uppercase tracking-wide flex items-center gap-2">
+                          <Icon icon="mdi:check-circle" className="h-4 w-4" />
+                          Ghi chú giải quyết
+                        </label>
+                        <div className="text-sm sm:text-base text-slate-900 bg-green-50 border-2 border-green-200 p-4 sm:p-5 rounded-lg leading-relaxed">
+                          {selectedTicket.resolutionNote}
+                        </div>
+                      </div>
+                    )}
+                </div>
+              </DialogBody>
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-3 sm:gap-3 pt-6 sm:pt-6 px-4 sm:px-8 pb-4 sm:pb-8 border-t border-slate-200 mt-6 sm:mt-8">
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto min-h-[44px]"
+                  >
+                    Đóng
+                  </Button>
+                </DialogClose>
+                {(selectedTicket.status === 'rejected' ||
+                  selectedTicket.status === 'resolved') && (
+                  <Button
+                    onClick={() => {
+                      setIsTicketDetailOpen(false);
+                      setIsReviewDialogOpen(true);
+                    }}
+                    variant="primary"
+                    className="w-full sm:w-auto min-h-[44px]"
+                  >
+                    <Icon icon="mdi:refresh" className="h-4 w-4 mr-2" />
+                    Yêu cầu xem lại
+                  </Button>
+                )}
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Request Review Dialog */}
+      <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+        <DialogContent
+          className="max-w-2xl w-full max-h-[90vh] overflow-y-auto 
+                     sm:max-h-[85vh] 
+                     bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0
+                     sm:left-[50%] sm:top-[50%] 
+                     sm:translate-x-[-50%] sm:translate-y-[-50%]
+                     sm:bottom-auto sm:right-auto
+                     rounded-t-2xl sm:rounded-xl
+                     p-0 border-0 sm:border shadow-xl"
+        >
+          {/* Mobile drag handle */}
+          <div className="sm:hidden flex justify-center pt-3 pb-2">
+            <div className="w-12 h-1 bg-slate-300 rounded-full" />
+          </div>
+
+          <DialogHeader className="px-4 sm:px-8 pt-4 sm:pt-8 pb-4 sm:pb-6 border-b border-slate-200">
+            <DialogTitle className="text-lg sm:text-2xl font-semibold text-slate-900">
+              Yêu cầu xem lại ticket
+            </DialogTitle>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 sm:mt-2">
+              Vui lòng giải thích lý do bạn muốn yêu cầu xem lại ticket này
+            </p>
+          </DialogHeader>
+          <DialogBody className="px-4 sm:px-8 py-4 sm:py-6">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleRequestReview();
+              }}
+              className="space-y-5 sm:space-y-6"
+            >
+              {selectedTicket && (
+                <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 p-4 sm:p-5 rounded-lg">
+                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mb-2 uppercase tracking-wide">
+                    Ticket
+                  </div>
+                  <div className="text-base sm:text-lg font-semibold text-slate-900 mb-1">
+                    {selectedTicket.subject}
+                  </div>
+                  <div className="text-xs sm:text-sm text-slate-500 font-medium">
+                    {selectedTicket.id}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="text-sm sm:text-base font-semibold text-slate-900">
+                  Lý do yêu cầu xem lại <span className="text-red-500">*</span>
+                </label>
+                <Textarea
+                  placeholder="Vui lòng giải thích lý do bạn muốn yêu cầu xem lại ticket này..."
+                  value={reviewReason}
+                  onChange={(e) => setReviewReason(e.target.value)}
+                  rows={6}
+                  required
+                  className="w-full resize-none"
+                />
+                <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
+                  💡 Vui lòng cung cấp thông tin chi tiết để chúng tôi có thể
+                  xem xét lại ticket của bạn một cách tốt nhất.
+                </p>
+              </div>
+
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-3 sm:gap-3 pt-6 sm:pt-6 px-0 sm:px-0 border-t border-slate-200 mt-6 sm:mt-8">
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto min-h-[44px]"
+                    onClick={() => setReviewReason('')}
+                  >
+                    Hủy
+                  </Button>
+                </DialogClose>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="w-full sm:w-auto min-h-[44px]"
+                >
+                  Gửi yêu cầu
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

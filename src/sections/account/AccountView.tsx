@@ -3,16 +3,14 @@
 import { useCallback, useState } from 'react';
 import GeneralSection from './General/GeneralSection';
 import IdentityAuthenticationSection from './IdentityAuthentication/IdentityAuthenticationSection';
-import PurchaseHistorySection from './PurchaseHistory/PurchaseHistorySection';
 import SecuritySection from './Sercurity/SercuritySection';
 
 const TABS_DATA = [
-  { value: 'General', label: 'General', color: '#f97316' },
-  { value: 'Security', label: 'Security', color: '#14b8a6' },
-  { value: 'PurchaseHistory', label: 'Purchase History', color: '#14b8a6' },
+  { value: 'General', label: 'Tổng quan', color: '#f97316' },
+  { value: 'Security', label: 'Bảo mật', color: '#14b8a6' },
   {
     value: 'IdentityAuthentication',
-    label: 'Identity Authentication  ',
+    label: 'Xác thực danh tính',
     color: '#14b8a6',
   },
 ];
@@ -62,7 +60,6 @@ export default function AccountView() {
       <div className="mt-4 px-3 sm:px-4 md:px-5">
         {currentTab === 'General' && <GeneralSection />}
         {currentTab === 'Security' && <SecuritySection />}
-        {currentTab === 'PurchaseHistory' && <PurchaseHistorySection />}
         {currentTab === 'IdentityAuthentication' && (
           <IdentityAuthenticationSection />
         )}

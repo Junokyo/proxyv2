@@ -124,23 +124,23 @@ export const MENU_SIDEBAR: MenuConfig = [
     path: '/deposit',
     requireAuth: REQUIRE_AUTH,
   },
-  {
-    title: 'Dịch vụ Facebook',
-    icon: ThumbsUp,
-    requireAuth: REQUIRE_AUTH,
-    children: [
-      {
-        title: 'Tăng mắt live stream',
-        path: '/facebook-services?tab=livestream',
-      },
-      {
-        title: 'Tăng mắt live vip',
-        path: '/facebook-services?tab=livestream-vip',
-      },
-      { title: 'Tăng like bài viết', path: '/facebook-services?tab=post-like' },
-      { title: 'Tăng view reels', path: '/facebook-services?tab=reels-view' },
-    ],
-  },
+  // {
+  //   title: 'Dịch vụ Facebook',
+  //   icon: ThumbsUp,
+  //   requireAuth: REQUIRE_AUTH,
+  //   children: [
+  //     {
+  //       title: 'Tăng mắt live stream',
+  //       path: '/facebook-services?tab=livestream',
+  //     },
+  //     {
+  //       title: 'Tăng mắt live vip',
+  //       path: '/facebook-services?tab=livestream-vip',
+  //     },
+  //     { title: 'Tăng like bài viết', path: '/facebook-services?tab=post-like' },
+  //     { title: 'Tăng view reels', path: '/facebook-services?tab=reels-view' },
+  //   ],
+  // },
   {
     title: 'Thành viên',
     icon: IdCardLanyard,
@@ -169,14 +169,14 @@ export const MENU_SIDEBAR: MenuConfig = [
   {
     heading: 'Quản trị',
     requireAuth: REQUIRE_AUTH,
-    //  roles: ['admin']
+    roles: ['admin'],
   },
 
   {
     title: 'Danh mục',
     icon: ChartBarStacked,
     requireAuth: REQUIRE_AUTH,
-    // roles: ['admin'],
+    roles: ['admin'],
     children: [
       {
         title: 'Danh mục người dùng',

@@ -1,7 +1,11 @@
+/**
+ * Action Section component
+ * Displays action buttons and options for residential proxies
+ */
 export function ActionSection() {
   return (
     <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* LEFT COLUMN */}
+      {/* Left column */}
       <div className="flex flex-col gap-6">
         {/* Exchange CDKey */}
         <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">

@@ -1,7 +1,12 @@
 import { ProxyPlanCard } from '../../components/proxy-card-plan';
 import { ActionSection } from '../ResidentialProxies/resident-proxies-action';
+
 import { IspProxyListCard } from './isp-proxy-card';
 
+/**
+ * ISP Proxies View component
+ * Displays ISP proxy plans and configurations
+ */
 export default function IspProxiesView() {
   return (
     <div className="w-full max-w-full overflow-x-hidden flex flex-col gap-6 min-w-0">

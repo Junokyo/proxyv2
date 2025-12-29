@@ -2,6 +2,10 @@ import { ProxyPlanCard } from '../../components/proxy-card-plan';
 import { ActionSection } from '../ResidentialProxies/resident-proxies-action';
 import { ResidentProxiesTrafficChartCard } from '../ResidentialProxies/resident-proxies-traffic-chart';
 
+/**
+ * Rotating ISP View component
+ * Displays rotating ISP proxy plans and traffic statistics
+ */
 export default function RotatingIspView() {
   return (
     <div className="flex flex-col gap-6">

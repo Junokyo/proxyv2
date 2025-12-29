@@ -96,16 +96,16 @@ const LiveStreamVipBoost: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Service Description */}
-      <div className="rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 p-5 text-white shadow-lg">
-        <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 flex-shrink-0">
-            <Icon icon="mdi:star" className="h-6 w-6" />
+      <div className="rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 p-4 sm:p-5 text-white shadow-lg">
+        <div className="flex items-start gap-2.5 sm:gap-3">
+          <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/20 flex-shrink-0">
+            <Icon icon="mdi:star" className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <div>
-            <h3 className="font-semibold text-lg mb-2">Tăng mắt live VIP</h3>
-            <p className="text-sm opacity-90">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-base sm:text-lg mb-1.5 sm:mb-2">Tăng mắt live VIP</h3>
+            <p className="text-xs sm:text-sm opacity-90 leading-relaxed">
               Dịch vụ tăng view livestream cao cấp với chất lượng tốt nhất. View từ tài khoản
               thật, tương tác cao, tốc độ nhanh và ổn định. Phù hợp cho các live quan trọng,
               bán hàng chuyên nghiệp.
@@ -115,17 +115,17 @@ const LiveStreamVipBoost: React.FC = () => {
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
         {/* Left Column - Input Section */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {/* Live URL Input */}
-          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">
+          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">
               Địa chỉ livestream
             </h3>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-slate-600 mb-1.5 block">
+                <label className="text-xs sm:text-sm text-slate-600 mb-1.5 block font-medium">
                   Link livestream Facebook
                 </label>
                 <input
@@ -133,7 +133,7 @@ const LiveStreamVipBoost: React.FC = () => {
                   value={liveUrl}
                   onChange={(e) => setLiveUrl(e.target.value)}
                   placeholder="https://www.facebook.com/..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                 />
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
@@ -142,7 +142,7 @@ const LiveStreamVipBoost: React.FC = () => {
                     icon="mdi:star-circle"
                     className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5"
                   />
-                  <p className="text-xs text-amber-700">
+                  <p className="text-xs sm:text-sm text-amber-700 leading-relaxed">
                     Dịch vụ VIP sử dụng view từ tài khoản có tương tác, tạo hiệu ứng tốt hơn
                   </p>
                 </div>
@@ -151,40 +151,40 @@ const LiveStreamVipBoost: React.FC = () => {
           </div>
 
           {/* Server Selection */}
-          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Chọn server VIP</h3>
-            <div className="space-y-2">
+          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">Chọn server VIP</h3>
+            <div className="space-y-2.5 sm:space-y-2">
               {SERVERS.map((server) => (
                 <div
                   key={server.id}
                   onClick={() => setSelectedServer(server)}
                   className={
-                    'p-3 border rounded-lg cursor-pointer transition ' +
+                    'p-3 sm:p-3.5 border rounded-lg cursor-pointer transition active:scale-[0.98] ' +
                     (selectedServer?.id === server.id
-                      ? 'border-amber-600 bg-amber-50'
-                      : 'border-slate-200 hover:border-amber-300')
+                      ? 'border-amber-600 bg-amber-50 shadow-sm'
+                      : 'border-slate-200 hover:border-amber-300 active:border-amber-400')
                   }
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="font-medium text-sm flex items-center gap-1">
-                      <Icon icon="mdi:star" className="h-4 w-4 text-amber-500" />
-                      {server.name}
+                  <div className="flex items-start justify-between mb-2 gap-2">
+                    <div className="font-medium text-sm sm:text-base flex items-center gap-1.5 flex-1">
+                      <Icon icon="mdi:star" className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 flex-shrink-0" />
+                      <span className="break-words">{server.name}</span>
                     </div>
-                    <div className="text-amber-600 font-semibold text-sm">
+                    <div className="text-amber-600 font-semibold text-sm sm:text-base whitespace-nowrap">
                       {formatVND(server.price)}đ/view
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
-                    <div className="flex items-center gap-1">
-                      <Icon icon="mdi:speedometer" className="h-3.5 w-3.5" />
-                      {server.speed}
+                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-600">
+                    <div className="flex items-center gap-1.5">
+                      <Icon icon="mdi:speedometer" className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="truncate">{server.speed}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Icon icon="mdi:lifebuoy" className="h-3.5 w-3.5" />
-                      {server.support}
+                    <div className="flex items-center gap-1.5">
+                      <Icon icon="mdi:lifebuoy" className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="truncate">{server.support}</span>
                     </div>
                   </div>
-                  <div className="text-xs text-slate-500 mt-1">
+                  <div className="text-xs sm:text-sm text-slate-500 mt-1.5">
                     Min: {server.minOrder} - Max: {formatVND(server.maxOrder)}
                   </div>
                 </div>
@@ -193,11 +193,11 @@ const LiveStreamVipBoost: React.FC = () => {
           </div>
 
           {/* Quantity and Duration */}
-          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Cài đặt đơn hàng</h3>
+          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">Cài đặt đơn hàng</h3>
             <div className="space-y-4">
               <div>
-                <label className="text-xs text-slate-600 mb-1.5 block">
+                <label className="text-xs sm:text-sm text-slate-600 mb-1.5 block font-medium">
                   Số lượng view
                 </label>
                 <input
@@ -206,17 +206,17 @@ const LiveStreamVipBoost: React.FC = () => {
                   onChange={(e) => setQuantity(Number(e.target.value))}
                   min={selectedServer?.minOrder || 200}
                   max={selectedServer?.maxOrder || 20000}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                 />
                 {selectedServer && (
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
                     Min: {selectedServer.minOrder} - Max: {formatVND(selectedServer.maxOrder)}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="text-xs text-slate-600 mb-1.5 block">
+                <label className="text-xs sm:text-sm text-slate-600 mb-1.5 block font-medium">
                   Thời gian (phút)
                 </label>
                 <input
@@ -225,9 +225,9 @@ const LiveStreamVipBoost: React.FC = () => {
                   onChange={(e) => setDuration(Number(e.target.value))}
                   min={10}
                   max={240}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
                   View VIP sẽ được tăng đều trong thời gian này (Min: 10 phút - Max: 240 phút)
                 </p>
               </div>
@@ -235,37 +235,37 @@ const LiveStreamVipBoost: React.FC = () => {
           </div>
 
           {/* Warranty Selection */}
-          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Gói bảo hành</h3>
-            <div className="space-y-2">
+          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">Gói bảo hành</h3>
+            <div className="space-y-2.5 sm:space-y-2">
               {WARRANTY_OPTIONS.map((option) => (
                 <div
                   key={option.value}
                   onClick={() => setWarranty(option.value)}
                   className={
-                    'p-3 border rounded-lg cursor-pointer transition flex items-center justify-between ' +
+                    'p-3 sm:p-3.5 border rounded-lg cursor-pointer transition flex items-center justify-between active:scale-[0.98] min-h-[44px] ' +
                     (warranty === option.value
-                      ? 'border-amber-600 bg-amber-50'
-                      : 'border-slate-200 hover:border-amber-300')
+                      ? 'border-amber-600 bg-amber-50 shadow-sm'
+                      : 'border-slate-200 hover:border-amber-300 active:border-amber-400')
                   }
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 sm:gap-2.5">
                     <div
                       className={
-                        'w-4 h-4 rounded-full border-2 flex items-center justify-center ' +
+                        'w-5 h-5 sm:w-4 sm:h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ' +
                         (warranty === option.value
                           ? 'border-amber-600'
                           : 'border-slate-300')
                       }
                     >
                       {warranty === option.value && (
-                        <div className="w-2 h-2 rounded-full bg-amber-600" />
+                        <div className="w-2.5 h-2.5 sm:w-2 sm:h-2 rounded-full bg-amber-600" />
                       )}
                     </div>
-                    <span className="text-sm">{option.label}</span>
+                    <span className="text-sm sm:text-base">{option.label}</span>
                   </div>
                   {option.multiplier > 1 && (
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs sm:text-sm text-slate-500 font-medium">
                       +{((option.multiplier - 1) * 100).toFixed(0)}%
                     </span>
                   )}
@@ -277,55 +277,55 @@ const LiveStreamVipBoost: React.FC = () => {
 
         {/* Right Column - Payment Info */}
         <div className="lg:sticky lg:top-4 lg:self-start">
-          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-900 mb-4">
+          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-4">
               Thông tin thanh toán
             </h3>
 
             {!selectedServer ? (
-              <div className="text-center py-8 text-slate-400">
-                <Icon icon="mdi:information-outline" className="h-12 w-12 mx-auto mb-2" />
-                <p className="text-sm">Vui lòng chọn server để xem thông tin thanh toán</p>
+              <div className="text-center py-8 sm:py-12 text-slate-400">
+                <Icon icon="mdi:information-outline" className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-2" />
+                <p className="text-xs sm:text-sm px-4">Vui lòng chọn server để xem thông tin thanh toán</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
+              <div className="space-y-4 sm:space-y-5">
+                <div className="space-y-2.5 sm:space-y-3">
+                  <div className="flex justify-between items-start text-xs sm:text-sm gap-2">
                     <span className="text-slate-600">Server:</span>
-                    <span className="font-medium">{selectedServer.name}</span>
+                    <span className="font-medium text-right">{selectedServer.name}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between items-start text-xs sm:text-sm gap-2">
                     <span className="text-slate-600">Giá/view:</span>
                     <span className="font-medium">{formatVND(selectedServer.price)}đ</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between items-start text-xs sm:text-sm gap-2">
                     <span className="text-slate-600">Số lượng:</span>
                     <span className="font-medium">{formatVND(quantity)} view</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between items-start text-xs sm:text-sm gap-2">
                     <span className="text-slate-600">Thời gian:</span>
                     <span className="font-medium">{duration} phút</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between items-start text-xs sm:text-sm gap-2">
                     <span className="text-slate-600">Bảo hành:</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-right">
                       {WARRANTY_OPTIONS.find((w) => w.value === warranty)?.label}
                     </span>
                   </div>
 
                   <div className="border-t border-slate-200 pt-3">
-                    <div className="flex justify-between text-sm mb-2">
+                    <div className="flex justify-between text-xs sm:text-sm mb-2 gap-2">
                       <span className="text-slate-600">Giá dịch vụ:</span>
                       <span className="font-medium">{formatVND(basePrice)}đ</span>
                     </div>
                     {warrantyPrice > 0 && (
-                      <div className="flex justify-between text-sm mb-2">
+                      <div className="flex justify-between text-xs sm:text-sm mb-2 gap-2">
                         <span className="text-slate-600">Phí bảo hành:</span>
                         <span className="font-medium">{formatVND(warrantyPrice)}đ</span>
                       </div>
                     )}
                     {discount > 0 && (
-                      <div className="flex justify-between text-sm mb-2 text-green-600">
+                      <div className="flex justify-between text-xs sm:text-sm mb-2 text-green-600 gap-2">
                         <span>Chiết khấu:</span>
                         <span className="font-medium">-{formatVND(discount)}đ</span>
                       </div>
@@ -333,9 +333,9 @@ const LiveStreamVipBoost: React.FC = () => {
                   </div>
 
                   <div className="border-t border-slate-200 pt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold">Tổng thanh toán:</span>
-                      <span className="text-lg font-bold text-amber-600">
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-sm sm:text-base font-semibold">Tổng thanh toán:</span>
+                      <span className="text-base sm:text-lg md:text-xl font-bold text-amber-600">
                         {formatVND(totalPrice)}đ
                       </span>
                     </div>
@@ -346,25 +346,25 @@ const LiveStreamVipBoost: React.FC = () => {
                   onClick={handleConfirmOrder}
                   disabled={!canSubmit}
                   className={
-                    'w-full py-3 rounded-lg font-medium transition flex items-center justify-center gap-2 ' +
+                    'w-full py-3 sm:py-3.5 rounded-lg font-medium text-sm sm:text-base transition flex items-center justify-center gap-2 min-h-[48px] active:scale-[0.98] ' +
                     (canSubmit
-                      ? 'bg-amber-600 text-white hover:bg-amber-700'
+                      ? 'bg-amber-600 text-white hover:bg-amber-700 active:bg-amber-800 shadow-sm'
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed')
                   }
                 >
-                  <Icon icon="mdi:star" className="h-5 w-5" />
+                  <Icon icon="mdi:star" className="h-5 w-5 sm:h-5 sm:w-5" />
                   Đặt hàng VIP
                 </button>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-3.5">
                   <div className="flex gap-2">
                     <Icon
                       icon="mdi:shield-star"
-                      className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5"
+                      className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0 mt-0.5"
                     />
-                    <div className="text-xs text-amber-700">
-                      <p className="font-semibold mb-1">Ưu điểm VIP:</p>
-                      <ul className="space-y-0.5 list-disc list-inside">
+                    <div className="text-xs sm:text-sm text-amber-700 flex-1 min-w-0">
+                      <p className="font-semibold mb-1 sm:mb-1.5">Ưu điểm VIP:</p>
+                      <ul className="space-y-0.5 sm:space-y-1 list-disc list-inside leading-relaxed">
                         <li>View từ tài khoản thật, có avatar</li>
                         <li>Tốc độ tăng nhanh và ổn định</li>
                         <li>Hỗ trợ ưu tiên 24/7</li>
@@ -380,38 +380,38 @@ const LiveStreamVipBoost: React.FC = () => {
 
       {/* Confirm Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent className="max-w-md">
+        <AlertDialogContent className="max-w-md mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận đơn hàng VIP</AlertDialogTitle>
+            <AlertDialogTitle className="text-base sm:text-lg">Xác nhận đơn hàng VIP</AlertDialogTitle>
             <AlertDialogDescription asChild>
-              <div className="space-y-4">
-                <div className="bg-slate-50 rounded-lg p-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="bg-slate-50 rounded-lg p-3 sm:p-4 space-y-2 text-xs sm:text-sm">
+                  <div className="flex justify-between items-start gap-2">
                     <span className="text-slate-600">Dịch vụ:</span>
-                    <span className="font-medium">Tăng mắt live VIP</span>
+                    <span className="font-medium text-right">Tăng mắt live VIP</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-start gap-2">
                     <span className="text-slate-600">Server:</span>
-                    <span className="font-medium">{selectedServer?.name}</span>
+                    <span className="font-medium text-right">{selectedServer?.name}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-start gap-2">
                     <span className="text-slate-600">Số lượng:</span>
                     <span className="font-medium">{formatVND(quantity)} view</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-start gap-2">
                     <span className="text-slate-600">Thời gian:</span>
                     <span className="font-medium">{duration} phút</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-start gap-2">
                     <span className="text-slate-600">Bảo hành:</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-right">
                       {WARRANTY_OPTIONS.find((w) => w.value === warranty)?.label}
                     </span>
                   </div>
                   <div className="border-t border-slate-200 pt-2 mt-2">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center gap-2">
                       <span className="font-semibold">Tổng tiền:</span>
-                      <span className="font-bold text-amber-600">
+                      <span className="font-bold text-amber-600 text-base sm:text-lg">
                         {formatVND(totalPrice)}đ
                       </span>
                     </div>
@@ -420,11 +420,11 @@ const LiveStreamVipBoost: React.FC = () => {
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto m-0">Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleSubmitOrder}
-              className="bg-amber-600 hover:bg-amber-700"
+              className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 m-0"
             >
               Xác nhận đặt hàng
             </AlertDialogAction>
@@ -436,4 +436,3 @@ const LiveStreamVipBoost: React.FC = () => {
 };
 
 export default LiveStreamVipBoost;
-

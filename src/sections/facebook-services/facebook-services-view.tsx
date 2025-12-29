@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Icon } from '@iconify/react';
 import LiveStreamBoost from './LiveStreamBoost/LiveStreamBoost';
 import LiveStreamVipBoost from './LiveStreamVipBoost/LiveStreamVipBoost';
 import PostLikeBoost from './PostLikeBoost/PostLikeBoost';
@@ -21,7 +20,7 @@ export default function FacebookServicesView() {
 
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab');
-    if (tabFromUrl && TABS_DATA.some(tab => tab.value === tabFromUrl)) {
+    if (tabFromUrl && TABS_DATA.some((tab) => tab.value === tabFromUrl)) {
       setCurrentTab(tabFromUrl);
     }
   }, [searchParams]);
@@ -39,20 +38,19 @@ export default function FacebookServicesView() {
         </h1>
 
         {/* Tabs */}
-        <div className="flex items-center gap-3 border-b border-slate-200 overflow-x-auto">
+        <div className="flex items-center gap-6 border-b border-slate-200">
           {TABS_DATA.map((tab) => (
             <button
               key={tab.value}
               type="button"
               onClick={() => handleChangeTab(tab.value)}
               className={
-                'pb-3 px-2 text-sm transition font-medium whitespace-nowrap flex items-center gap-2 ' +
+                'pb-3 text-sm transition font-medium ' +
                 (currentTab === tab.value
                   ? 'text-indigo-600 border-b-2 border-indigo-600'
                   : 'text-slate-500 hover:text-slate-900')
               }
             >
-              <Icon icon={tab.icon} className="h-4 w-4" />
               {tab.label}
             </button>
           ))}
@@ -68,4 +66,3 @@ export default function FacebookServicesView() {
     </div>
   );
 }
-

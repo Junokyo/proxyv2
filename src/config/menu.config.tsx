@@ -106,12 +106,12 @@ export const MENU_SIDEBAR: MenuConfig = [
   //   ],
   // },
   { heading: 'Menu', requireAuth: REQUIRE_AUTH },
-  {
-    title: 'Ví tiền',
-    icon: Wallet,
-    path: '/wallet',
-    requireAuth: REQUIRE_AUTH,
-  },
+  // {
+  //   title: 'Ví tiền',
+  //   icon: Wallet,
+  //   path: '/wallet',
+  //   requireAuth: REQUIRE_AUTH,
+  // },
   {
     title: 'Qui Đổi Proxy',
     icon: RefreshCcw,

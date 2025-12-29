@@ -51,7 +51,7 @@ export function IPListCategoryView() {
   const onDelete = async (id: string | number) => console.log('Delete IP', id);
 
   return (
-    <div className="w-full py-8 px-4 sm:px-6 lg:px-8">
+    <div className="w-full py-4 px-3 sm:py-6 sm:px-4 md:py-8 md:px-6 lg:px-8">
       <CategoryPage<IpItem>
         data={ipSample}
         columns={ipColumns}

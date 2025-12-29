@@ -1,6 +1,8 @@
 import { useState } from 'react';
+
 import Iconify from '@/components/iconify';
 
+// Supported programming languages for code snippets
 const LANG_TABS = [
   'cURL',
   'Go',
@@ -14,6 +16,7 @@ const LANG_TABS = [
 
 type LangKey = (typeof LANG_TABS)[number];
 
+// Code snippets for different programming languages
 const CODE_SNIPPETS: Record<LangKey, string> = {
   cURL: `curl --request POST --url https://unlocker-api.lunaproxy.com/request \\
   --header "Authorization: Bearer ***************" \\

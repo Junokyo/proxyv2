@@ -1,6 +1,11 @@
 import Iconify from '@/components/iconify';
+
 import { ProxyPlanCardProps } from './interface/proxy-card-plan.interface';
 
+/**
+ * Proxy Plan Card component
+ * Displays proxy plan information with pricing and features
+ */
 export function ProxyPlanCard({
   title,
   description,

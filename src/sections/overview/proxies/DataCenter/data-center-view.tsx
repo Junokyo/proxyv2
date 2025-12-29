@@ -2,6 +2,10 @@ import { ProxyPlanCard } from '../../components/proxy-card-plan';
 import { IspProxyListCard } from '../IspProxies/isp-proxy-card';
 import { ActionSection } from '../ResidentialProxies/resident-proxies-action';
 
+/**
+ * Data Center View component
+ * Displays datacenter proxy plans and configurations
+ */
 export default function DataCenterView() {
   return (
     <div className="w-full max-w-full overflow-x-hidden flex flex-col gap-6 min-w-0">

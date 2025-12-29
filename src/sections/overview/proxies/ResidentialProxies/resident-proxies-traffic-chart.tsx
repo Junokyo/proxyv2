@@ -3,6 +3,7 @@ type TrafficChartCardProps = {
   rangeLabel?: string;
 };
 
+// Date labels for traffic chart
 const DATES = [
   '2025-11-23 16:42',
   '2025-11-19 16:42',
@@ -17,6 +18,10 @@ const DATES = [
 // Sample traffic data in GB (8 data points corresponding to 8 dates)
 const SAMPLE_TRAFFIC_DATA = [12.5, 18.3, 15.7, 22.1, 19.4, 25.8, 28.2, 21.6];
 
+/**
+ * Resident Proxies Traffic Chart Card component
+ * Displays traffic usage statistics with chart visualization
+ */
 export function ResidentProxiesTrafficChartCard({
   title = 'Total traffic',
   rangeLabel = 'Last 30 days:',

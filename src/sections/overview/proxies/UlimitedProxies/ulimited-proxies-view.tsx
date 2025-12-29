@@ -1,7 +1,12 @@
 import { ProxyPlanCard } from '../../components/proxy-card-plan';
 import { ActionSection } from '../ResidentialProxies/resident-proxies-action';
+
 import { ServerListCard } from './ulimited-proxies-server';
 
+/**
+ * Unlimited Proxies View component
+ * Displays unlimited proxy plans and server configurations
+ */
 export default function UlimitedProxiesView() {
   return (
     <div className="w-full max-w-full overflow-x-hidden flex flex-col gap-6 min-w-0">

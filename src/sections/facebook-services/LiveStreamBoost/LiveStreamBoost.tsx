@@ -107,16 +107,16 @@ const LiveStreamBoost: React.FC = () => {
   };
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="space-y-4">
       {/* Service Description */}
-      <div className="rounded-lg sm:rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-4 sm:p-5 text-white shadow-lg">
-        <div className="flex items-start gap-2.5 sm:gap-3">
-          <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/20 flex-shrink-0">
-            <Icon icon="mdi:eye" className="h-5 w-5 sm:h-6 sm:w-6" />
+      <div className="rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-5 text-white shadow-lg">
+        <div className="flex items-start gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 flex-shrink-0">
+            <Icon icon="mdi:eye" className="h-6 w-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base sm:text-lg mb-1.5 sm:mb-2">Tăng mắt live stream</h3>
-            <p className="text-xs sm:text-sm opacity-90 leading-relaxed">
+            <h3 className="font-semibold text-lg mb-2">Tăng mắt live stream</h3>
+            <p className="text-sm opacity-90 leading-relaxed">
               Dịch vụ tăng người xem trực tiếp cho livestream Facebook của bạn. Giúp tạo độ hot,
               thu hút nhiều người xem thật hơn. View ổn định, không giảm trong quá trình live.
             </p>
@@ -125,11 +125,11 @@ const LiveStreamBoost: React.FC = () => {
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left Column - Input Section */}
-        <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-4">
           {/* Live URL Input */}
-          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
             <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">
               Địa chỉ livestream
             </h3>
@@ -143,7 +143,7 @@ const LiveStreamBoost: React.FC = () => {
                   value={liveUrl}
                   onChange={(e) => setLiveUrl(e.target.value)}
                   placeholder="https://www.facebook.com/..."
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                 />
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -161,7 +161,7 @@ const LiveStreamBoost: React.FC = () => {
           </div>
 
           {/* Server Selection */}
-          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
             <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">Chọn server</h3>
             <div className="space-y-2.5 sm:space-y-2">
               {SERVERS.map((server) => (
@@ -176,8 +176,8 @@ const LiveStreamBoost: React.FC = () => {
                   }
                 >
                   <div className="flex items-start justify-between mb-2 gap-2">
-                    <div className="font-medium text-sm sm:text-base flex-1">{server.name}</div>
-                    <div className="text-indigo-600 font-semibold text-sm sm:text-base whitespace-nowrap">
+                    <div className="font-medium text-sm sm:text-base flex-1 min-w-0 break-words">{server.name}</div>
+                    <div className="text-indigo-600 font-semibold text-sm sm:text-base whitespace-nowrap flex-shrink-0">
                       {formatVND(server.price)}đ/view
                     </div>
                   </div>
@@ -200,7 +200,7 @@ const LiveStreamBoost: React.FC = () => {
           </div>
 
           {/* Quantity and Duration */}
-          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
             <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">Cài đặt đơn hàng</h3>
             <div className="space-y-4">
               <div>
@@ -213,7 +213,7 @@ const LiveStreamBoost: React.FC = () => {
                   onChange={(e) => setQuantity(Number(e.target.value))}
                   min={selectedServer?.minOrder || 100}
                   max={selectedServer?.maxOrder || 10000}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                 />
                 {selectedServer && (
                   <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
@@ -232,7 +232,7 @@ const LiveStreamBoost: React.FC = () => {
                   onChange={(e) => setDuration(Number(e.target.value))}
                   min={10}
                   max={180}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                 />
                 <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
                   View sẽ được tăng đều trong thời gian này (Min: 10 phút - Max: 180 phút)
@@ -242,7 +242,7 @@ const LiveStreamBoost: React.FC = () => {
           </div>
 
           {/* Warranty Selection */}
-          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
             <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">Gói bảo hành</h3>
             <div className="space-y-2.5 sm:space-y-2">
               {WARRANTY_OPTIONS.map((option) => (
@@ -284,7 +284,7 @@ const LiveStreamBoost: React.FC = () => {
 
         {/* Right Column - Payment Info */}
         <div className="lg:sticky lg:top-4 lg:self-start">
-          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm">
+          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
             <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-4">
               Thông tin thanh toán
             </h3>
@@ -298,8 +298,8 @@ const LiveStreamBoost: React.FC = () => {
               <div className="space-y-4 sm:space-y-5">
                 <div className="space-y-2.5 sm:space-y-3">
                   <div className="flex justify-between items-start text-xs sm:text-sm gap-2">
-                    <span className="text-slate-600">Server:</span>
-                    <span className="font-medium text-right">{selectedServer.name}</span>
+                    <span className="text-slate-600 flex-shrink-0">Server:</span>
+                    <span className="font-medium text-right break-words min-w-0">{selectedServer.name}</span>
                   </div>
                   <div className="flex justify-between items-start text-xs sm:text-sm gap-2">
                     <span className="text-slate-600">Giá/view:</span>

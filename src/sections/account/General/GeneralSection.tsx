@@ -26,177 +26,193 @@ const GeneralSection: React.FC = () => {
       : user?.username || 'User';
 
   return (
-    <div className="min-h-screen w-full bg-slate-50">
-      <div className="w-full px-3 py-4 sm:px-4 sm:py-6 lg:px-6">
-        <div className="grid grid-cols-1 gap-5 lg:gap-7.5 xl:grid-cols-2">
-          {/* Left column: Account info + status */}
-          <div className="col-span-1">
-            <div className="grid gap-5 lg:gap-7.5">
-              {/* Personal info (summary) */}
-              <div className="w-full rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    Personal info
-                  </h2>
-                </div>
+    <div className="w-full">
+      <div className="grid grid-cols-1 gap-4 md:gap-5 lg:gap-6 lg:grid-cols-2">
+        {/* Left column: Account info + status */}
+        <div className="col-span-1 space-y-4 md:space-y-5 lg:space-y-6">
+          {/* Personal info (summary) */}
+          <div className="w-full rounded-lg md:rounded-xl lg:rounded-2xl bg-white p-3 shadow-sm sm:p-4 md:p-5">
+            <h2 className="mb-3 text-sm font-semibold text-slate-900 md:text-base">
+              Personal info
+            </h2>
 
-                {/* Avatar + Basic info */}
-                <div className="mb-4 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                  <AvatarInput />
-                  <div className="space-y-1 text-sm text-slate-700">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-slate-500">Name</span>
-                      <span className="font-medium text-slate-900">
-                        {displayName}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-slate-500">Email</span>
-                      <span className="truncate font-medium text-slate-900 max-w-[220px] sm:max-w-xs">
-                        {user?.email ?? '-'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Extra condensed rows giống table summary */}
-                <div className="space-y-2 border-t border-slate-100 pt-3 text-sm text-slate-700">
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">User ID</span>
-                    <span className="font-medium text-slate-900">
-                      {user?.id ?? '-'}
-                    </span>
-                  </div>
-                </div>
+            {/* Avatar + Basic info - Compact layout */}
+            <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-3">
+              <div className="shrink-0">
+                <AvatarInput />
               </div>
-
-              {/* Basic settings kiểu AccountUserProfile.BasicSettings */}
-              <AccountSettingsSection />
-
-              {/* Trạng thái tài khoản */}
-              <div className="w-full rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    Account status
-                  </h2>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      status === 'Active'
-                        ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100'
-                        : 'bg-rose-50 text-rose-600 ring-1 ring-rose-100'
-                    }`}
-                  >
-                    {status}
-                  </span>
-                </div>
-
-                <div className="space-y-3 text-sm text-slate-700">
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">Created at</span>
-                    <span className="font-medium text-slate-900">
-                      {createdAt}
-                    </span>
+              <div className="min-w-0 flex-1 space-y-2.5 sm:space-y-2">
+                <div>
+                  <div className="mb-0.5 text-[10px] font-medium text-slate-500 sm:text-xs">
+                    Name
                   </div>
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">Current status</span>
-                    <span className="font-medium text-slate-900">
-                      {status === 'Active' ? 'Account is active' : 'Suspended'}
-                    </span>
+                  <div className="text-sm font-medium text-slate-900 break-words sm:text-base">
+                    {displayName}
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-0.5 text-[10px] font-medium text-slate-500 sm:text-xs">
+                    Email
+                  </div>
+                  <div className="text-sm font-medium text-slate-900 break-words sm:text-base md:truncate md:max-w-xs">
+                    {user?.email ?? '-'}
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* User ID - Compact row */}
+            <div className="border-t border-slate-100 pt-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium text-slate-500 sm:text-xs">
+                  User ID
+                </span>
+                <span className="break-all text-right text-xs font-medium text-slate-900 sm:text-sm">
+                  {user?.id ?? '-'}
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Right column: Usage summary + Billing/Subscription */}
-          <div className="col-span-1">
-            <div className="grid gap-5 lg:gap-7.5">
-              {/* Thống kê sử dụng (summary, không chart) */}
-              <div className="w-full rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-                <h2 className="mb-4 text-sm font-semibold text-slate-900">
-                  Usage summary
-                </h2>
+          {/* Basic settings kiểu AccountUserProfile.BasicSettings */}
+          <AccountSettingsSection />
 
-                <div className="space-y-3 text-sm text-slate-700">
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">
-                      Bandwidth used / remaining
-                    </span>
-                    <span className="font-medium text-slate-900">
-                      {bandwidthUsed} / {bandwidthTotal}
-                    </span>
-                  </div>
+          {/* Trạng thái tài khoản */}
+          <div className="w-full rounded-lg md:rounded-xl lg:rounded-2xl bg-white p-4 shadow-sm md:p-5 lg:p-6">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-sm md:text-base font-semibold text-slate-900">
+                Account status
+              </h2>
+              <span
+                className={`inline-flex items-center self-start rounded-full px-2.5 py-0.5 text-xs font-medium sm:self-auto ${
+                  status === 'Active'
+                    ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100'
+                    : 'bg-rose-50 text-rose-600 ring-1 ring-rose-100'
+                }`}
+              >
+                {status}
+              </span>
+            </div>
 
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">Active proxies</span>
-                    <span className="font-medium text-slate-900">
-                      {proxiesActive}
-                    </span>
-                  </div>
+            <div className="space-y-3 text-sm text-slate-700">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Created at
+                </span>
+                <span className="break-words text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {createdAt}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Current status
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {status === 'Active' ? 'Account is active' : 'Suspended'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">Current plan</span>
-                    <span className="font-medium text-slate-900">
-                      {currentPlan}
-                    </span>
-                  </div>
+        {/* Right column: Usage summary + Billing/Subscription */}
+        <div className="col-span-1 space-y-4 md:space-y-5 lg:space-y-6">
+          {/* Thống kê sử dụng (summary, không chart) */}
+          <div className="w-full rounded-lg md:rounded-xl lg:rounded-2xl bg-white p-4 shadow-sm md:p-5 lg:p-6">
+            <h2 className="mb-4 text-sm md:text-base font-semibold text-slate-900">
+              Usage summary
+            </h2>
 
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">Expire at</span>
-                    <span className="font-medium text-slate-900">
-                      {planExpireAt}
-                    </span>
-                  </div>
-                </div>
+            <div className="space-y-3 text-sm text-slate-700">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Bandwidth used / remaining
+                </span>
+                <span className="whitespace-nowrap text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {bandwidthUsed} / {bandwidthTotal}
+                </span>
               </div>
 
-              {/* Billing / Subscription */}
-              <div className="w-full rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    Billing &amp; Subscription
-                  </h2>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Active proxies
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {proxiesActive}
+                </span>
+              </div>
 
-                  {/* Auto-renew switch */}
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={autoRenew}
-                    onClick={() => setAutoRenew((v) => !v)}
-                    className={`flex h-6 w-11 items-center rounded-full transition ${
-                      autoRenew ? 'bg-blue-500' : 'bg-slate-300'
-                    }`}
-                  >
-                    <span
-                      className={`h-5 w-5 transform rounded-full bg-white shadow-sm transition ${
-                        autoRenew ? 'translate-x-5' : 'translate-x-0.5'
-                      }`}
-                    />
-                  </button>
-                </div>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Current plan
+                </span>
+                <span className="break-words text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {currentPlan}
+                </span>
+              </div>
 
-                <div className="space-y-3 text-sm text-slate-700">
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">Current plan</span>
-                    <span className="font-medium text-slate-900">
-                      {billingPlan}
-                    </span>
-                  </div>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Expire at
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {planExpireAt}
+                </span>
+              </div>
+            </div>
+          </div>
 
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">Next renewal date</span>
-                    <span className="font-medium text-slate-900">
-                      {renewAt}
-                    </span>
-                  </div>
+          {/* Billing / Subscription */}
+          <div className="w-full rounded-lg md:rounded-xl lg:rounded-2xl bg-white p-4 shadow-sm md:p-5 lg:p-6">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-sm md:text-base font-semibold text-slate-900">
+                Billing &amp; Subscription
+              </h2>
 
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-slate-500">Auto-renew</span>
-                    <span className="font-medium text-slate-900">
-                      {autoRenew ? 'ON' : 'OFF'}
-                    </span>
-                  </div>
-                </div>
+              {/* Auto-renew switch */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={autoRenew}
+                onClick={() => setAutoRenew((v) => !v)}
+                className={`flex h-6 w-11 shrink-0 self-start items-center rounded-full transition sm:self-auto ${
+                  autoRenew ? 'bg-blue-500' : 'bg-slate-300'
+                }`}
+              >
+                <span
+                  className={`h-5 w-5 transform rounded-full bg-white shadow-sm transition ${
+                    autoRenew ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-sm text-slate-700">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Current plan
+                </span>
+                <span className="break-words text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {billingPlan}
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Next renewal date
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {renewAt}
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs sm:text-sm text-slate-500">
+                  Auto-renew
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-900 sm:text-right">
+                  {autoRenew ? 'ON' : 'OFF'}
+                </span>
               </div>
             </div>
           </div>

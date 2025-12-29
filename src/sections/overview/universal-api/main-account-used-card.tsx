@@ -1,3 +1,4 @@
+// Date labels for main account usage chart
 const DATES = [
   '2025-10-25',
   '2025-10-28',
@@ -12,6 +13,10 @@ const DATES = [
   '2025-11-24',
 ];
 
+/**
+ * Main Account Used Card component
+ * Displays main account usage statistics
+ */
 export default function MainAccountUsedCard() {
   return (
     <div className="w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

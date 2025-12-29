@@ -2,13 +2,14 @@ import { useCallback, useState } from 'react';
 import ProxiesView from './proxies/proxies-view';
 import UniversalApiView from './universal-api/universal-api-view';
 
+// Tabs configuration for overview page
 const TABS_DATA = [
   { value: 'proxies', label: 'Proxies', color: '#f97316' },
   { value: 'scraping', label: 'Scraping Solutions', color: '#14b8a6' },
 ];
 
 export default function OverviewView() {
-  const [currentTab, setCurrentTab] = useState('proxies');
+  const [currentTab, setCurrentTab] = useState<string>('proxies');
 
   const handleChangeTab = useCallback((value: string) => {
     setCurrentTab(value);
@@ -42,7 +43,7 @@ export default function OverviewView() {
         </span> */}
       </div>
 
-      {/* Nội dung tab */}
+      {/* Tab content */}
       <div className="mt-4 text-sm text-slate-600 w-full max-w-full overflow-x-hidden">
         {currentTab === 'proxies' && (
           <div className="bg-white p-3 sm:p-5 w-full max-w-full overflow-x-hidden">

@@ -1,7 +1,12 @@
 import { ProxyPlanCard } from '../../components/proxy-card-plan';
+
 import { ActionSection } from './resident-proxies-action';
 import { ResidentProxiesTrafficChartCard } from './resident-proxies-traffic-chart';
 
+/**
+ * Residential Proxies View component
+ * Displays residential proxy plans and traffic statistics
+ */
 export default function ResidentialProxiesView() {
   return (
     <div className="w-full max-w-full flex flex-col gap-6 overflow-x-hidden">

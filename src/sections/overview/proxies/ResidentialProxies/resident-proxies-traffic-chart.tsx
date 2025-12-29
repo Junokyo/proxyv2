@@ -3,6 +3,7 @@ type TrafficChartCardProps = {
   rangeLabel?: string;
 };
 
+// Date labels for traffic chart
 const DATES = [
   '2025-11-23 16:42',
   '2025-11-19 16:42',
@@ -14,6 +15,13 @@ const DATES = [
   '2025-10-26 16:42',
 ];
 
+// Sample traffic data in GB (8 data points corresponding to 8 dates)
+const SAMPLE_TRAFFIC_DATA = [12.5, 18.3, 15.7, 22.1, 19.4, 25.8, 28.2, 21.6];
+
+/**
+ * Resident Proxies Traffic Chart Card component
+ * Displays traffic usage statistics with chart visualization
+ */
 export function ResidentProxiesTrafficChartCard({
   title = 'Total traffic',
   rangeLabel = 'Last 30 days:',
@@ -47,11 +55,88 @@ export function ResidentProxiesTrafficChartCard({
           </div>
           {/* Horizontal axis line (bottom) */}
           <div className="absolute bottom-8 left-0 right-0 border-t border-slate-100" />
+          
+          {/* Horizontal grid lines */}
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="absolute left-0 right-0 border-t border-slate-100"
+              style={{
+                bottom: `${8 + (idx + 1) * 25}%`,
+              }}
+            />
+          ))}
         </div>
 
-        {/* Center text */}
-        <div className="flex h-full flex-col items-center justify-center">
-          <span className="text-sm text-slate-500">No data to show</span>
+        {/* Y-axis labels */}
+        <div className="absolute left-2 top-4 bottom-8 flex flex-col justify-between text-[10px] text-slate-400 pointer-events-none">
+          <span>{Math.max(...SAMPLE_TRAFFIC_DATA).toFixed(1)} GB</span>
+          <span>{(Math.max(...SAMPLE_TRAFFIC_DATA) * 0.75).toFixed(1)} GB</span>
+          <span>{(Math.max(...SAMPLE_TRAFFIC_DATA) * 0.5).toFixed(1)} GB</span>
+          <span>{(Math.max(...SAMPLE_TRAFFIC_DATA) * 0.25).toFixed(1)} GB</span>
+          <span>0 GB</span>
+        </div>
+
+        {/* Chart SVG */}
+        <div className="absolute inset-0 pt-4 pb-8 pl-8 pr-4">
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            {/* Area fill */}
+            <defs>
+              <linearGradient id="trafficGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#f97316" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#f97316" stopOpacity="0.05" />
+              </linearGradient>
+            </defs>
+            
+            {/* Area path */}
+            <path
+              d={`M 0,${100 - (SAMPLE_TRAFFIC_DATA[0] / Math.max(...SAMPLE_TRAFFIC_DATA)) * 100} ${SAMPLE_TRAFFIC_DATA.map(
+                (value, index) => {
+                  const x = (index / (SAMPLE_TRAFFIC_DATA.length - 1)) * 100;
+                  const y = 100 - (value / Math.max(...SAMPLE_TRAFFIC_DATA)) * 100;
+                  return `L ${x},${y}`;
+                }
+              ).join(' ')} L 100,100 L 0,100 Z`}
+              fill="url(#trafficGradient)"
+            />
+            
+            {/* Line path */}
+            <path
+              d={`M 0,${100 - (SAMPLE_TRAFFIC_DATA[0] / Math.max(...SAMPLE_TRAFFIC_DATA)) * 100} ${SAMPLE_TRAFFIC_DATA.map(
+                (value, index) => {
+                  const x = (index / (SAMPLE_TRAFFIC_DATA.length - 1)) * 100;
+                  const y = 100 - (value / Math.max(...SAMPLE_TRAFFIC_DATA)) * 100;
+                  return `L ${x},${y}`;
+                }
+              ).join(' ')}`}
+              fill="none"
+              stroke="#f97316"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            
+            {/* Data points */}
+            {SAMPLE_TRAFFIC_DATA.map((value, index) => {
+              const x = (index / (SAMPLE_TRAFFIC_DATA.length - 1)) * 100;
+              const y = 100 - (value / Math.max(...SAMPLE_TRAFFIC_DATA)) * 100;
+              return (
+                <circle
+                  key={index}
+                  cx={x}
+                  cy={y}
+                  r="2"
+                  fill="#f97316"
+                  stroke="white"
+                  strokeWidth="1.5"
+                />
+              );
+            })}
+          </svg>
         </div>
 
         {/* Bottom axis labels */}

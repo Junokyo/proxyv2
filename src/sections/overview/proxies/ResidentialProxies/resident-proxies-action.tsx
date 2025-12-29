@@ -1,12 +1,16 @@
+/**
+ * Action Section component
+ * Displays action buttons and options for residential proxies
+ */
 export function ActionSection() {
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      {/* LEFT COLUMN */}
-      <div className="flex flex-col gap-4 sm:gap-6">
+    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Left column */}
+      <div className="flex flex-col gap-6">
         {/* Exchange CDKey */}
         <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-white to-yellow-50/50 p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500"></div>
-          
+
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 text-white text-xl shadow-md">
               🔑
@@ -31,7 +35,7 @@ export function ActionSection() {
         {/* Affiliate program */}
         <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-white via-amber-50/30 to-orange-50/50 p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-400"></div>
-          
+
           <div className="flex items-center gap-3 mb-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white text-xl shadow-md">
               🏆
@@ -45,14 +49,17 @@ export function ActionSection() {
             Invite friends and get{' '}
             <span className="text-amber-600 font-bold text-lg">
               10% commission
-            </span> on their purchases!
+            </span>{' '}
+            on their purchases!
           </p>
 
           {/* Withdrawable */}
           <div className="mb-5 p-4 rounded-xl bg-gradient-to-br from-yellow-100 to-amber-100 border border-amber-200">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs font-medium text-slate-600 mb-1">Available Balance</div>
+                <div className="text-xs font-medium text-slate-600 mb-1">
+                  Available Balance
+                </div>
                 <div className="text-3xl font-bold text-slate-900">$0</div>
               </div>
 
@@ -64,7 +71,9 @@ export function ActionSection() {
 
           {/* Invitation code */}
           <div className="mb-4">
-            <label className="text-xs font-semibold text-slate-600 mb-2 block">Your Invitation Code:</label>
+            <label className="text-xs font-semibold text-slate-600 mb-2 block">
+              Your Invitation Code:
+            </label>
             <div className="flex items-center gap-2 rounded-xl border-2 border-amber-200 bg-white px-4 py-3 text-sm font-mono font-semibold text-slate-900">
               B9BL23XJ
               <button className="ml-auto flex items-center gap-1 text-amber-600 hover:text-amber-700 transition-colors">
@@ -76,7 +85,9 @@ export function ActionSection() {
 
           {/* Invitation link */}
           <div>
-            <label className="text-xs font-semibold text-slate-600 mb-2 block">Your Invitation Link:</label>
+            <label className="text-xs font-semibold text-slate-600 mb-2 block">
+              Your Invitation Link:
+            </label>
             <div className="flex items-center gap-2 overflow-hidden rounded-xl border-2 border-amber-200 bg-white px-4 py-3">
               <span className="truncate text-sm text-slate-700">
                 https://www.lunaproxy.com/register?invitation_XXXXXX
@@ -94,7 +105,7 @@ export function ActionSection() {
         {/* Support contact */}
         <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-white to-blue-50/50 p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-amber-400 to-yellow-400"></div>
-          
+
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xl shadow-md">
               💬
@@ -129,7 +140,7 @@ export function ActionSection() {
         {/* Quick Stats Card */}
         <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 sm:p-6 shadow-lg">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500"></div>
-          
+
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 text-white text-xl shadow-md">
               📊
@@ -141,15 +152,21 @@ export function ActionSection() {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-amber-100">
-              <span className="text-sm font-medium text-slate-600">Active Services</span>
+              <span className="text-sm font-medium text-slate-600">
+                Active Services
+              </span>
               <span className="text-lg font-bold text-amber-600">0</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-amber-100">
-              <span className="text-sm font-medium text-slate-600">Total Usage</span>
+              <span className="text-sm font-medium text-slate-600">
+                Total Usage
+              </span>
               <span className="text-lg font-bold text-amber-600">0 GB</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-amber-100">
-              <span className="text-sm font-medium text-slate-600">Referrals</span>
+              <span className="text-sm font-medium text-slate-600">
+                Referrals
+              </span>
               <span className="text-lg font-bold text-amber-600">0</span>
             </div>
           </div>

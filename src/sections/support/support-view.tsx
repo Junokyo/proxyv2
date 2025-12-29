@@ -64,7 +64,7 @@ const CONTACT_CHANNELS = [
     id: 'ticket',
     name: 'Ticket System',
     icon: 'mdi:ticket',
-    color: 'from-purple-500 to-purple-600',
+    color: 'from-blue-500 to-blue-600',
     description: 'Dùng khi cần xử lý kỹ, theo dõi tiến độ rõ ràng',
     items: [
       {
@@ -78,7 +78,7 @@ const CONTACT_CHANNELS = [
     id: 'email',
     name: 'Email hỗ trợ',
     icon: 'mdi:email',
-    color: 'from-green-500 to-green-600',
+    color: 'from-blue-500 to-blue-600',
     email: 'support@yourproxy.com',
     description: 'Telegram không liên hệ được hoặc các vấn đề nghiêm túc',
     responseTime: 'Trong vòng 24h',
@@ -514,7 +514,7 @@ export default function SupportView() {
         );
       case 'review_requested':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-xs font-semibold text-purple-700">
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
             <Icon icon="mdi:refresh" className="h-3.5 w-3.5" />
             Yêu cầu xem lại
           </span>
@@ -531,59 +531,31 @@ export default function SupportView() {
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="mb-4 sm:mb-6 px-1">
-        <h1 className="text-lg sm:text-xl font-semibold text-slate-900 mb-1 sm:mb-2">
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-slate-900 mb-4">
           Hỗ trợ khách hàng
         </h1>
-        <p className="text-xs sm:text-sm text-slate-600">
-          Xử lý nhanh - Rõ ràng - Không lòng vòng
-        </p>
-      </div>
 
-      {/* Navigation Tabs - Responsive */}
-      <div className="mb-4 sm:mb-6 -mx-1 px-1">
-        <div className="flex items-center gap-2 sm:gap-3 border-b border-slate-200 overflow-x-auto scrollbar-hide">
+        {/* Tabs */}
+        <div className="flex items-center gap-6 border-b border-slate-200">
           {[
-            { value: 'contact', label: 'Kênh liên hệ', icon: 'mdi:phone' },
-            {
-              value: 'faq',
-              label: 'FAQ',
-              icon: 'mdi:frequently-asked-questions',
-            },
-            {
-              value: 'status',
-              label: 'Trạng thái hệ thống',
-              icon: 'mdi:server',
-            },
-            { value: 'report', label: 'Báo lỗi', icon: 'mdi:bug' },
-            { value: 'tickets', label: 'Ticket của tôi', icon: 'mdi:ticket' },
+            { value: 'contact', label: 'Kênh liên hệ' },
+            { value: 'faq', label: 'FAQ' },
+            { value: 'status', label: 'Trạng thái hệ thống' },
+            { value: 'report', label: 'Báo lỗi' },
+            { value: 'tickets', label: 'Ticket của tôi' },
           ].map((tab) => (
             <button
               key={tab.value}
               onClick={() => setActiveSection(tab.value)}
               className={
-                'pb-2.5 sm:pb-3 px-3 sm:px-4 text-xs sm:text-sm transition font-medium whitespace-nowrap flex items-center gap-1.5 sm:gap-2 min-h-[44px] flex-shrink-0 ' +
+                'pb-3 text-sm transition font-medium ' +
                 (activeSection === tab.value
-                  ? 'text-indigo-600 border-b-2 border-indigo-600'
-                  : 'text-slate-500 hover:text-slate-900 active:text-slate-900 border-b-2 border-transparent')
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-slate-500 hover:text-slate-900')
               }
             >
-              <Icon
-                icon={tab.icon}
-                className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0"
-              />
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className="sm:hidden">
-                {tab.value === 'contact'
-                  ? 'Liên hệ'
-                  : tab.value === 'faq'
-                    ? 'FAQ'
-                    : tab.value === 'status'
-                      ? 'Trạng thái'
-                      : tab.value === 'report'
-                        ? 'Báo lỗi'
-                        : 'Ticket'}
-              </span>
+              {tab.label}
             </button>
           ))}
         </div>
@@ -591,20 +563,20 @@ export default function SupportView() {
 
       {/* Contact Channels Section */}
       {activeSection === 'contact' && (
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4">
           {/* Warning Banner */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
-            <div className="flex gap-2 sm:gap-3">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div className="flex gap-3">
               <Icon
                 icon="mdi:shield-alert"
-                className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0 mt-0.5"
+                className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-xs sm:text-sm text-amber-800">
+              <div className="text-sm text-amber-800">
                 <p className="font-semibold mb-1">🚫 Cảnh báo quan trọng</p>
-                <p className="mb-1.5 sm:mb-2">
+                <p className="mb-2">
                   Chúng tôi KHÔNG hỗ trợ và sẽ khóa tài khoản nếu phát hiện:
                 </p>
-                <ul className="list-disc list-inside space-y-0.5 sm:space-y-1 text-xs sm:text-sm">
+                <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>Hack, xâm nhập trái phép</li>
                   <li>Spam email/message</li>
                   <li>Fraud - Lừa đảo tài chính</li>
@@ -616,21 +588,21 @@ export default function SupportView() {
           </div>
 
           {/* Contact Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {CONTACT_CHANNELS.map((channel) => (
               <div
                 key={channel.id}
-                className="rounded-lg sm:rounded-xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md transition"
+                className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm hover:shadow-md transition"
               >
                 <div
-                  className={`flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 p-2.5 sm:p-3 rounded-lg bg-gradient-to-br ${channel.color} text-white`}
+                  className={`flex items-center gap-3 mb-4 p-3 rounded-lg bg-gradient-to-br ${channel.color} text-white`}
                 >
                   <Icon
                     icon={channel.icon}
-                    className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0"
+                    className="h-6 w-6 flex-shrink-0"
                   />
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-sm sm:text-base truncate">
+                    <h3 className="font-semibold text-base truncate">
                       {channel.name}
                     </h3>
                     {channel.priority && (
@@ -642,18 +614,18 @@ export default function SupportView() {
                 </div>
 
                 {channel.description && (
-                  <p className="text-xs sm:text-sm text-slate-600 mb-2 sm:mb-3">
+                  <p className="text-sm text-slate-600 mb-3">
                     {channel.description}
                   </p>
                 )}
 
-                <div className="space-y-2 sm:space-y-3">
+                <div className="space-y-3">
                   {channel.items?.map((item, idx) => (
                     <div
                       key={idx}
-                      className="border-l-2 border-slate-200 pl-2 sm:pl-3"
+                      className="border-l-2 border-slate-200 pl-3"
                     >
-                      <div className="text-xs font-semibold text-slate-700 mb-0.5 sm:mb-1">
+                      <div className="text-xs font-semibold text-slate-700 mb-1">
                         {item.label}
                       </div>
                       {'link' in item && item.link ? (
@@ -661,21 +633,21 @@ export default function SupportView() {
                           href={item.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs sm:text-sm text-indigo-600 hover:underline font-medium flex items-center gap-1 break-all"
+                          className="text-sm text-blue-600 hover:underline font-medium flex items-center gap-1 break-all"
                         >
                           <span className="break-all">{item.value}</span>
                           <Icon
                             icon="mdi:open-in-new"
-                            className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0"
+                            className="h-3.5 w-3.5 flex-shrink-0"
                           />
                         </a>
                       ) : (
-                        <div className="text-xs sm:text-sm text-slate-600 break-words">
+                        <div className="text-sm text-slate-600 break-words">
                           {item.value}
                         </div>
                       )}
                       {'description' in item && item.description && (
-                        <div className="text-xs text-slate-500 mt-0.5 sm:mt-1 break-words">
+                        <div className="text-xs text-slate-500 mt-1 break-words">
                           {item.description}
                         </div>
                       )}
@@ -683,10 +655,10 @@ export default function SupportView() {
                   ))}
 
                   {channel.email && (
-                    <div className="border-l-2 border-slate-200 pl-2 sm:pl-3">
+                    <div className="border-l-2 border-slate-200 pl-3">
                       <a
                         href={`mailto:${channel.email}`}
-                        className="text-xs sm:text-sm text-indigo-600 hover:underline font-medium break-all"
+                        className="text-sm text-blue-600 hover:underline font-medium break-all"
                       >
                         {channel.email}
                       </a>
@@ -694,15 +666,15 @@ export default function SupportView() {
                   )}
 
                   {channel.statuses && (
-                    <div className="border-l-2 border-slate-200 pl-2 sm:pl-3">
+                    <div className="border-l-2 border-slate-200 pl-3">
                       <div className="text-xs font-semibold text-slate-700 mb-1">
                         Trạng thái ticket
                       </div>
-                      <div className="flex gap-1.5 sm:gap-2 flex-wrap">
+                      <div className="flex gap-2 flex-wrap">
                         {channel.statuses.map((status) => (
                           <span
                             key={status}
-                            className="text-xs px-2 py-0.5 sm:py-1 bg-slate-100 text-slate-700 rounded"
+                            className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded"
                           >
                             {status}
                           </span>
@@ -712,12 +684,12 @@ export default function SupportView() {
                   )}
                 </div>
 
-                <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 space-y-1.5 sm:space-y-2">
+                <div className="mt-4 pt-4 border-t border-slate-200 space-y-2">
                   {channel.responseTime && (
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
                       <Icon
                         icon="mdi:clock-outline"
-                        className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0"
+                        className="h-4 w-4 flex-shrink-0"
                       />
                       <span className="break-words">
                         Phản hồi: {channel.responseTime}
@@ -725,10 +697,10 @@ export default function SupportView() {
                     </div>
                   )}
                   {channel.workingHours && (
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
                       <Icon
                         icon="mdi:calendar-clock"
-                        className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0"
+                        className="h-4 w-4 flex-shrink-0"
                       />
                       <span className="break-words">
                         {channel.workingHours}
@@ -744,14 +716,14 @@ export default function SupportView() {
 
       {/* FAQ Section */}
       {activeSection === 'faq' && (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
-            <div className="flex gap-2 sm:gap-3">
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div className="flex gap-3">
               <Icon
                 icon="mdi:information"
-                className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5"
+                className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-xs sm:text-sm text-blue-800">
+              <div className="text-sm text-blue-800">
                 <p className="font-semibold">💡 Mẹo</p>
                 <p>
                   Đọc FAQ trước khi hỏi – Tiết kiệm thời gian cho cả hai bên!
@@ -763,35 +735,35 @@ export default function SupportView() {
           {FAQ_DATA.map((category, idx) => (
             <div
               key={idx}
-              className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden"
+              className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden"
             >
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-3 sm:p-4 border-b border-slate-200">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-indigo-600 text-white flex-shrink-0">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-50 p-4 border-b border-slate-200">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white flex-shrink-0">
                     <Icon
                       icon={category.icon}
-                      className="h-4 w-4 sm:h-5 sm:w-5"
+                      className="h-5 w-5"
                     />
                   </div>
-                  <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
+                  <h3 className="font-semibold text-slate-900 text-base">
                     {category.category}
                   </h3>
                 </div>
               </div>
-              <div className="p-3 sm:p-4">
+              <div className="p-4">
                 <Accordion type="single" collapsible className="w-full">
                   {category.items.map((item, itemIdx) => (
                     <AccordionItem
                       key={itemIdx}
                       value={`item-${idx}-${itemIdx}`}
                     >
-                      <AccordionTrigger className="text-left hover:no-underline py-2 sm:py-3">
-                        <span className="text-xs sm:text-sm font-medium pr-2">
+                      <AccordionTrigger className="text-left hover:no-underline py-3">
+                        <span className="text-sm font-medium pr-2">
                           {item.question}
                         </span>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="text-xs sm:text-sm text-slate-600 whitespace-pre-line bg-slate-50 p-3 sm:p-4 rounded-lg">
+                        <div className="text-sm text-slate-600 whitespace-pre-line bg-slate-50 p-4 rounded-lg">
                           {item.answer}
                         </div>
                       </AccordionContent>
@@ -806,14 +778,14 @@ export default function SupportView() {
 
       {/* System Status Section */}
       {activeSection === 'status' && (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
-            <div className="flex gap-2 sm:gap-3">
+        <div className="space-y-4">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+            <div className="flex gap-3">
               <Icon
                 icon="mdi:check-circle"
-                className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0 mt-0.5"
+                className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-xs sm:text-sm text-green-800">
+              <div className="text-sm text-green-800">
                 <p className="font-semibold">Hệ thống hoạt động tốt</p>
                 <p>
                   Tất cả dịch vụ đang hoạt động bình thường. Khi có sự cố lớn,
@@ -823,12 +795,12 @@ export default function SupportView() {
             </div>
           </div>
 
-          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-3 sm:p-4 border-b border-slate-200">
-              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
+          <div className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 border-b border-slate-200">
+              <h3 className="font-semibold text-slate-900 text-base">
                 Trạng thái dịch vụ
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              <p className="text-sm text-slate-600 mt-1">
                 Cập nhật theo thời gian thực
               </p>
             </div>
@@ -836,16 +808,16 @@ export default function SupportView() {
               {SYSTEM_STATUS.map((service, idx) => (
                 <div
                   key={idx}
-                  className="p-3 sm:p-4 hover:bg-slate-50 transition"
+                  className="p-4 hover:bg-slate-50 transition"
                 >
-                  <div className="flex items-center justify-between gap-2 sm:gap-3">
-                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <Icon
                         icon={getStatusIcon(service.status)}
-                        className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${service.status === 'operational' ? 'text-green-600' : service.status === 'degraded' ? 'text-yellow-600' : 'text-red-600'}`}
+                        className={`h-5 w-5 flex-shrink-0 ${service.status === 'operational' ? 'text-green-600' : service.status === 'degraded' ? 'text-yellow-600' : 'text-red-600'}`}
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium text-slate-900 text-xs sm:text-sm truncate">
+                        <div className="font-medium text-slate-900 text-sm truncate">
                           {service.name}
                         </div>
                         <div className="text-xs text-slate-500">
@@ -854,7 +826,7 @@ export default function SupportView() {
                       </div>
                     </div>
                     <span
-                      className={`text-xs px-2 sm:px-3 py-1 rounded-full border flex-shrink-0 ${getStatusColor(service.status)}`}
+                      className={`text-xs px-3 py-1 rounded-full border flex-shrink-0 ${getStatusColor(service.status)}`}
                     >
                       {getStatusText(service.status)}
                     </span>
@@ -868,15 +840,15 @@ export default function SupportView() {
 
       {/* Report Issue Section */}
       {activeSection === 'report' && (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="bg-red-50 border border-red-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
-            <div className="flex gap-2 sm:gap-3">
+        <div className="space-y-4">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <div className="flex gap-3">
               <Icon
                 icon="mdi:alert"
-                className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0 mt-0.5"
+                className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-xs sm:text-sm text-red-800">
-                <p className="font-semibold mb-1.5 sm:mb-2">
+              <div className="text-sm text-red-800">
+                <p className="font-semibold mb-2">
                   ⚠️ Quy trình báo lỗi (BẮT BUỘC)
                 </p>
                 <p>
@@ -887,24 +859,24 @@ export default function SupportView() {
             </div>
           </div>
 
-          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm p-4 sm:p-6">
-            <h3 className="font-semibold text-slate-900 mb-3 sm:mb-4 text-sm sm:text-base">
+          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-6">
+            <h3 className="font-semibold text-slate-900 mb-4 text-base">
               Thông tin cần cung cấp
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {REPORT_REQUIREMENTS.map((req, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-slate-50 rounded-lg border border-slate-200"
+                  className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200"
                 >
-                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-indigo-600 text-white flex-shrink-0">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white flex-shrink-0">
                     <Icon
                       icon={req.icon}
-                      className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                      className="h-4 w-4"
                     />
                   </div>
                   <div className="min-w-0">
-                    <div className="font-medium text-slate-900 text-xs sm:text-sm">
+                    <div className="font-medium text-slate-900 text-sm">
                       {req.label}
                       {req.required && (
                         <span className="text-red-500 ml-1">*</span>
@@ -916,11 +888,11 @@ export default function SupportView() {
             </div>
           </div>
 
-          <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm p-4 sm:p-6">
-            <h3 className="font-semibold text-slate-900 mb-3 sm:mb-4 text-sm sm:text-base">
+          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-6">
+            <h3 className="font-semibold text-slate-900 mb-4 text-base">
               ❌ Không bảo hành nếu
             </h3>
-            <div className="space-y-2 sm:space-y-3">
+            <div className="space-y-3">
               {[
                 'Dùng proxy sai mục đích (hack, spam, fraud...)',
                 'Tool hoặc script cấu hình sai',
@@ -930,11 +902,11 @@ export default function SupportView() {
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm text-slate-700"
+                  className="flex items-start gap-3 text-sm text-slate-700"
                 >
                   <Icon
                     icon="mdi:close-circle"
-                    className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 flex-shrink-0 mt-0.5"
+                    className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5"
                   />
                   <span className="break-words">{item}</span>
                 </div>
@@ -942,16 +914,16 @@ export default function SupportView() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <button className="flex-1 py-2.5 sm:py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition flex items-center justify-center gap-2 min-h-[44px] text-sm sm:text-base">
-              <Icon icon="mdi:telegram" className="h-4 w-4 sm:h-5 sm:w-5" />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2 text-sm min-h-[44px]">
+              <Icon icon="mdi:telegram" className="h-5 w-5" />
               <span className="whitespace-nowrap">Liên hệ qua Telegram</span>
             </button>
             <button
               onClick={() => setIsTicketDialogOpen(true)}
-              className="flex-1 py-2.5 sm:py-3 px-4 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition flex items-center justify-center gap-2 min-h-[44px] text-sm sm:text-base"
+              className="flex-1 py-3 px-4 bg-white text-blue-600 border-2 border-blue-600 rounded-lg font-medium hover:bg-blue-50 transition flex items-center justify-center gap-2 text-sm min-h-[44px]"
             >
-              <Icon icon="mdi:ticket" className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Icon icon="mdi:ticket" className="h-5 w-5" />
               <span className="whitespace-nowrap">Tạo Ticket</span>
             </button>
           </div>
@@ -960,14 +932,14 @@ export default function SupportView() {
 
       {/* My Tickets Section */}
       {activeSection === 'tickets' && (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
-            <div className="flex gap-2 sm:gap-3">
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div className="flex gap-3">
               <Icon
                 icon="mdi:information"
-                className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5"
+                className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5"
               />
-              <div className="text-xs sm:text-sm text-blue-800">
+              <div className="text-sm text-blue-800">
                 <p className="font-semibold">💡 Theo dõi ticket</p>
                 <p>
                   Xem tất cả ticket bạn đã gửi và trạng thái xử lý của chúng.
@@ -979,15 +951,15 @@ export default function SupportView() {
           </div>
 
           {tickets.length === 0 ? (
-            <div className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm p-8 sm:p-12 text-center">
+            <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-12 text-center">
               <Icon
                 icon="mdi:ticket-outline"
-                className="h-12 w-12 sm:h-16 sm:w-16 text-slate-400 mx-auto mb-4"
+                className="h-16 w-16 text-slate-400 mx-auto mb-4"
               />
-              <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-2">
+              <h3 className="text-base font-semibold text-slate-900 mb-2">
                 Chưa có ticket nào
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 mb-4">
+              <p className="text-sm text-slate-600 mb-4">
                 Bạn chưa gửi ticket nào. Hãy tạo ticket mới để được hỗ trợ.
               </p>
               <Button
@@ -1000,22 +972,22 @@ export default function SupportView() {
               </Button>
             </div>
           ) : (
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-4">
               {tickets.map((ticket) => (
                 <div
                   key={ticket.id}
-                  className="rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition overflow-hidden"
+                  className="rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition overflow-hidden"
                 >
-                  <div className="p-4 sm:p-5">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3">
+                  <div className="p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-3">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                          <h3 className="text-sm sm:text-base font-semibold text-slate-900 truncate">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
+                          <h3 className="text-base font-semibold text-slate-900 truncate">
                             {ticket.subject}
                           </h3>
                           {getTicketStatusBadge(ticket.status)}
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600">
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
                           <span className="flex items-center gap-1">
                             <Icon icon="mdi:tag" className="h-3.5 w-3.5" />
                             {CATEGORY_LABELS[ticket.category]}
@@ -1038,16 +1010,16 @@ export default function SupportView() {
                       </div>
                     </div>
 
-                    <p className="text-xs sm:text-sm text-slate-600 mb-3 line-clamp-2">
+                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">
                       {ticket.description}
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         onClick={() => handleViewTicketDetail(ticket)}
                         variant="outline"
                         size="sm"
-                        className="flex-1 sm:flex-initial min-h-[40px] sm:min-h-[36px]"
+                        className="flex-1 sm:flex-initial min-h-[44px]"
                       >
                         <Icon icon="mdi:eye" className="h-4 w-4 mr-1.5" />
                         Xem chi tiết
@@ -1061,7 +1033,7 @@ export default function SupportView() {
                           }}
                           variant="outline"
                           size="sm"
-                          className="flex-1 sm:flex-initial min-h-[40px] sm:min-h-[36px]"
+                          className="flex-1 sm:flex-initial min-h-[44px]"
                         >
                           <Icon icon="mdi:refresh" className="h-4 w-4 mr-1.5" />
                           Yêu cầu xem lại

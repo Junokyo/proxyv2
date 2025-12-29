@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+
 import DataCenterView from './DataCenter/data-center-view';
 import IspProxiesView from './IspProxies/isp-proxies-view';
 import { ProxyTabCard } from './proxies-tab-card';
@@ -6,6 +7,7 @@ import ResidentialProxiesView from './ResidentialProxies/residential-proxies-vie
 import RotatingIspView from './Rotating/rotating-isp-view';
 import UlimitedProxiesView from './UlimitedProxies/ulimited-proxies-view';
 
+// Proxy types tabs configuration
 const TABS_DATA = [
   { value: 'rp', label: 'Residential Proxies', color: '#f97316' },
   { value: 'up', label: 'Unlimited Proxies', color: '#14b8a6' },
@@ -15,11 +17,12 @@ const TABS_DATA = [
 ];
 
 export default function ProxiesView() {
-  const [currentTab, setCurrentTab] = useState('rp');
+  const [currentTab, setCurrentTab] = useState<string>('rp');
 
   const handleChangeTab = useCallback((value: string) => {
     setCurrentTab(value);
   }, []);
+
   return (
     <div className="w-full max-w-full overflow-x-hidden">
       {/* Mobile: wrap, Desktop: grid */}
@@ -41,7 +44,7 @@ export default function ProxiesView() {
         ))}
       </div>
 
-      {/* Nội dung tab */}
+      {/* Tab content */}
       <div className="mt-4 text-sm text-slate-600 w-full max-w-full overflow-x-hidden">
         {currentTab === 'rp' && <ResidentialProxiesView />}
         {currentTab === 'up' && <UlimitedProxiesView />}

@@ -1,8 +1,13 @@
 import { ProxyPlanCard } from '../components/proxy-card-plan';
 import { ActionSection } from '../proxies/ResidentialProxies/resident-proxies-action';
+
 import MainAccountUsedCard from './main-account-used-card';
 import UniversalCrawlingIntegrationCard from './universal-crawling-integration-card';
 
+/**
+ * Universal API View component
+ * Displays scraping solutions and API integration options
+ */
 export default function UniversalApiView() {
   return (
     <div className="w-full max-w-full flex flex-col gap-4 sm:gap-6 overflow-x-hidden">

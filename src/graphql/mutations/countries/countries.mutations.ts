@@ -5,14 +5,9 @@ export const CREATE_COUNTRY_MUTATION = gql`
   mutation CreateCountry($input: CreateCountryInput!) {
     createCountry(input: $input) {
       id
-      name
       code
-      continent
-      region
-      status
-      createdAt
-      proxyCount
-      ipCount
+      name
+      flag
     }
   }
 `;
@@ -22,14 +17,9 @@ export const UPDATE_COUNTRY_MUTATION = gql`
   mutation UpdateCountry($id: ID!, $input: UpdateCountryInput!) {
     updateCountry(id: $id, input: $input) {
       id
-      name
       code
-      continent
-      region
-      status
-      createdAt
-      proxyCount
-      ipCount
+      name
+      flag
     }
   }
 `;
@@ -37,10 +27,7 @@ export const UPDATE_COUNTRY_MUTATION = gql`
 // Delete Country Mutation
 export const DELETE_COUNTRY_MUTATION = gql`
   mutation DeleteCountry($id: ID!) {
-    deleteCountry(id: $id) {
-      success
-      message
-    }
+    deleteCountry(id: $id)
   }
 `;
 

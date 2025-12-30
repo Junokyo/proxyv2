@@ -2,12 +2,6 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
-  useCountries,
-  useCreateCountry,
-  useDeleteCountry,
-  useUpdateCountry,
-} from '@/graphql/hooks/countries';
 // 2. Import Country type từ GraphQL
 import { CountryMutationResponse } from '@/graphql/types';
 import { ColumnDef } from '@tanstack/react-table';
@@ -118,82 +112,49 @@ const baseColumns: ColumnDef<Country>[] = [
 
 // Component chính
 export function CountryCategoryView() {
-  // GraphQL hooks với Bearer token header tự động
-  const {
-    data,
-    loading: countriesLoading,
-    refetch,
-  } = useCountries({
-    filter: {
-      logicalOperator: 'AND',
-      filters: [
-        {
-          field: 'name',
-          operator: 'CONTAINS',
-          value: '',
-        },
-      ],
-    },
-    sorts: [
-      {
-        field: 'name',
-        order: 'ASC',
-      },
-    ],
-    pagination: {
-      page: 1,
-      limit: 10,
-    },
-  });
-
-  const [createCountry, { loading: creating }] = useCreateCountry();
-
-  const [updateCountry, { loading: updating }] = useUpdateCountry();
-
-  const [deleteCountry, { loading: deleting }] = useDeleteCountry();
-
   const columns: ColumnDef<Country>[] = useMemo(() => {
     return baseColumns;
   }, []);
 
   // Handlers - sử dụng GraphQL mutations
   const handleAdd = async (values: CountryFormValues) => {
-    await createCountry({
-      variables: {
-        input: {
-          name: values.name,
-          code: values.code,
-          continent: values.continent,
-          region: values.region || undefined,
-          status: values.status || false,
-        },
-      },
-      onSuccess: () => refetch(),
-    });
+    // await createCountry({
+    //   variables: {
+    //     input: {
+    //       name: values.name,
+    //       code: values.code,
+    //       continent: values.continent,
+    //       region: values.region || undefined,
+    //       status: values.status || false,
+    //     },
+    //   },
+    //   onSuccess: () => refetch(),
+    // });
   };
 
   const handleEdit = async (id: string | number, values: CountryFormValues) => {
-    await updateCountry({
-      variables: {
-        id: String(id),
-        input: {
-          name: values.name,
-          code: values.code,
-          continent: values.continent,
-          region: values.region || undefined,
-          status: values.status,
-        },
-      },
-      onSuccess: () => refetch(),
-    });
+    // await updateCountry({
+    //   variables: {
+    //     id: String(id),
+    //     input: {
+    //       name: values.name,
+    //       code: values.code,
+    //       continent: values.continent,
+    //       region: values.region || undefined,
+    //       status: values.status,
+    //     },
+    //   },
+    //   onSuccess: () => refetch(),
+    // });
   };
 
   const handleDelete = async (id: string | number) => {
-    await deleteCountry({
-      variables: { id: String(id) },
-      onSuccess: () => refetch(),
-    });
+    // await deleteCountry({
+    //   variables: { id: String(id) },
+    //   onSuccess: () => refetch(),
+    // });
   };
+  const data: Country[] = [];
 
   return (
     <div className="w-full py-4 px-3 sm:py-6 sm:px-4 md:py-8 md:px-6 lg:px-8">

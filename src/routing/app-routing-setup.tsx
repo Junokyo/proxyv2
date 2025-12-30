@@ -44,6 +44,7 @@ import {
   AuthWelcomeMessagePage,
 } from '@/pages/auth';
 import BillingHistoryCategoryPage from '@/pages/category/billing-history-category/page';
+import CountryCategoryPage from '@/pages/category/country-category/page';
 import IPListCategoryPage from '@/pages/category/ip-list-category/page';
 import LogsCategoryPage from '@/pages/category/log-category/page';
 import ProxyPackageCategoryPage from '@/pages/category/proxy-package-category/page';
@@ -157,6 +158,7 @@ export function AppRoutingSetup() {
             path="/billing-history-category"
             element={<BillingHistoryCategoryPage />}
           />
+          <Route path="/country-category" element={<CountryCategoryPage />} />
           {/* ------------ */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route

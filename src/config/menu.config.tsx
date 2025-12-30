@@ -169,14 +169,14 @@ export const MENU_SIDEBAR: MenuConfig = [
   {
     heading: 'Quản trị',
     requireAuth: REQUIRE_AUTH,
-    roles: ['admin'],
+    // roles: ['admin'],
   },
 
   {
     title: 'Danh mục',
     icon: ChartBarStacked,
     requireAuth: REQUIRE_AUTH,
-    roles: ['admin'],
+    // roles: ['admin'],
     children: [
       {
         title: 'Danh mục người dùng',
@@ -201,6 +201,10 @@ export const MENU_SIDEBAR: MenuConfig = [
       {
         title: 'Danh mục lịch sử thanh toán',
         path: '/billing-history-category',
+      },
+      {
+        title: 'Danh mục quốc gia',
+        path: '/country-category',
       },
     ],
   },

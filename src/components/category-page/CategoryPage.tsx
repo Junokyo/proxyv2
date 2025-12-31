@@ -249,12 +249,15 @@ export function CategoryPage<TData extends { id: string | number }>(
     toolbarActions,
     isLoading = false,
     onRowClick,
+    totalCount,
   } = props;
 
-  const table = useTable({
+  // Use provided table instance or create a new one
+  const internalTable = useTable({
     defaultCurrentPage: 0,
     defaultRowsPerPage: defaultPageSize,
   });
+  const table = props.table || internalTable;
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -279,30 +282,41 @@ export function CategoryPage<TData extends { id: string | number }>(
     });
   }, [data, searchQuery, searchKeys]);
 
-  // Reset page to 0 when search query changes
+  // Use totalCount from server if provided, otherwise use filteredData.length (client-side)
+  const recordCount =
+    totalCount !== undefined ? totalCount : filteredData.length;
+
+  // Reset page to 0 when search query changes (only for client-side pagination)
   useEffect(() => {
-    if (searchQuery && table.page > 0) {
+    if (!totalCount && searchQuery && table.page > 0) {
       table.onResetPage();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  }, [searchQuery, totalCount]);
 
   // Calculate total pages and ensure current page is valid
-  const totalPages = Math.ceil(filteredData.length / table.rowsPerPage);
+  const totalPages = Math.ceil(recordCount / table.rowsPerPage);
 
   // Reset page if current page exceeds total pages when rowsPerPage changes
   useEffect(() => {
-    if (table.page >= totalPages && totalPages > 0) {
+    if (totalPages > 0 && table.page >= totalPages) {
       table.setPage(Math.max(0, totalPages - 1));
     }
-  }, [table.rowsPerPage, totalPages, table]);
+  }, [table.rowsPerPage, totalPages, table.page, table]);
 
   // Paginate filtered data based on useTable state
+  // For server-side pagination (when totalCount is provided), data is already paginated
+  // For client-side pagination, we slice the filtered data
   const paginatedData = useMemo(() => {
+    if (totalCount !== undefined) {
+      // Server-side pagination: data is already paginated, use as-is
+      return data;
+    }
+    // Client-side pagination: slice the filtered data
     const start = table.page * table.rowsPerPage;
     const end = start + table.rowsPerPage;
     return filteredData.slice(start, end);
-  }, [filteredData, table.page, table.rowsPerPage]);
+  }, [data, filteredData, table.page, table.rowsPerPage, totalCount]);
 
   // Add action columns to the provided columns
   const columnsWithActions = useMemo<ColumnDef<TData>[]>(() => {
@@ -353,7 +367,7 @@ export function CategoryPage<TData extends { id: string | number }>(
   const tableInstance = useReactTable({
     columns: columnsWithActions,
     data: paginatedData,
-    pageCount: Math.ceil((filteredData?.length || 0) / table.rowsPerPage),
+    pageCount: totalPages,
     getRowId: (row) => String(row.id),
     state: {
       pagination: {
@@ -443,7 +457,7 @@ export function CategoryPage<TData extends { id: string | number }>(
       <DataGrid
         table={tableInstance}
         isLoading={isLoading}
-        recordCount={filteredData.length}
+        recordCount={recordCount}
         onRowClick={onRowClick}
       >
         <Card>
@@ -468,7 +482,7 @@ export function CategoryPage<TData extends { id: string | number }>(
           <CardFooter className="px-3 sm:px-5">
             <CustomPagination
               tableHook={table}
-              recordCount={filteredData.length}
+              recordCount={recordCount}
               sizes={pageSizes}
               isLoading={isLoading}
             />

@@ -1,7 +1,7 @@
 // CountryCategoryView.tsx
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   useCountries,
   useCreateCountry,
@@ -67,14 +67,17 @@ const baseColumns: ColumnDef<Country>[] = [
 
 // Component chính
 export function CountryCategoryView() {
-  const table = useTable({ defaultRowsPerPage: 5 });
-  console.log('table', table.page, table.rowsPerPage);
+  const table = useTable({
+    defaultCurrentPage: 0,
+    defaultRowsPerPage: 5,
+  });
 
   const columns: ColumnDef<Country>[] = useMemo(() => {
     return baseColumns;
   }, []);
 
   // Fetch countries data using GraphQL query
+  // GraphQL pagination: page is 0-based, limit is the number of items per page
   const {
     data: countriesData,
     loading: countriesLoading,
@@ -82,7 +85,7 @@ export function CountryCategoryView() {
   } = useCountries(
     {
       pagination: {
-        page: table.page * table.rowsPerPage,
+        page: table.page,
         limit: table.rowsPerPage,
       },
       searchQuery: '',
@@ -90,6 +93,12 @@ export function CountryCategoryView() {
     },
     false,
   );
+
+  // Refetch when pagination changes (if using server-side pagination)
+  // Note: If you're doing client-side pagination, you can remove this
+  useEffect(() => {
+    refetch();
+  }, [table.page, table.rowsPerPage, refetch]);
 
   // GraphQL mutations
   const [createCountry, { loading: creating }] = useCreateCountry({
@@ -153,11 +162,16 @@ export function CountryCategoryView() {
     );
   }, [countriesData]);
 
+  // Get totalCount from GraphQL response for server-side pagination
+  const totalCount = countriesData?.countries?.totalCount;
+
   return (
     <div className="w-full py-4 px-3 sm:py-6 sm:px-4 md:py-8 md:px-6 lg:px-8">
       <CategoryPage<Country>
         data={countries}
         columns={columns}
+        table={table}
+        totalCount={totalCount}
         title="Danh mục quốc gia"
         description="Quản lý danh sách quốc gia và proxy"
         formSchema={countrySchema}

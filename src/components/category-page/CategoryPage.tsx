@@ -1,29 +1,225 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ColumnDef,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  PaginationState,
   Row,
   SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { Pencil, Plus, Search, Settings2, Trash2 } from 'lucide-react';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Pencil,
+  Plus,
+  Search,
+  Settings2,
+  Trash2,
+} from 'lucide-react';
+import { TableProps } from '@/types/useTableTypes';
+import { cn } from '@/lib/utils';
+import useTable from '@/hooks/use-table';
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTable } from '@/components/ui/card';
 import { DataGrid } from '@/components/ui/data-grid';
 import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visibility';
-import { DataGridPagination } from '@/components/ui/data-grid-pagination';
 import { DataGridTable } from '@/components/ui/data-grid-table';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { CategoryDeleteDialog } from './CategoryDeleteDialog';
 import { CategoryFormDialog } from './CategoryFormDialog';
 import { CategoryPageProps } from './types';
+
+interface CustomPaginationProps {
+  tableHook: TableProps;
+  recordCount: number;
+  sizes?: number[];
+  isLoading?: boolean;
+}
+
+function CustomPagination({
+  tableHook,
+  recordCount,
+  sizes = [5, 10, 25, 50, 100],
+  isLoading,
+}: CustomPaginationProps) {
+  const { page, rowsPerPage, onChangePage } = tableHook;
+  const pageCount = Math.ceil(recordCount / rowsPerPage);
+  const from = page * rowsPerPage + 1;
+  const to = Math.min((page + 1) * rowsPerPage, recordCount);
+
+  const paginationInfo = `${from} - ${to} of ${recordCount}`;
+
+  const btnBaseClasses = 'size-7 p-0 text-sm';
+  const btnArrowClasses = btnBaseClasses + ' rtl:transform rtl:rotate-180';
+
+  // Pagination limit logic
+  const paginationMoreLimit = 5;
+  const currentGroupStart =
+    Math.floor(page / paginationMoreLimit) * paginationMoreLimit;
+  const currentGroupEnd = Math.min(
+    currentGroupStart + paginationMoreLimit,
+    pageCount,
+  );
+
+  // Render page buttons based on the current group
+  const renderPageButtons = () => {
+    const buttons = [];
+    for (let i = currentGroupStart; i < currentGroupEnd; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          mode="icon"
+          variant="ghost"
+          className={cn(btnBaseClasses, 'text-muted-foreground', {
+            'bg-accent text-accent-foreground': page === i,
+          })}
+          onClick={() => {
+            if (page !== i) {
+              onChangePage(null, i);
+            }
+          }}
+        >
+          {i + 1}
+        </Button>,
+      );
+    }
+    return buttons;
+  };
+
+  // Render a "previous" ellipsis button if there are previous pages to show
+  const renderEllipsisPrevButton = () => {
+    if (currentGroupStart > 0) {
+      return (
+        <Button
+          size="sm"
+          mode="icon"
+          className={btnBaseClasses}
+          variant="ghost"
+          onClick={() => onChangePage(null, currentGroupStart - 1)}
+        >
+          ...
+        </Button>
+      );
+    }
+    return null;
+  };
+
+  // Render a "next" ellipsis button if there are more pages to show after the current group
+  const renderEllipsisNextButton = () => {
+    if (currentGroupEnd < pageCount) {
+      return (
+        <Button
+          className={btnBaseClasses}
+          variant="ghost"
+          size="sm"
+          mode="icon"
+          onClick={() => onChangePage(null, currentGroupEnd)}
+        >
+          ...
+        </Button>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div
+      data-slot="data-grid-pagination"
+      className={cn(
+        'flex flex-wrap flex-col sm:flex-row justify-between items-center gap-2.5 py-2.5 sm:py-0 grow',
+      )}
+    >
+      <div className="flex flex-wrap items-center space-x-2.5 pb-2.5 sm:pb-0 order-2 sm:order-1">
+        {isLoading ? (
+          <Skeleton className="h-8 w-44" />
+        ) : (
+          <>
+            <div className="text-sm text-muted-foreground">Rows per page</div>
+            <Select
+              value={`${rowsPerPage}`}
+              indicatorPosition="right"
+              onValueChange={(value) => {
+                const newPageSize = Number(value);
+                // Reset to page 0 and update rows per page
+                tableHook.setPage(0);
+                tableHook.setRowsPerPage(newPageSize);
+              }}
+            >
+              <SelectTrigger className="w-fit" size="sm">
+                <SelectValue placeholder={`${rowsPerPage}`} />
+              </SelectTrigger>
+              <SelectContent side="top" className="min-w-[50px]">
+                {sizes?.map((size: number) => (
+                  <SelectItem key={size} value={`${size}`}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
+        )}
+      </div>
+      <div className="flex flex-col sm:flex-row justify-center sm:justify-end items-center gap-2.5 pt-2.5 sm:pt-0 order-1 sm:order-2">
+        {isLoading ? (
+          <Skeleton className="h-8 w-60" />
+        ) : (
+          <>
+            <div className="text-sm text-muted-foreground text-nowrap order-2 sm:order-1">
+              {paginationInfo}
+            </div>
+            {pageCount > 1 && (
+              <div className="flex items-center space-x-1 order-1 sm:order-2">
+                <Button
+                  size="sm"
+                  mode="icon"
+                  variant="ghost"
+                  className={btnArrowClasses}
+                  onClick={() => onChangePage(null, page - 1)}
+                  disabled={page === 0}
+                >
+                  <span className="sr-only">Go to previous page</span>
+                  <ChevronLeftIcon className="size-4" />
+                </Button>
+
+                {renderEllipsisPrevButton()}
+
+                {renderPageButtons()}
+
+                {renderEllipsisNextButton()}
+
+                <Button
+                  size="sm"
+                  mode="icon"
+                  variant="ghost"
+                  className={btnArrowClasses}
+                  onClick={() => onChangePage(null, page + 1)}
+                  disabled={page >= pageCount - 1}
+                >
+                  <span className="sr-only">Go to next page</span>
+                  <ChevronRightIcon className="size-4" />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function CategoryPage<TData extends { id: string | number }>(
   props: CategoryPageProps<TData>,
@@ -48,17 +244,18 @@ export function CategoryPage<TData extends { id: string | number }>(
     deleteConfirmText,
     searchPlaceholder = 'Tìm kiếm...',
     searchKeys = [],
-    defaultPageSize = 10,
+    defaultPageSize = 5,
     pageSizes = [5, 10, 25, 50, 100],
     toolbarActions,
     isLoading = false,
     onRowClick,
   } = props;
 
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: defaultPageSize,
+  const table = useTable({
+    defaultCurrentPage: 0,
+    defaultRowsPerPage: defaultPageSize,
   });
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -81,6 +278,31 @@ export function CategoryPage<TData extends { id: string | number }>(
       });
     });
   }, [data, searchQuery, searchKeys]);
+
+  // Reset page to 0 when search query changes
+  useEffect(() => {
+    if (searchQuery && table.page > 0) {
+      table.onResetPage();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
+  // Calculate total pages and ensure current page is valid
+  const totalPages = Math.ceil(filteredData.length / table.rowsPerPage);
+
+  // Reset page if current page exceeds total pages when rowsPerPage changes
+  useEffect(() => {
+    if (table.page >= totalPages && totalPages > 0) {
+      table.setPage(Math.max(0, totalPages - 1));
+    }
+  }, [table.rowsPerPage, totalPages, table]);
+
+  // Paginate filtered data based on useTable state
+  const paginatedData = useMemo(() => {
+    const start = table.page * table.rowsPerPage;
+    const end = start + table.rowsPerPage;
+    return filteredData.slice(start, end);
+  }, [filteredData, table.page, table.rowsPerPage]);
 
   // Add action columns to the provided columns
   const columnsWithActions = useMemo<ColumnDef<TData>[]>(() => {
@@ -128,22 +350,37 @@ export function CategoryPage<TData extends { id: string | number }>(
     return [...columns, actionColumn];
   }, [columns]);
 
-  const table = useReactTable({
+  const tableInstance = useReactTable({
     columns: columnsWithActions,
-    data: filteredData,
-    pageCount: Math.ceil((filteredData?.length || 0) / pagination.pageSize),
+    data: paginatedData,
+    pageCount: Math.ceil((filteredData?.length || 0) / table.rowsPerPage),
     getRowId: (row) => String(row.id),
     state: {
-      pagination,
+      pagination: {
+        pageIndex: table.page,
+        pageSize: table.rowsPerPage,
+      },
       sorting,
     },
-    onPaginationChange: setPagination,
+    onPaginationChange: (updater) => {
+      if (typeof updater === 'function') {
+        const newPagination = updater({
+          pageIndex: table.page,
+          pageSize: table.rowsPerPage,
+        });
+        table.setPage(newPagination.pageIndex);
+        table.setRowsPerPage(newPagination.pageSize);
+      } else {
+        table.setPage(updater.pageIndex);
+        table.setRowsPerPage(updater.pageSize);
+      }
+    },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    manualPagination: false,
+    manualPagination: true,
   });
 
   const handleAdd = async (values: any) => {
@@ -183,7 +420,7 @@ export function CategoryPage<TData extends { id: string | number }>(
           {toolbarActions}
           {/* Column visibility uses the table instance directly */}
           <DataGridColumnVisibility
-            table={table}
+            table={tableInstance}
             trigger={
               <Button variant="outline" size="sm" className="sm:size-auto">
                 <Settings2 className="h-4 w-4" />
@@ -204,7 +441,7 @@ export function CategoryPage<TData extends { id: string | number }>(
 
       {/* Card contains only search + table */}
       <DataGrid
-        table={table}
+        table={tableInstance}
         isLoading={isLoading}
         recordCount={filteredData.length}
         onRowClick={onRowClick}
@@ -229,7 +466,12 @@ export function CategoryPage<TData extends { id: string | number }>(
             </ScrollArea>
           </CardTable>
           <CardFooter className="px-3 sm:px-5">
-            <DataGridPagination sizes={pageSizes} />
+            <CustomPagination
+              tableHook={table}
+              recordCount={filteredData.length}
+              sizes={pageSizes}
+              isLoading={isLoading}
+            />
           </CardFooter>
         </Card>
       </DataGrid>

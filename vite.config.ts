@@ -19,7 +19,8 @@ export default defineConfig({
     port: 8080,
     proxy: {
       '/graphql': {
-        target: 'https://proxy.forlike.pro/graphql',
+        target: 'https://proxy.forlike.pro',
+        rewrite: (path) => path.replace(/^\/graphql/, '/graphql/v1'), // Rewrite /graphql -> /graphql/v1
         changeOrigin: true,
       },
     },

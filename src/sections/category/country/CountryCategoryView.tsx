@@ -2,10 +2,16 @@
 'use client';
 
 import { useMemo } from 'react';
-// 2. Import Country type từ GraphQL
+import {
+  useCountries,
+  useCreateCountry,
+  useDeleteCountry,
+  useUpdateCountry,
+} from '@/graphql/hooks/countries';
 import { CountryMutationResponse } from '@/graphql/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
+import useTable from '@/hooks/use-table';
 import { DataGridColumnHeader } from '@/components/ui/data-grid-column-header';
 import { CategoryPage, FormFieldConfig } from '@/components/category-page';
 
@@ -39,27 +45,6 @@ const formFields: FormFieldConfig[] = [
     placeholder: 'VD: US, VN, JP',
     required: true,
   },
-  {
-    name: 'continent',
-    label: 'Châu lục',
-    type: 'select',
-    required: true,
-    options: [
-      { label: 'Châu Á', value: 'Asia' },
-      { label: 'Châu Âu', value: 'Europe' },
-      { label: 'Châu Mỹ', value: 'Americas' },
-      { label: 'Châu Phi', value: 'Africa' },
-      { label: 'Châu Đại Dương', value: 'Oceania' },
-      { label: 'Châu Nam Cực', value: 'Antarctica' },
-    ],
-  },
-  {
-    name: 'region',
-    label: 'Khu vực',
-    type: 'text',
-    placeholder: 'Nhập khu vực (tùy chọn)',
-  },
-  { name: 'status', label: 'Trạng thái', type: 'checkbox' },
 ];
 
 // 4. Columns
@@ -78,98 +63,100 @@ const baseColumns: ColumnDef<Country>[] = [
       <div className="font-mono text-sm">{row.original.code}</div>
     ),
   },
-  {
-    accessorKey: 'continent',
-    header: ({ column }) => (
-      <DataGridColumnHeader title="Châu lục" column={column} />
-    ),
-    cell: ({ row }) => <div>{row.original.continent}</div>,
-  },
-  {
-    accessorKey: 'region',
-    header: ({ column }) => (
-      <DataGridColumnHeader title="Khu vực" column={column} />
-    ),
-    cell: ({ row }) => <div>{row.original.region || '-'}</div>,
-  },
-  {
-    accessorKey: 'proxyCount',
-    header: ({ column }) => (
-      <DataGridColumnHeader title="Số Proxy" column={column} />
-    ),
-    cell: ({ row }) => (
-      <div>{row.original.proxyCount?.toLocaleString() || 0}</div>
-    ),
-  },
-  {
-    accessorKey: 'createdAt',
-    header: ({ column }) => (
-      <DataGridColumnHeader title="Ngày tạo" column={column} />
-    ),
-    cell: ({ row }) => <div>{row.original.createdAt}</div>,
-  },
 ];
 
 // Component chính
 export function CountryCategoryView() {
+  const table = useTable({ defaultRowsPerPage: 5 });
+  console.log('table', table.page, table.rowsPerPage);
+
   const columns: ColumnDef<Country>[] = useMemo(() => {
     return baseColumns;
   }, []);
 
+  // Fetch countries data using GraphQL query
+  const {
+    data: countriesData,
+    loading: countriesLoading,
+    refetch,
+  } = useCountries(
+    {
+      pagination: {
+        page: table.page * table.rowsPerPage,
+        limit: table.rowsPerPage,
+      },
+      searchQuery: '',
+      sorts: [],
+    },
+    false,
+  );
+
+  // GraphQL mutations
+  const [createCountry, { loading: creating }] = useCreateCountry({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const [updateCountry, { loading: updating }] = useUpdateCountry({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const [deleteCountry, { loading: deleting }] = useDeleteCountry({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
   // Handlers - sử dụng GraphQL mutations
   const handleAdd = async (values: CountryFormValues) => {
-    // await createCountry({
-    //   variables: {
-    //     input: {
-    //       name: values.name,
-    //       code: values.code,
-    //       continent: values.continent,
-    //       region: values.region || undefined,
-    //       status: values.status || false,
-    //     },
-    //   },
-    //   onSuccess: () => refetch(),
-    // });
+    await createCountry({
+      name: values.name,
+      code: values.code,
+      continent: values.continent,
+      region: values.region || undefined,
+      status: values.status ?? true,
+    });
   };
 
   const handleEdit = async (id: string | number, values: CountryFormValues) => {
-    // await updateCountry({
-    //   variables: {
-    //     id: String(id),
-    //     input: {
-    //       name: values.name,
-    //       code: values.code,
-    //       continent: values.continent,
-    //       region: values.region || undefined,
-    //       status: values.status,
-    //     },
-    //   },
-    //   onSuccess: () => refetch(),
-    // });
+    await updateCountry(String(id), {
+      name: values.name,
+      code: values.code,
+      continent: values.continent,
+      region: values.region || undefined,
+      status: values.status ?? true,
+    });
   };
 
   const handleDelete = async (id: string | number) => {
-    // await deleteCountry({
-    //   variables: { id: String(id) },
-    //   onSuccess: () => refetch(),
-    // });
+    await deleteCountry(String(id));
   };
-  const data: Country[] = [];
+
+  // Map GraphQL response to Country type (CountryMutationResponse)
+  // Query chỉ trả về id, name, code nên các fields khác dùng default values
+  const countries: Country[] = useMemo(() => {
+    return (
+      countriesData?.countries?.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        code: item.code,
+        continent: '', // Default value vì query không trả về
+        region: undefined,
+        status: true, // Default value
+        createdAt: '', // Default value
+        proxyCount: undefined,
+        ipCount: undefined,
+      })) || []
+    );
+  }, [countriesData]);
 
   return (
     <div className="w-full py-4 px-3 sm:py-6 sm:px-4 md:py-8 md:px-6 lg:px-8">
       <CategoryPage<Country>
-        data={
-          data?.countries?.items.map(
-            (item: { id: string; name: string; code: string }) => ({
-              ...item,
-              continent: '', // Placeholder since query doesn't return this
-              region: '', // Placeholder since query doesn't return this
-              status: true, // Placeholder since query doesn't return this
-              createdAt: '', // Placeholder since query doesn't return this
-            }),
-          ) || []
-        }
+        data={countries}
         columns={columns}
         title="Danh mục quốc gia"
         description="Quản lý danh sách quốc gia và proxy"

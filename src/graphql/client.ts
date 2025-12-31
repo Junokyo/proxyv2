@@ -1,21 +1,13 @@
 /**
  * Enhanced GraphQL Client Configuration
- * 
+ *
  * Apollo Client setup with improved error handling, cache configuration, and TypeScript support
  */
 
 import { keycloak } from '@/auth/lib/keycloak';
-import {
-  ApolloClient,
-  ApolloLink,
-  from,
-  HttpLink,
-  InMemoryCache,
-  NormalizedCacheObject,
-} from '@apollo/client';
+import { ApolloClient, from, HttpLink, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
-import { showGraphQLError } from './utils/error-handler';
 
 const { VITE_GRAPHQL_ENDPOINT } = import.meta.env;
 
@@ -36,9 +28,39 @@ const httpLink = new HttpLink({
  * Authentication Link
  * Automatically adds Bearer token to requests
  */
-const authLink = setContext((_, { headers }) => {
-  const token = keycloak.token;
+const authLink = setContext(async (_, { headers }) => {
+  let token = keycloak.token;
 
+  if (keycloak.authenticated && token) {
+    // Kiểm tra và refresh token nếu sắp hết hạn
+    try {
+      const refreshed = await keycloak.updateToken(30); // Refresh nếu còn < 30s
+      if (refreshed) {
+        token = keycloak.token;
+        console.log('[GraphQL Auth] Token refreshed');
+      }
+    } catch (error) {
+      console.error('[GraphQL Auth] Token refresh failed:', error);
+      // Nếu refresh fail, vẫn dùng token cũ (có thể sẽ bị reject bởi server)
+    }
+  }
+
+  // Log token info (không log full token vì security)
+  if (token) {
+    const tokenParsed = keycloak.tokenParsed;
+    console.log('[GraphQL Auth] Token parsed:', {
+      exp: tokenParsed?.exp,
+      iat: tokenParsed?.iat,
+      username: tokenParsed?.preferred_username,
+      roles: tokenParsed?.realm_access?.roles,
+    });
+    console.log(
+      '[GraphQL Auth] Authorization header:',
+      `Bearer ${token.substring(0, 20)}...`,
+    );
+  } else {
+    console.warn('[GraphQL Auth] No token available!');
+  }
   return {
     headers: {
       ...headers,
@@ -51,14 +73,9 @@ const authLink = setContext((_, { headers }) => {
  * Error Link
  * Handles GraphQL and network errors globally
  */
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path, extensions }) => {
-      console.error(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-        extensions,
-      );
-
       // Handle specific error codes if needed
       const errorCode = extensions?.code as string | undefined;
       if (errorCode === 'UNAUTHENTICATED') {
@@ -71,7 +88,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 
   if (networkError) {
     console.error(`[Network error]: ${networkError}`);
-    
+
     // Handle network errors
     if ('statusCode' in networkError && networkError.statusCode === 401) {
       // Handle 401 Unauthorized
@@ -106,7 +123,7 @@ const cache = new InMemoryCache({
  * Apollo Client Instance
  * Configured with auth, error handling, and cache
  */
-export const apolloClient = new ApolloClient<NormalizedCacheObject>({
+export const apolloClient = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
   cache,
   // Default options for all queries
@@ -123,21 +140,18 @@ export const apolloClient = new ApolloClient<NormalizedCacheObject>({
       errorPolicy: 'all',
     },
   },
-  // Enable Apollo DevTools in development
-  connectToDevTools: import.meta.env.DEV,
 });
 
 /**
  * Helper function to clear cache
  */
-export function clearApolloCache(): Promise<void> {
-  return apolloClient.clearStore();
+export async function clearApolloCache(): Promise<void> {
+  await apolloClient.clearStore();
 }
 
 /**
  * Helper function to reset cache
  */
-export function resetApolloCache(): Promise<void> {
-  return apolloClient.resetStore();
+export async function resetApolloCache(): Promise<void> {
+  await apolloClient.resetStore();
 }
-

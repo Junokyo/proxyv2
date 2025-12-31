@@ -4,6 +4,8 @@
  * TypeScript interfaces for Countries module GraphQL operations
  */
 
+import { Response } from '../interfaces/base/response.interface';
+
 // Common GraphQL input/output types
 export interface FilterRequest {
   logicalOperator?: 'AND' | 'OR';
@@ -12,7 +14,13 @@ export interface FilterRequest {
 
 export interface FilterCondition {
   field: string;
-  operator: 'CONTAINS' | 'EQUALS' | 'STARTS_WITH' | 'ENDS_WITH' | 'GREATER_THAN' | 'LESS_THAN';
+  operator:
+    | 'CONTAINS'
+    | 'EQUALS'
+    | 'STARTS_WITH'
+    | 'ENDS_WITH'
+    | 'GREATER_THAN'
+    | 'LESS_THAN';
   value: any;
 }
 
@@ -40,14 +48,11 @@ export interface CountryItem {
   id: string;
   name: string;
   code: string;
+  flag: string;
 }
 
 export interface CountriesResponse {
-  countries: {
-    items: CountryItem[];
-    totalCount: number;
-    meta?: PaginationMeta;
-  };
+  countries: Response<CountryItem>;
 }
 
 export interface GetCountriesVariables {
@@ -67,6 +72,16 @@ export interface CreateCountryInput {
 }
 
 export interface UpdateCountryInput {
+  id: string; // ID bắt buộc trong input cho mutation
+  name?: string;
+  code?: string;
+  continent?: string;
+  region?: string;
+  status?: boolean;
+}
+
+// Input type cho hook (không có id, vì id được truyền riêng)
+export interface UpdateCountryInputWithoutId {
   name?: string;
   code?: string;
   continent?: string;
@@ -79,7 +94,6 @@ export interface CreateCountryVariables {
 }
 
 export interface UpdateCountryVariables {
-  id: string;
   input: UpdateCountryInput;
 }
 
@@ -121,7 +135,6 @@ export interface CountriesStatisticsResponse {
     totalIPs: number;
   };
 }
-
 // Lazy query types
 export interface GetCountryByIdVariables {
   id: string;

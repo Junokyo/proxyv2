@@ -1,20 +1,23 @@
 /**
  * Custom GraphQL Lazy Query Hook
- * 
+ *
  * Enhanced wrapper around useLazyQuery with better error handling
  */
 
-import {
-  useLazyQuery,
-  UseLazyQueryOptions,
-  UseLazyQueryResult,
-} from '@apollo/client';
-import { DocumentNode } from 'graphql';
 import { useEffect } from 'react';
+import { useLazyQuery } from '@apollo/client';
+import type { OperationVariables } from '@apollo/client';
+import type {
+  LazyQueryHookOptions,
+  LazyQueryResultTuple,
+} from '@apollo/client/react/types/types';
+import { DocumentNode } from 'graphql';
 import { handleGraphQLError } from '../utils/error-handler';
 
-export interface UseGraphQLLazyQueryOptions<TData, TVariables>
-  extends Omit<UseLazyQueryOptions<TData, TVariables>, 'query'> {
+export interface UseGraphQLLazyQueryOptions<
+  TData,
+  TVariables extends OperationVariables = OperationVariables,
+> extends Omit<LazyQueryHookOptions<TData, TVariables>, 'query' | 'onError'> {
   query: DocumentNode;
   skipErrorToast?: boolean;
   onError?: (message: string, code?: string) => void;
@@ -22,7 +25,7 @@ export interface UseGraphQLLazyQueryOptions<TData, TVariables>
 
 /**
  * Enhanced useLazyQuery hook with automatic error handling
- * 
+ *
  * @example
  * ```tsx
  * const [loadUsers, { data, loading, error }] = useGraphQLLazyQuery({
@@ -31,23 +34,24 @@ export interface UseGraphQLLazyQueryOptions<TData, TVariables>
  *     console.error('Query error:', message, code);
  *   }
  * });
- * 
+ *
  * const handleLoad = () => {
  *   loadUsers({ variables: { page: 1 } });
  * };
  * ```
  */
-export function useGraphQLLazyQuery<TData = unknown, TVariables = Record<string, unknown>>(
+export function useGraphQLLazyQuery<
+  TData = unknown,
+  TVariables extends OperationVariables = OperationVariables,
+>(
   options: UseGraphQLLazyQueryOptions<TData, TVariables>,
-): [
-  (
-    options?: Parameters<UseLazyQueryResult<TData, TVariables>['0']>[0],
-  ) => void,
-  UseLazyQueryResult<TData, TVariables>,
-] {
-  const { skipErrorToast, onError, ...queryOptions } = options;
+): LazyQueryResultTuple<TData, TVariables> {
+  const { skipErrorToast, onError, query, ...queryOptions } = options;
 
-  const [loadQuery, result] = useLazyQuery<TData, TVariables>(queryOptions);
+  const [loadQuery, result] = useLazyQuery<TData, TVariables>(
+    query,
+    queryOptions,
+  );
 
   // Handle errors automatically
   useEffect(() => {
@@ -61,4 +65,3 @@ export function useGraphQLLazyQuery<TData = unknown, TVariables = Record<string,
 
   return [loadQuery, result];
 }
-

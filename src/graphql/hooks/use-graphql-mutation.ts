@@ -1,29 +1,14 @@
 /**
  * Custom GraphQL Mutation Hook
- * 
+ *
  * Enhanced wrapper around useMutation with better error handling and TypeScript support
  */
 
-import {
-  useMutation,
-  UseMutationOptions,
-  UseMutationResult,
-} from '@apollo/client';
-import { DocumentNode } from 'graphql';
 import { useCallback } from 'react';
-import { handleGraphQLError } from '../utils/error-handler';
-
-export interface UseGraphQLMutationOptions<TData, TVariables>
-  extends Omit<UseMutationOptions<TData, TVariables>, 'mutation'> {
-  mutation: DocumentNode;
-  skipErrorToast?: boolean;
-  onError?: (message: string, code?: string) => void;
-  onSuccess?: (data: TData) => void;
-}
-
+import { useMutation } from '@apollo/client';
 /**
  * Enhanced useMutation hook with automatic error handling
- * 
+ *
  * @example
  * ```tsx
  * const [createUser, { loading, error }] = useGraphQLMutation({
@@ -35,29 +20,52 @@ export interface UseGraphQLMutationOptions<TData, TVariables>
  *     console.error('Mutation error:', message, code);
  *   }
  * });
- * 
+ *
  * const handleCreate = () => {
  *   createUser({ variables: { name: 'John' } });
  * };
  * ```
  */
-export function useGraphQLMutation<TData = unknown, TVariables = Record<string, unknown>>(
+import type { OperationVariables } from '@apollo/client';
+import type {
+  MutationHookOptions,
+  MutationTuple,
+} from '@apollo/client/react/types/types';
+import { DocumentNode } from 'graphql';
+import { handleGraphQLError } from '../utils/error-handler';
+
+export interface UseGraphQLMutationOptions<TData, TVariables>
+  extends Omit<MutationHookOptions<TData, TVariables>, 'mutation' | 'onError'> {
+  mutation: DocumentNode;
+  skipErrorToast?: boolean;
+  onError?: (message: string, code?: string) => void;
+  onSuccess?: (data: TData) => void;
+}
+
+export function useGraphQLMutation<
+  TData = unknown,
+  TVariables extends OperationVariables = OperationVariables,
+>(
   options: UseGraphQLMutationOptions<TData, TVariables>,
 ): [
   (
-    options?: Parameters<UseMutationResult<TData, TVariables>['0']>[0],
+    options?: Parameters<MutationTuple<TData, TVariables>[0]>[0],
   ) => Promise<{ data?: TData; errors?: unknown[] }>,
-  UseMutationResult<TData, TVariables>,
+  MutationTuple<TData, TVariables>[1],
 ] {
   const {
     skipErrorToast,
     onError,
     onSuccess,
     onCompleted,
+    mutation,
     ...mutationOptions
   } = options;
 
-  const [mutate, result] = useMutation<TData, TVariables>(mutationOptions);
+  const [mutate, result] = useMutation<TData, TVariables>(
+    mutation,
+    mutationOptions,
+  );
 
   const enhancedMutate = useCallback(
     async (
@@ -75,7 +83,7 @@ export function useGraphQLMutation<TData = unknown, TVariables = Record<string, 
             showToast: !skipErrorToast,
             onError,
           });
-          return { errors: response.errors };
+          return { errors: [...response.errors] };
         }
 
         if (response.data) {
@@ -83,7 +91,7 @@ export function useGraphQLMutation<TData = unknown, TVariables = Record<string, 
           onCompleted?.(response.data);
         }
 
-        return { data: response.data };
+        return { data: response.data ?? undefined };
       } catch (error) {
         handleGraphQLError(error as Error, {
           showToast: !skipErrorToast,
@@ -97,4 +105,3 @@ export function useGraphQLMutation<TData = unknown, TVariables = Record<string, 
 
   return [enhancedMutate, result];
 }
-

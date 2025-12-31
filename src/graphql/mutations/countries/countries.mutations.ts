@@ -14,8 +14,8 @@ export const CREATE_COUNTRY_MUTATION = gql`
 
 // Update Country Mutation
 export const UPDATE_COUNTRY_MUTATION = gql`
-  mutation UpdateCountry($id: ID!, $input: UpdateCountryInput!) {
-    updateCountry(id: $id, input: $input) {
+  mutation UpdateCountry($input: UpdateCountryInput!) {
+    updateCountry(input: $input) {
       id
       code
       name
@@ -30,15 +30,3 @@ export const DELETE_COUNTRY_MUTATION = gql`
     deleteCountry(id: $id)
   }
 `;
-
-// Bulk Delete Countries Mutation
-export const BULK_DELETE_COUNTRIES_MUTATION = gql`
-  mutation BulkDeleteCountries($ids: [ID!]!) {
-    bulkDeleteCountries(ids: $ids) {
-      success
-      message
-      deletedCount
-    }
-  }
-`;
-

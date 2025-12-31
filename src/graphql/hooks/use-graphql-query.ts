@@ -1,16 +1,23 @@
 /**
  * Custom GraphQL Query Hook
- * 
+ *
  * Enhanced wrapper around useQuery with better error handling and TypeScript support
  */
 
-import { useQuery, UseQueryOptions, UseQueryResult } from '@apollo/client';
-import { DocumentNode } from 'graphql';
 import { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
+import type { OperationVariables } from '@apollo/client';
+import type {
+  QueryHookOptions,
+  QueryResult,
+} from '@apollo/client/react/types/types';
+import { DocumentNode } from 'graphql';
 import { handleGraphQLError } from '../utils/error-handler';
 
-export interface UseGraphQLQueryOptions<TData, TVariables>
-  extends Omit<UseQueryOptions<TData, TVariables>, 'query'> {
+export interface UseGraphQLQueryOptions<
+  TData,
+  TVariables extends OperationVariables = OperationVariables,
+> extends Omit<QueryHookOptions<TData, TVariables>, 'query' | 'onError'> {
   query: DocumentNode;
   skipErrorToast?: boolean;
   onError?: (message: string, code?: string) => void;
@@ -18,7 +25,7 @@ export interface UseGraphQLQueryOptions<TData, TVariables>
 
 /**
  * Enhanced useQuery hook with automatic error handling
- * 
+ *
  * @example
  * ```tsx
  * const { data, loading, error } = useGraphQLQuery({
@@ -31,12 +38,15 @@ export interface UseGraphQLQueryOptions<TData, TVariables>
  * });
  * ```
  */
-export function useGraphQLQuery<TData = unknown, TVariables = Record<string, unknown>>(
+export function useGraphQLQuery<
+  TData = unknown,
+  TVariables extends OperationVariables = OperationVariables,
+>(
   options: UseGraphQLQueryOptions<TData, TVariables>,
-): UseQueryResult<TData, TVariables> {
-  const { skipErrorToast, onError, ...queryOptions } = options;
+): QueryResult<TData, TVariables> {
+  const { skipErrorToast, onError, query, ...queryOptions } = options;
 
-  const result = useQuery<TData, TVariables>(queryOptions);
+  const result = useQuery<TData, TVariables>(query, queryOptions);
 
   // Handle errors automatically
   useEffect(() => {
@@ -50,4 +60,3 @@ export function useGraphQLQuery<TData = unknown, TVariables = Record<string, unk
 
   return result;
 }
-

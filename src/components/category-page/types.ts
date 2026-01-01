@@ -36,7 +36,8 @@ export interface CategoryPageProps<TData extends { id: string | number }> {
 
   // Search configuration
   searchPlaceholder?: string;
-  searchKeys?: string[]; // Keys to search in
+  searchKeys?: string[]; // Keys to search in (for client-side filtering, deprecated - use onSearchChange for GraphQL)
+  onSearchChange?: (searchQuery: string) => void; // Callback when search query changes (for GraphQL)
 
   // Pagination
   defaultPageSize?: number;

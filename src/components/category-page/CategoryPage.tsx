@@ -17,7 +17,6 @@ import {
   Pencil,
   Plus,
   Search,
-  Settings2,
   Trash2,
 } from 'lucide-react';
 import { TableProps } from '@/types/useTableTypes';
@@ -26,7 +25,6 @@ import useTable from '@/hooks/use-table';
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTable } from '@/components/ui/card';
 import { DataGrid } from '@/components/ui/data-grid';
-import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visibility';
 import { DataGridTable } from '@/components/ui/data-grid-table';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -244,6 +242,7 @@ export function CategoryPage<TData extends { id: string | number }>(
     deleteConfirmText,
     searchPlaceholder = 'Tìm kiếm...',
     searchKeys = [],
+    onSearchChange,
     defaultPageSize = 5,
     pageSizes = [5, 10, 25, 50, 100],
     toolbarActions,
@@ -262,37 +261,21 @@ export function CategoryPage<TData extends { id: string | number }>(
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+
+  // Handle search query change and notify parent for GraphQL
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TData | null>(null);
 
-  // Filter data based on search query
-  const filteredData = useMemo(() => {
-    if (!searchQuery || searchKeys.length === 0) {
-      return data;
-    }
-
-    const searchLower = searchQuery.toLowerCase();
-    return data.filter((item) => {
-      return searchKeys.some((key) => {
-        const value = (item as any)[key];
-        if (value === null || value === undefined) return false;
-        return String(value).toLowerCase().includes(searchLower);
-      });
-    });
-  }, [data, searchQuery, searchKeys]);
-
-  // Use totalCount from server if provided, otherwise use filteredData.length (client-side)
-  const recordCount =
-    totalCount !== undefined ? totalCount : filteredData.length;
-
-  // Reset page to 0 when search query changes (only for client-side pagination)
-  useEffect(() => {
-    if (!totalCount && searchQuery && table.page > 0) {
-      table.onResetPage();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, totalCount]);
+  // Use totalCount from server if provided, otherwise use data.length (client-side)
+  // Note: For GraphQL search, filtering is done on server-side via searchQuery variable
+  const recordCount = totalCount !== undefined ? totalCount : data.length;
 
   // Calculate total pages and ensure current page is valid
   const totalPages = Math.ceil(recordCount / table.rowsPerPage);
@@ -304,61 +287,62 @@ export function CategoryPage<TData extends { id: string | number }>(
     }
   }, [table.rowsPerPage, totalPages, table.page, table]);
 
-  // Paginate filtered data based on useTable state
   // For server-side pagination (when totalCount is provided), data is already paginated
-  // For client-side pagination, we slice the filtered data
+  // For client-side pagination, we slice the data
   const paginatedData = useMemo(() => {
     if (totalCount !== undefined) {
       // Server-side pagination: data is already paginated, use as-is
       return data;
     }
-    // Client-side pagination: slice the filtered data
+    // Client-side pagination: slice the data
     const start = table.page * table.rowsPerPage;
     const end = start + table.rowsPerPage;
-    return filteredData.slice(start, end);
-  }, [data, filteredData, table.page, table.rowsPerPage, totalCount]);
+    return data.slice(start, end);
+  }, [data, table.page, table.rowsPerPage, totalCount]);
 
   // Add action columns to the provided columns
   const columnsWithActions = useMemo<ColumnDef<TData>[]>(() => {
     const actionColumn: ColumnDef<TData> = {
       id: 'actions',
       header: () => (
-        <div className="text-accent-foreground font-normal text-[0.8125rem] leading-[calc(1.125/0.8125)]">
+        <div className="text-accent-foreground font-normal text-sm">
           Thao tác
         </div>
       ),
       enableSorting: false,
       cell: ({ row }: { row: Row<TData> }) => {
         return (
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-3"
-              onClick={() => {
+              className="h-8 w-8 p-0 hover:bg-accent"
+              onClick={(e) => {
+                e.stopPropagation();
                 setSelectedItem(row.original);
                 setEditDialogOpen(true);
               }}
               aria-label="Chỉnh sửa"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground" />
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-3"
-              onClick={() => {
+              className="h-8 w-8 p-0 hover:bg-destructive/10"
+              onClick={(e) => {
+                e.stopPropagation();
                 setSelectedItem(row.original);
                 setDeleteDialogOpen(true);
               }}
               aria-label="Xóa"
             >
-              <Trash2 className="h-4 w-4 text-destructive" />
+              <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
             </Button>
           </div>
         );
       },
-      size: 120,
+      size: 100,
     };
 
     return [...columns, actionColumn];
@@ -421,34 +405,24 @@ export function CategoryPage<TData extends { id: string | number }>(
   return (
     <>
       {/* Top header row: title + actions (outside the Card) - Responsive */}
-      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">{title}</h1>
           {description && (
-            <p className="text-sm text-muted-foreground mt-1">{description}</p>
+            <p className="text-sm text-muted-foreground mt-2">{description}</p>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+        <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
           {/* Extra toolbar actions passed from props */}
           {toolbarActions}
-          {/* Column visibility uses the table instance directly */}
-          <DataGridColumnVisibility
-            table={tableInstance}
-            trigger={
-              <Button variant="outline" size="sm" className="sm:size-auto">
-                <Settings2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Cột</span>
-              </Button>
-            }
-          />
           <Button
             onClick={() => setAddDialogOpen(true)}
-            size="sm"
-            className="sm:size-auto"
+            size="default"
+            className="h-10 px-4 font-medium"
           >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Thêm mới</span>
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm mới
           </Button>
         </div>
       </div>
@@ -461,14 +435,14 @@ export function CategoryPage<TData extends { id: string | number }>(
         onRowClick={onRowClick}
       >
         <Card>
-          <CardHeader className="px-3 sm:px-5">
+          <CardHeader className="px-4 sm:px-6 py-4">
             <div className="relative w-full max-w-xl">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder={searchPlaceholder}
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 w-full"
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-9 h-10 w-full"
               />
             </div>
           </CardHeader>
@@ -479,7 +453,7 @@ export function CategoryPage<TData extends { id: string | number }>(
               <ScrollBar orientation="horizontal" />
             </ScrollArea>
           </CardTable>
-          <CardFooter className="px-3 sm:px-5">
+          <CardFooter className="px-4 sm:px-6 py-4">
             <CustomPagination
               tableHook={table}
               recordCount={recordCount}

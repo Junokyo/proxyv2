@@ -1,7 +1,7 @@
 // CountryCategoryView.tsx
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   useCountries,
   useCreateCountry,
@@ -12,16 +12,13 @@ import { CountryMutationResponse } from '@/graphql/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
 import useTable from '@/hooks/use-table';
-import { DataGridColumnHeader } from '@/components/ui/data-grid-column-header';
 import { CategoryPage, FormFieldConfig } from '@/components/category-page';
 
-// 1. Schema
+// 1. Schema - chỉ id, name, code
 const countrySchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(1, 'Tên quốc gia là bắt buộc'),
   code: z.string().min(2, 'Mã quốc gia phải có ít nhất 2 ký tự'),
-  continent: z.string().min(1, 'Châu lục là bắt buộc'),
-  region: z.string().optional(),
-  status: z.boolean().optional(),
 });
 
 type CountryFormValues = z.infer<typeof countrySchema>;
@@ -29,7 +26,7 @@ type CountryFormValues = z.infer<typeof countrySchema>;
 // Alias để tương thích với CategoryPage
 type Country = CountryMutationResponse;
 
-// 3. Các trường form
+// 3. Các trường form - chỉ name, code (id tự động tạo)
 const formFields: FormFieldConfig[] = [
   {
     name: 'name',
@@ -47,18 +44,24 @@ const formFields: FormFieldConfig[] = [
   },
 ];
 
-// 4. Columns
+// 4. Columns - simplified headers without sorting
 const baseColumns: ColumnDef<Country>[] = [
   {
     accessorKey: 'name',
-    header: ({ column }) => (
-      <DataGridColumnHeader title="Tên quốc gia" column={column} />
+    header: () => (
+      <div className="text-accent-foreground font-normal text-sm">
+        Tên quốc gia
+      </div>
     ),
+    enableSorting: false,
     cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
   },
   {
     accessorKey: 'code',
-    header: ({ column }) => <DataGridColumnHeader title="Mã" column={column} />,
+    header: () => (
+      <div className="text-accent-foreground font-normal text-sm">Mã</div>
+    ),
+    enableSorting: false,
     cell: ({ row }) => (
       <div className="font-mono text-sm">{row.original.code}</div>
     ),
@@ -71,6 +74,8 @@ export function CountryCategoryView() {
     defaultCurrentPage: 0,
     defaultRowsPerPage: 5,
   });
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   const columns: ColumnDef<Country>[] = useMemo(() => {
     return baseColumns;
@@ -88,17 +93,16 @@ export function CountryCategoryView() {
         page: table.page,
         limit: table.rowsPerPage,
       },
-      searchQuery: '',
+      searchQuery: searchQuery || undefined,
       sorts: [],
     },
     false,
   );
 
-  // Refetch when pagination changes (if using server-side pagination)
-  // Note: If you're doing client-side pagination, you can remove this
+  // Refetch when pagination or search changes
   useEffect(() => {
     refetch();
-  }, [table.page, table.rowsPerPage, refetch]);
+  }, [table.page, table.rowsPerPage, searchQuery, refetch]);
 
   // GraphQL mutations
   const [createCountry, { loading: creating }] = useCreateCountry({
@@ -119,14 +123,14 @@ export function CountryCategoryView() {
     },
   });
 
-  // Handlers - sử dụng GraphQL mutations
+  // Handlers - sử dụng GraphQL mutations (chỉ id, name, code)
   const handleAdd = async (values: CountryFormValues) => {
     await createCountry({
       name: values.name,
       code: values.code,
-      continent: values.continent,
-      region: values.region || undefined,
-      status: values.status ?? true,
+      continent: '', // Default value - required by mutation but not in form
+      region: undefined,
+      status: true,
     });
   };
 
@@ -134,9 +138,9 @@ export function CountryCategoryView() {
     await updateCountry(String(id), {
       name: values.name,
       code: values.code,
-      continent: values.continent,
-      region: values.region || undefined,
-      status: values.status ?? true,
+      continent: '', // Default value - required by mutation but not in form
+      region: undefined,
+      status: true,
     });
   };
 
@@ -179,7 +183,7 @@ export function CountryCategoryView() {
         onAdd={handleAdd}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        searchKeys={['name', 'code']}
+        onSearchChange={setSearchQuery}
         searchPlaceholder="Tìm kiếm quốc gia..."
         addDialogTitle="Thêm quốc gia mới"
         addDialogDescription="Điền thông tin để thêm quốc gia mới"

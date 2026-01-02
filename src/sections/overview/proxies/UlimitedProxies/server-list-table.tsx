@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { EmptyState } from '../../components/empty-state';
 
 type ServerRow = {

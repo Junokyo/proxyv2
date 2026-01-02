@@ -7,6 +7,15 @@
 // Countries module
 export * from './countries';
 
+// Loyals module
+export * from './loyals';
+
+// Promotions module
+export * from './promotions';
+
+// Proxy Providers module
+export * from './proxy-providers';
+
 // Overview module
 export * from './overview';
 

@@ -260,15 +260,26 @@ export function CategoryPage<TData extends { id: string | number }>(
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
-  // Handle search query change and notify parent for GraphQL
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
+  // Handle search input change (local state only)
+  const handleSearchInputChange = (value: string) => {
+    setSearchInput(value);
+  };
+
+  // Handle search button click - trigger actual search
+  const handleSearchClick = () => {
+    setSearchQuery(searchInput);
     if (onSearchChange) {
-      onSearchChange(value);
+      onSearchChange(searchInput);
     }
   };
+
+  // Sync searchInput with searchQuery when it changes externally
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TData | null>(null);
@@ -418,7 +429,7 @@ export function CategoryPage<TData extends { id: string | number }>(
           {toolbarActions}
           <Button
             onClick={() => setAddDialogOpen(true)}
-            size="default"
+            size="md"
             className="h-10 px-4 font-medium"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -436,14 +447,29 @@ export function CategoryPage<TData extends { id: string | number }>(
       >
         <Card>
           <CardHeader className="px-4 sm:px-6 py-4">
-            <div className="relative w-full max-w-xl">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-9 h-10 w-full"
-              />
+            <div className="flex gap-2 w-full max-w-xl">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder={searchPlaceholder}
+                  value={searchInput}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearchClick();
+                    }
+                  }}
+                  className="pl-9 h-10 w-full"
+                />
+              </div>
+              <Button
+                onClick={handleSearchClick}
+                size="md"
+                className="h-10 px-4"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                Tìm kiếm
+              </Button>
             </div>
           </CardHeader>
 

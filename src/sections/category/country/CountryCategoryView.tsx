@@ -128,9 +128,6 @@ export function CountryCategoryView() {
     await createCountry({
       name: values.name,
       code: values.code,
-      continent: '', // Default value - required by mutation but not in form
-      region: undefined,
-      status: true,
     });
   };
 
@@ -138,9 +135,6 @@ export function CountryCategoryView() {
     await updateCountry(String(id), {
       name: values.name,
       code: values.code,
-      continent: '', // Default value - required by mutation but not in form
-      region: undefined,
-      status: true,
     });
   };
 
@@ -156,12 +150,6 @@ export function CountryCategoryView() {
         id: item.id,
         name: item.name,
         code: item.code,
-        continent: '', // Default value vì query không trả về
-        region: undefined,
-        status: true, // Default value
-        createdAt: '', // Default value
-        proxyCount: undefined,
-        ipCount: undefined,
       })) || []
     );
   }, [countriesData]);

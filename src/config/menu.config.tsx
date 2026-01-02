@@ -206,6 +206,18 @@ export const MENU_SIDEBAR: MenuConfig = [
         title: 'Danh mục quốc gia',
         path: '/country-category',
       },
+      {
+        title: 'Danh mục nhà cung cấp proxy',
+        path: '/proxy-provider-category',
+      },
+      {
+        title: 'Danh mục hạng thành viên',
+        path: '/loyal-category',
+      },
+      {
+        title: 'Danh mục khuyến mãi',
+        path: '/promotion-category',
+      },
     ],
   },
 ];

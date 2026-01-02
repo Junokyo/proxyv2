@@ -45,7 +45,10 @@ import {
 } from '@/pages/auth';
 import BillingHistoryCategoryPage from '@/pages/category/billing-history-category/page';
 import CountryCategoryPage from '@/pages/category/country-category/page';
+import ProxyProviderCategoryPage from '@/pages/category/proxy-provider-category/page';
 import IPListCategoryPage from '@/pages/category/ip-list-category/page';
+import LoyalCategoryPage from '@/pages/category/loyal-category/page';
+import PromotionCategoryPage from '@/pages/category/promotion-category/page';
 import LogsCategoryPage from '@/pages/category/log-category/page';
 import ProxyPackageCategoryPage from '@/pages/category/proxy-package-category/page';
 import SettingsCategoryPage from '@/pages/category/setting-category/page';
@@ -159,6 +162,15 @@ export function AppRoutingSetup() {
             element={<BillingHistoryCategoryPage />}
           />
           <Route path="/country-category" element={<CountryCategoryPage />} />
+          <Route
+            path="/proxy-provider-category"
+            element={<ProxyProviderCategoryPage />}
+          />
+          <Route path="/loyal-category" element={<LoyalCategoryPage />} />
+          <Route
+            path="/promotion-category"
+            element={<PromotionCategoryPage />}
+          />
           {/* ------------ */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route

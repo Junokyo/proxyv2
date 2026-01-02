@@ -2,6 +2,7 @@
  * GraphQL Types Export
  */
 
-export * from './common.types';
 export * from './countries.types';
-
+export * from './loyals.types';
+export * from './promotions.types';
+export * from './proxy-providers.types';

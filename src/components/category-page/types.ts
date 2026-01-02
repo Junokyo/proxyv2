@@ -1,11 +1,15 @@
 import { ReactNode } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
+import { TableProps } from '@/types/useTableTypes';
 
 export interface CategoryPageProps<TData extends { id: string | number }> {
   // Data
   data: TData[];
   columns: ColumnDef<TData>[];
+  
+  // Table instance (optional - will create internal if not provided)
+  table?: TableProps;
 
   // Page configuration
   title: string;
@@ -32,11 +36,13 @@ export interface CategoryPageProps<TData extends { id: string | number }> {
 
   // Search configuration
   searchPlaceholder?: string;
-  searchKeys?: string[]; // Keys to search in
+  searchKeys?: string[]; // Keys to search in (for client-side filtering, deprecated - use onSearchChange for GraphQL)
+  onSearchChange?: (searchQuery: string) => void; // Callback when search query changes (for GraphQL)
 
   // Pagination
   defaultPageSize?: number;
   pageSizes?: number[];
+  totalCount?: number; // Total count from server (for server-side pagination)
 
   // Additional toolbar actions
   toolbarActions?: ReactNode;

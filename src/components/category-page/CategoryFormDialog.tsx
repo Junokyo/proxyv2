@@ -130,6 +130,7 @@ export function CategoryFormDialog({
                   type={field.type}
                   placeholder={field.placeholder}
                   className={field.className}
+                  disabled={field.name === 'id' && mode === 'edit'}
                 />
               )}
             </FormControl>
@@ -149,7 +150,7 @@ export function CategoryFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
           {description && (
@@ -160,33 +161,38 @@ export function CategoryFormDialog({
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-4"
+              className="space-y-5"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 {formFields.map((field) => {
-                  // Full width fields (textarea, etc.)
-                  if (
-                    field.type === 'textarea' ||
-                    field.className?.includes('col-span-2')
-                  ) {
+                    // Full width fields (textarea, etc.)
+                    if (
+                      field.type === 'textarea' ||
+                      field.className?.includes('col-span-2')
+                    ) {
+                      return (
+                        <div key={field.name} className="md:col-span-2">
+                          {renderField(field)}
+                        </div>
+                      );
+                    }
+                    // Single column layout for minimalist design
                     return (
-                      <div key={field.name} className="md:col-span-2">
+                      <div key={field.name}>
                         {renderField(field)}
                       </div>
                     );
-                  }
-                  return renderField(field);
-                })}
+                  })}
               </div>
-              <DialogFooter>
-                <Button type="submit" variant="primary">
-                  {submitButtonLabel}
-                </Button>
+              <DialogFooter className="gap-2">
                 <DialogClose asChild>
                   <Button type="button" variant="outline">
                     Hủy
                   </Button>
                 </DialogClose>
+                <Button type="submit" variant="primary">
+                  {submitButtonLabel}
+                </Button>
               </DialogFooter>
             </form>
           </Form>

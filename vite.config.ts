@@ -22,6 +22,7 @@ export default defineConfig({
         target: 'https://proxy.forlike.pro',
         rewrite: (path) => path.replace(/^\/graphql/, '/graphql/v1'), // Rewrite /graphql -> /graphql/v1
         changeOrigin: true,
+        ws: true,
       },
     },
   },

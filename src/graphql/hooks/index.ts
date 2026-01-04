@@ -14,6 +14,9 @@ export * from './promotions';
 // Proxy Providers module
 export * from './proxy-providers';
 
+// Notifications module
+export * from './notifications';
+
 export * from './use-graphql-query';
 export * from './use-graphql-mutation';
 export * from './use-graphql-lazy-query';

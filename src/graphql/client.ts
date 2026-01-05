@@ -5,14 +5,18 @@
  */
 
 import { keycloak } from '@/auth/lib/keycloak';
+import { useAuthStore } from '@/auth/store/auth.store';
 import {
   ApolloClient,
   from,
   HttpLink,
   InMemoryCache,
+  Observable,
   split,
 } from '@apollo/client';
+import type { FetchResult, NextLink, Operation } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { ApolloLink } from '@apollo/client/link/core';
 import { onError } from '@apollo/client/link/error';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
@@ -88,7 +92,7 @@ wsClient.on('closed', () => {
   console.log('[GraphQL Subscription] WebSocket connection closed');
 });
 
-wsClient.on('error', (error: Error) => {
+wsClient.on('error', (error: unknown) => {
   console.error('[GraphQL Subscription] WebSocket connection error:', error);
 });
 
@@ -107,6 +111,88 @@ const splitLink = split(
   },
   wsLink,
   httpLink,
+);
+
+/**
+ * Token Readiness Link
+ * Đảm bảo token được init trước khi query (nếu query cần token)
+ * Không chặn query, chỉ đợi tokenReady = true
+ * Cho phép query đánh dấu là public qua context.skipTokenWait = true
+ */
+const tokenReadinessLink = new ApolloLink(
+  (operation: Operation, forward: NextLink) => {
+    // Cho phép subscriptions tiếp tục (chúng xử lý auth riêng)
+    const definition = getMainDefinition(operation.query);
+    if (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    ) {
+      return forward(operation);
+    }
+
+    // Kiểm tra xem query có đánh dấu là public không
+    const skipTokenWait =
+      operation.getContext().skipTokenWait === true ||
+      operation.getContext().public === true;
+
+    // Nếu là public query, không cần đợi token
+    if (skipTokenWait) {
+      return forward(operation);
+    }
+
+    // Lấy tokenReady từ store
+    const state = useAuthStore.getState();
+    const { tokenReady } = state;
+
+    // Nếu token đã ready, tiếp tục ngay
+    if (tokenReady) {
+      return forward(operation);
+    }
+
+    // Nếu token chưa ready, đợi cho đến khi ready
+    // Không chặn query, chỉ đợi token được init (ưu tiên mạnh)
+    return new Observable<FetchResult>((observer) => {
+      let subscription: { unsubscribe: () => void } | null = null;
+      let timeoutId: NodeJS.Timeout | null = null;
+      let unsubscribe: (() => void) | null = null;
+
+      // Đợi tokenReady = true bằng cách polling
+      const checkTokenReady = () => {
+        const currentState = useAuthStore.getState();
+        if (currentState.tokenReady) {
+          // Token đã ready, tiếp tục với query
+          const forwardObservable = forward(operation);
+          subscription = forwardObservable.subscribe({
+            next: (value) => observer.next(value),
+            error: (error) => observer.error(error),
+            complete: () => observer.complete(),
+          });
+          if (unsubscribe) unsubscribe();
+          if (timeoutId) clearTimeout(timeoutId);
+        } else {
+          // Chưa ready, check lại sau một khoảng thời gian ngắn
+          timeoutId = setTimeout(checkTokenReady, 50);
+        }
+      };
+
+      // Subscribe để lắng nghe thay đổi tokenReady
+      unsubscribe = useAuthStore.subscribe((state) => {
+        if (state.tokenReady && !subscription) {
+          checkTokenReady();
+        }
+      });
+
+      // Check ngay lập tức
+      checkTokenReady();
+
+      // Cleanup
+      return () => {
+        if (unsubscribe) unsubscribe();
+        if (timeoutId) clearTimeout(timeoutId);
+        if (subscription) subscription.unsubscribe();
+      };
+    });
+  },
 );
 
 /**
@@ -160,7 +246,7 @@ const authLink = setContext(async (_, { headers }) => {
  */
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, locations, path, extensions }) => {
+    graphQLErrors.forEach(({ extensions }) => {
       // Handle specific error codes if needed
       const errorCode = extensions?.code as string | undefined;
       if (errorCode === 'UNAUTHENTICATED') {
@@ -209,7 +295,7 @@ const cache = new InMemoryCache({
  * Configured with auth, error handling, cache, and subscriptions
  */
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, authLink, splitLink]),
+  link: from([errorLink, tokenReadinessLink, authLink, splitLink]),
   cache,
   // Default options for all queries
   defaultOptions: {

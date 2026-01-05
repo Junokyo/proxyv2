@@ -20,6 +20,11 @@ export interface UseGraphQLQueryOptions<
 > extends Omit<QueryHookOptions<TData, TVariables>, 'query' | 'onError'> {
   query: DocumentNode;
   skipErrorToast?: boolean;
+  /**
+   * Đánh dấu query là public (không cần token)
+   * Nếu true, query sẽ không đợi token được init
+   */
+  public?: boolean;
   onError?: (message: string, code?: string) => void;
 }
 
@@ -44,9 +49,20 @@ export function useGraphQLQuery<
 >(
   options: UseGraphQLQueryOptions<TData, TVariables>,
 ): QueryResult<TData, TVariables> {
-  const { skipErrorToast, onError, query, ...queryOptions } = options;
+  const { skipErrorToast, onError, query, public: isPublic, ...queryOptions } =
+    options;
 
-  const result = useQuery<TData, TVariables>(query, queryOptions);
+  // Thêm context để đánh dấu query là public
+  const context = {
+    ...queryOptions.context,
+    skipTokenWait: isPublic === true,
+    public: isPublic === true,
+  };
+
+  const result = useQuery<TData, TVariables>(query, {
+    ...queryOptions,
+    context,
+  });
 
   // Handle errors automatically
   useEffect(() => {

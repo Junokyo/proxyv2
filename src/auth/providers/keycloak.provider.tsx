@@ -52,6 +52,8 @@ export default function KeycloakProvider({
     setReady,
     setAuthenticated,
     setUser,
+    setToken,
+    setTokenReady,
     reset,
   } = useAuthStore();
   const mounted = useRef(true);
@@ -101,9 +103,17 @@ export default function KeycloakProvider({
 
     (async () => {
       try {
+        // Ưu tiên mạnh: Init keycloak trước tiên để lấy token
         const auth = await initKeycloakOnce();
 
         if (!mounted.current) return;
+
+        // Lưu token vào store ngay khi có (kể cả khi chưa authenticated)
+        const token = keycloak.token;
+        if (token) {
+          setToken(token);
+        }
+        setTokenReady(true); // Đánh dấu token đã được init
 
         setAuthenticated(!!auth);
 
@@ -120,6 +130,7 @@ export default function KeycloakProvider({
       } catch {
         // init lỗi: coi như chưa đăng nhập
         reset();
+        setTokenReady(true); // Vẫn đánh dấu token ready (dù không có token)
       } finally {
         if (mounted.current) setReady(true);
       }
@@ -129,6 +140,11 @@ export default function KeycloakProvider({
     keycloak.onAuthSuccess = async () => {
       if (!mounted.current) return;
       setAuthenticated(true);
+      // Cập nhật token vào store khi login thành công
+      const token = keycloak.token;
+      if (token) {
+        setToken(token);
+      }
       // sau redirect login, đôi khi cần load profile lại để SignInPage nhận state mới
       try {
         await loadUser();
@@ -145,10 +161,15 @@ export default function KeycloakProvider({
     keycloak.onTokenExpired = async () => {
       try {
         // refresh nếu còn > 30s hết hạn
-        await keycloak.updateToken(30);
+        const refreshed = await keycloak.updateToken(30);
+        if (refreshed && keycloak.token) {
+          // Cập nhật token mới vào store
+          setToken(keycloak.token);
+        }
       } catch {
         // refresh fail -> clear
         keycloak.clearToken();
+        setToken(null);
         reset();
         enqueueSnackbar('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', {
           variant: 'error',

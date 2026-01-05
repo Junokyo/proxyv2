@@ -18,10 +18,14 @@ type AuthState = {
   ready: boolean;
   authenticated: boolean;
   user: AppUser | null;
+  token: string | null;
+  tokenReady: boolean; // Đánh dấu token đã được init và sẵn sàng
 
   setReady: (v: boolean) => void;
   setAuthenticated: (v: boolean) => void;
   setUser: (u: AppUser | null) => void;
+  setToken: (token: string | null) => void;
+  setTokenReady: (v: boolean) => void;
   reset: () => void;
 };
 
@@ -31,11 +35,22 @@ export const useAuthStore = create<AuthState>()(
       ready: false,
       authenticated: false,
       user: null,
+      token: null,
+      tokenReady: false,
 
       setReady: (v) => set({ ready: v }),
       setAuthenticated: (v) => set({ authenticated: v }),
       setUser: (u) => set({ user: u }),
-      reset: () => set({ ready: true, authenticated: false, user: null }),
+      setToken: (token) => set({ token }),
+      setTokenReady: (v) => set({ tokenReady: v }),
+      reset: () =>
+        set({
+          ready: true,
+          authenticated: false,
+          user: null,
+          token: null,
+          tokenReady: false,
+        }),
     }),
     {
       name: 'auth-ui',
@@ -53,18 +68,26 @@ export const useAuth = () => {
     ready,
     authenticated,
     user,
+    token,
+    tokenReady,
     setReady,
     setAuthenticated,
     setUser,
+    setToken,
+    setTokenReady,
     reset,
   } = useAuthStore();
   return {
     ready,
     authenticated,
     user,
+    token,
+    tokenReady,
     setReady,
     setAuthenticated,
     setUser,
+    setToken,
+    setTokenReady,
     reset,
   };
 };

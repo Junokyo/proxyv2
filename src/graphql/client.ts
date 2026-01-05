@@ -22,6 +22,20 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 
+// WebSocket error interface
+interface WebSocketError {
+  message?: string;
+  code?: number;
+  [key: string]: unknown;
+}
+
+// WebSocket close event interface
+interface WebSocketCloseEvent {
+  code?: number;
+  reason?: string;
+  wasClean?: boolean;
+}
+
 const { VITE_GRAPHQL_ENDPOINT, VITE_GRAPHQL_WS_ENDPOINT } = import.meta.env;
 
 // Ở môi trường deploy: cấu hình VITE_GRAPHQL_ENDPOINT = 'https://api.domain.com/graphql'
@@ -31,7 +45,7 @@ const GRAPHQL_URI = VITE_GRAPHQL_ENDPOINT || '/graphql';
 // WebSocket endpoint - convert HTTP endpoint to WebSocket
 // For dev: use ws://localhost:8080/graphql (goes through Vite proxy)
 // For production: use wss:// with the same base URL
-function getWebSocketUri(): string {
+export function getWebSocketUri(): string {
   if (VITE_GRAPHQL_WS_ENDPOINT) {
     return VITE_GRAPHQL_WS_ENDPOINT;
   }
@@ -59,41 +73,104 @@ const httpLink = new HttpLink({
 /**
  * WebSocket Link Configuration for Subscriptions
  * Includes Authorization header with Bearer token
+ * Handles authorization failures and prevents reconnection on auth errors
  */
 const wsClient = createClient({
   url: getWebSocketUri(),
   connectionParams: () => {
+    // Always use keycloak token for WebSocket (it's the source of truth)
+    // Store token might be stale, keycloak token is always current
     const token = keycloak.token;
+
     if (!token) {
       console.warn(
         '[GraphQL Subscription] No token available for WebSocket connection',
       );
       return {};
     }
+
+    console.log('[GraphQL Subscription] Connecting with Keycloak token');
     console.log(
-      '[GraphQL Subscription] Connecting with token:',
-      `Bearer ${token.substring(0, 20)}...`,
+      '[GraphQL Subscription] Token preview:',
+      `${token.substring(0, 20)}...`,
     );
+    console.log(
+      '[GraphQL Subscription] Full Authorization header:',
+      `Bearer ${token}`,
+    );
+
     return {
       Authorization: `Bearer ${token}`,
     };
   },
-  shouldRetry: () => true,
+  /**
+   * Custom retry logic: don't retry on authorization failures
+   * Close connection permanently if token is invalid/expired
+   */
+  shouldRetry: (errOrCloseEvent: unknown) => {
+    const error = errOrCloseEvent as WebSocketError;
+
+    if (
+      error?.message?.includes('authorization') ||
+      error?.message?.includes('unauthorized') ||
+      error?.message?.includes('forbidden') ||
+      error?.code === 4401 || // Unauthorized
+      error?.code === 4403
+    ) {
+      // Forbidden
+      console.error(
+        '[GraphQL Subscription] Authorization failed, closing connection permanently:',
+        error,
+      );
+      // Don't retry on auth errors - close connection permanently
+      return false;
+    }
+
+    // Retry on other errors (network issues, etc.)
+    console.warn('[GraphQL Subscription] Connection error, will retry:', error);
+    return true;
+  },
+  /**
+   * Connection timeout and retry delay configuration
+   */
+  retryAttempts: 3,
 });
 
-// Log connection events
+// Log connection events with detailed information
 wsClient.on('opened', () => {
   console.log(
-    '[GraphQL Subscription] WebSocket connection opened successfully',
+    '🚀 [GraphQL Subscription] WebSocket connection opened successfully',
+    {
+      url: getWebSocketUri(),
+      timestamp: new Date().toISOString(),
+    },
   );
 });
 
-wsClient.on('closed', () => {
-  console.log('[GraphQL Subscription] WebSocket connection closed');
+wsClient.on('closed', (event: unknown) => {
+  const closeEvent = event as WebSocketCloseEvent;
+  console.log('🔌 [GraphQL Subscription] WebSocket connection closed', {
+    code: closeEvent?.code,
+    reason: closeEvent?.reason,
+    wasClean: closeEvent?.wasClean,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 wsClient.on('error', (error: unknown) => {
-  console.error('[GraphQL Subscription] WebSocket connection error:', error);
+  const wsError = error as WebSocketError;
+  console.error('💥 [GraphQL Subscription] WebSocket connection error:', {
+    error: wsError,
+    url: getWebSocketUri(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+wsClient.on('connecting', () => {
+  console.log('🔗 [GraphQL Subscription] Connecting to WebSocket...', {
+    url: getWebSocketUri(),
+    timestamp: new Date().toISOString(),
+  });
 });
 
 const wsLink = new GraphQLWsLink(wsClient);

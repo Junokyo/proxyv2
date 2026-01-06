@@ -10,9 +10,9 @@ export default defineConfig(({ mode }) => {
 
   const fakeProxy = isFakeProxy
     ? {
-        '/graphql': {
+        '/graphql/v1': {
           target: host,
-          rewrite: (path: string) => path.replace(/^\/graphql/, '/graphql/v1'), // Rewrite /graphql -> /graphql/v1
+          // rewrite: (path: string) => path.replace(/^\/graphql/, '/graphql/v1'), // Rewrite /graphql -> /graphql/v1
           changeOrigin: true,
           ws: true,
         },

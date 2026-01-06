@@ -36,29 +36,20 @@ interface WebSocketCloseEvent {
   wasClean?: boolean;
 }
 
-const { VITE_GRAPHQL_ENDPOINT, VITE_GRAPHQL_WS_ENDPOINT } = import.meta.env;
-
-// Ở môi trường deploy: cấu hình VITE_GRAPHQL_ENDPOINT = 'https://api.domain.com/graphql'
-// Ở local dev: có thể bỏ trống, client sẽ dùng '/graphql' và đi qua proxy trong vite.config.ts
-const GRAPHQL_URI = VITE_GRAPHQL_ENDPOINT || '/graphql';
+// Sử dụng cố định đường dẫn tương đối '/graphql/v1' cho HTTP GraphQL
+// Không phụ thuộc ENV ở phía client, server/API phải phục vụ đúng path này.
+const GRAPHQL_URI = '/graphql/v1';
 
 // WebSocket endpoint - convert HTTP endpoint to WebSocket
 // For dev: use ws://localhost:8080/graphql (goes through Vite proxy)
 // For production: use wss:// with the same base URL
 export function getWebSocketUri(): string {
-  if (VITE_GRAPHQL_WS_ENDPOINT) {
-    return VITE_GRAPHQL_WS_ENDPOINT;
-  }
-  if (VITE_GRAPHQL_ENDPOINT) {
-    // Convert https:// to wss://, http:// to ws://
-    return VITE_GRAPHQL_ENDPOINT.replace(/^http/, 'ws');
-  }
-  // Development: use ws:// with the same path (goes through Vite proxy)
+  // WebSocket dùng cùng path '/graphql/v1', chỉ đổi protocol http -> ws
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.host;
-  console.log('getWebSocketUri', `${protocol}//${host}/graphql`);
+  console.log('getWebSocketUri', `${protocol}//${host}/graphql/v1`);
 
-  return `${protocol}//${host}/graphql`;
+  return `${protocol}//${host}/graphql/v1`;
 }
 
 /**

@@ -46,6 +46,8 @@ import {
 import BillingHistoryCategoryPage from '@/pages/category/billing-history-category/page';
 import CountryCategoryPage from '@/pages/category/country-category/page';
 import ProxyProviderCategoryPage from '@/pages/category/proxy-provider-category/page';
+import ProxyTypeCategoryPage from '@/pages/category/proxy-type-category/page';
+import TopupCategoryPage from '@/pages/category/topup-category/page';
 import IPListCategoryPage from '@/pages/category/ip-list-category/page';
 import LoyalCategoryPage from '@/pages/category/loyal-category/page';
 import PromotionCategoryPage from '@/pages/category/promotion-category/page';
@@ -166,6 +168,11 @@ export function AppRoutingSetup() {
             path="/proxy-provider-category"
             element={<ProxyProviderCategoryPage />}
           />
+          <Route
+            path="/proxy-type-category"
+            element={<ProxyTypeCategoryPage />}
+          />
+          <Route path="/topup-category" element={<TopupCategoryPage />} />
           <Route path="/loyal-category" element={<LoyalCategoryPage />} />
           <Route
             path="/promotion-category"

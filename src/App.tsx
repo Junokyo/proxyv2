@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { LoadingBarContainer } from 'react-top-loading-bar';
 import { Toaster } from '@/components/ui/sonner';
+import { NotificationsSubscription } from '@/components/notifications/notifications-subscription';
 import KeycloakProvider from './auth/providers/keycloak.provider';
 import { AuthProvider } from './auth/providers/supabase-provider';
 import { GraphQLProvider } from './providers/graphql-provider';
@@ -35,6 +36,7 @@ export function App() {
                           <BrowserRouter basename={BASE_URL}>
                             <Toaster />
                             <GraphQLProvider>
+                              <NotificationsSubscription />
                               <ModulesProvider>
                                 <AppRouting />
                               </ModulesProvider>

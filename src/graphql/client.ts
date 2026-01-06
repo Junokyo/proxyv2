@@ -5,15 +5,61 @@
  */
 
 import { keycloak } from '@/auth/lib/keycloak';
-import { ApolloClient, from, HttpLink, InMemoryCache } from '@apollo/client';
+import { useAuthStore } from '@/auth/store/auth.store';
+import {
+  ApolloClient,
+  from,
+  HttpLink,
+  InMemoryCache,
+  Observable,
+  split,
+} from '@apollo/client';
+import type { FetchResult, NextLink, Operation } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { ApolloLink } from '@apollo/client/link/core';
 import { onError } from '@apollo/client/link/error';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { createClient } from 'graphql-ws';
 
-const { VITE_GRAPHQL_ENDPOINT } = import.meta.env;
+// WebSocket error interface
+interface WebSocketError {
+  message?: string;
+  code?: number;
+  [key: string]: unknown;
+}
+
+// WebSocket close event interface
+interface WebSocketCloseEvent {
+  code?: number;
+  reason?: string;
+  wasClean?: boolean;
+}
+
+const { VITE_GRAPHQL_ENDPOINT, VITE_GRAPHQL_WS_ENDPOINT } = import.meta.env;
 
 // Ở môi trường deploy: cấu hình VITE_GRAPHQL_ENDPOINT = 'https://api.domain.com/graphql'
 // Ở local dev: có thể bỏ trống, client sẽ dùng '/graphql' và đi qua proxy trong vite.config.ts
 const GRAPHQL_URI = VITE_GRAPHQL_ENDPOINT || '/graphql';
+
+// WebSocket endpoint - convert HTTP endpoint to WebSocket
+// For dev: use ws://localhost:8080/graphql (goes through Vite proxy)
+// For production: use wss:// with the same base URL
+export function getWebSocketUri(): string {
+  if (VITE_GRAPHQL_WS_ENDPOINT) {
+    return VITE_GRAPHQL_WS_ENDPOINT;
+  }
+  if (VITE_GRAPHQL_ENDPOINT) {
+    // Convert https:// to wss://, http:// to ws://
+    return VITE_GRAPHQL_ENDPOINT.replace(/^http/, 'ws');
+  }
+  // Development: use ws:// with the same path (goes through Vite proxy)
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.host;
+  console.log('getWebSocketUri', `${protocol}//${host}/graphql`);
+
+  return `${protocol}//${host}/graphql`;
+}
 
 /**
  * HTTP Link Configuration
@@ -23,6 +69,208 @@ const httpLink = new HttpLink({
   // Add any additional HTTP link options here
   // credentials: 'include', // if needed for CORS
 });
+
+/**
+ * WebSocket Link Configuration for Subscriptions
+ * Includes Authorization header with Bearer token
+ * Handles authorization failures and prevents reconnection on auth errors
+ */
+const wsClient = createClient({
+  url: getWebSocketUri(),
+  connectionParams: () => {
+    // Always use keycloak token for WebSocket (it's the source of truth)
+    // Store token might be stale, keycloak token is always current
+    const token = keycloak.token;
+
+    if (!token) {
+      console.warn(
+        '[GraphQL Subscription] No token available for WebSocket connection',
+      );
+      return {};
+    }
+
+    console.log('[GraphQL Subscription] Connecting with Keycloak token');
+    console.log(
+      '[GraphQL Subscription] Token preview:',
+      `${token.substring(0, 20)}...`,
+    );
+    console.log(
+      '[GraphQL Subscription] Full Authorization header:',
+      `Bearer ${token}`,
+    );
+
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  },
+  /**
+   * Custom retry logic: don't retry on authorization failures
+   * Close connection permanently if token is invalid/expired
+   */
+  shouldRetry: (errOrCloseEvent: unknown) => {
+    const error = errOrCloseEvent as WebSocketError;
+
+    if (
+      error?.message?.includes('authorization') ||
+      error?.message?.includes('unauthorized') ||
+      error?.message?.includes('forbidden') ||
+      error?.code === 4401 || // Unauthorized
+      error?.code === 4403
+    ) {
+      // Forbidden
+      console.error(
+        '[GraphQL Subscription] Authorization failed, closing connection permanently:',
+        error,
+      );
+      // Don't retry on auth errors - close connection permanently
+      return false;
+    }
+
+    // Retry on other errors (network issues, etc.)
+    console.warn('[GraphQL Subscription] Connection error, will retry:', error);
+    return true;
+  },
+  /**
+   * Connection timeout and retry delay configuration
+   */
+  retryAttempts: 3,
+});
+
+// Log connection events with detailed information
+wsClient.on('opened', () => {
+  console.log(
+    '🚀 [GraphQL Subscription] WebSocket connection opened successfully',
+    {
+      url: getWebSocketUri(),
+      timestamp: new Date().toISOString(),
+    },
+  );
+});
+
+wsClient.on('closed', (event: unknown) => {
+  const closeEvent = event as WebSocketCloseEvent;
+  console.log('🔌 [GraphQL Subscription] WebSocket connection closed', {
+    code: closeEvent?.code,
+    reason: closeEvent?.reason,
+    wasClean: closeEvent?.wasClean,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+wsClient.on('error', (error: unknown) => {
+  const wsError = error as WebSocketError;
+  console.error('💥 [GraphQL Subscription] WebSocket connection error:', {
+    error: wsError,
+    url: getWebSocketUri(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+wsClient.on('connecting', () => {
+  console.log('🔗 [GraphQL Subscription] Connecting to WebSocket...', {
+    url: getWebSocketUri(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+const wsLink = new GraphQLWsLink(wsClient);
+
+/**
+ * Split link: subscriptions go to WebSocket, queries/mutations go to HTTP
+ */
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    );
+  },
+  wsLink,
+  httpLink,
+);
+
+/**
+ * Token Readiness Link
+ * Đảm bảo token được init trước khi query (nếu query cần token)
+ * Không chặn query, chỉ đợi tokenReady = true
+ * Cho phép query đánh dấu là public qua context.skipTokenWait = true
+ */
+const tokenReadinessLink = new ApolloLink(
+  (operation: Operation, forward: NextLink) => {
+    // Cho phép subscriptions tiếp tục (chúng xử lý auth riêng)
+    const definition = getMainDefinition(operation.query);
+    if (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    ) {
+      return forward(operation);
+    }
+
+    // Kiểm tra xem query có đánh dấu là public không
+    const skipTokenWait =
+      operation.getContext().skipTokenWait === true ||
+      operation.getContext().public === true;
+
+    // Nếu là public query, không cần đợi token
+    if (skipTokenWait) {
+      return forward(operation);
+    }
+
+    // Lấy tokenReady từ store
+    const state = useAuthStore.getState();
+    const { tokenReady } = state;
+
+    // Nếu token đã ready, tiếp tục ngay
+    if (tokenReady) {
+      return forward(operation);
+    }
+
+    // Nếu token chưa ready, đợi cho đến khi ready
+    // Không chặn query, chỉ đợi token được init (ưu tiên mạnh)
+    return new Observable<FetchResult>((observer) => {
+      let subscription: { unsubscribe: () => void } | null = null;
+      let timeoutId: NodeJS.Timeout | null = null;
+      let unsubscribe: (() => void) | null = null;
+
+      // Đợi tokenReady = true bằng cách polling
+      const checkTokenReady = () => {
+        const currentState = useAuthStore.getState();
+        if (currentState.tokenReady) {
+          // Token đã ready, tiếp tục với query
+          const forwardObservable = forward(operation);
+          subscription = forwardObservable.subscribe({
+            next: (value) => observer.next(value),
+            error: (error) => observer.error(error),
+            complete: () => observer.complete(),
+          });
+          if (unsubscribe) unsubscribe();
+          if (timeoutId) clearTimeout(timeoutId);
+        } else {
+          // Chưa ready, check lại sau một khoảng thời gian ngắn
+          timeoutId = setTimeout(checkTokenReady, 50);
+        }
+      };
+
+      // Subscribe để lắng nghe thay đổi tokenReady
+      unsubscribe = useAuthStore.subscribe((state) => {
+        if (state.tokenReady && !subscription) {
+          checkTokenReady();
+        }
+      });
+
+      // Check ngay lập tức
+      checkTokenReady();
+
+      // Cleanup
+      return () => {
+        if (unsubscribe) unsubscribe();
+        if (timeoutId) clearTimeout(timeoutId);
+        if (subscription) subscription.unsubscribe();
+      };
+    });
+  },
+);
 
 /**
  * Authentication Link
@@ -75,7 +323,7 @@ const authLink = setContext(async (_, { headers }) => {
  */
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, locations, path, extensions }) => {
+    graphQLErrors.forEach(({ extensions }) => {
       // Handle specific error codes if needed
       const errorCode = extensions?.code as string | undefined;
       if (errorCode === 'UNAUTHENTICATED') {
@@ -121,10 +369,10 @@ const cache = new InMemoryCache({
 
 /**
  * Apollo Client Instance
- * Configured with auth, error handling, and cache
+ * Configured with auth, error handling, cache, and subscriptions
  */
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: from([errorLink, tokenReadinessLink, authLink, splitLink]),
   cache,
   // Default options for all queries
   defaultOptions: {

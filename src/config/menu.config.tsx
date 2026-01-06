@@ -211,6 +211,14 @@ export const MENU_SIDEBAR: MenuConfig = [
         path: '/proxy-provider-category',
       },
       {
+        title: 'Danh mục loại proxy',
+        path: '/proxy-type-category',
+      },
+      {
+        title: 'Danh mục khuyến mãi nạp',
+        path: '/topup-category',
+      },
+      {
         title: 'Danh mục hạng thành viên',
         path: '/loyal-category',
       },

@@ -9,6 +9,8 @@ export * from './countries';
 export * from './loyals';
 export * from './promotions';
 export * from './proxy-providers';
+export * from './proxy-types';
+export * from './topups';
 export * from './overview';
 
 // Add more module exports here as you create them

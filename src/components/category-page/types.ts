@@ -52,6 +52,9 @@ export interface CategoryPageProps<TData extends { id: string | number }> {
 
   // Row click handler
   onRowClick?: (row: TData) => void;
+
+  // Transform initial values for form (e.g., convert arrays to strings)
+  transformInitialValues?: (item: TData) => Record<string, any>;
 }
 
 export interface FormFieldConfig {

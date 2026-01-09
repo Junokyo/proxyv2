@@ -223,6 +223,14 @@ export const MENU_SIDEBAR: MenuConfig = [
         path: '/loyal-category',
       },
       {
+        title: 'Danh mục lịch sử loyal',
+        path: '/loyal-history-category',
+      },
+      {
+        title: 'Danh mục đơn hàng',
+        path: '/order-category',
+      },
+      {
         title: 'Danh mục khuyến mãi',
         path: '/promotion-category',
       },

@@ -249,6 +249,7 @@ export function CategoryPage<TData extends { id: string | number }>(
     isLoading = false,
     onRowClick,
     totalCount,
+    transformInitialValues,
   } = props;
 
   // Use provided table instance or create a new one
@@ -509,7 +510,13 @@ export function CategoryPage<TData extends { id: string | number }>(
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         mode="edit"
-        initialValues={selectedItem as any}
+        initialValues={
+          selectedItem
+            ? transformInitialValues
+              ? transformInitialValues(selectedItem)
+              : (selectedItem as any)
+            : {}
+        }
         onSubmit={handleEdit}
         formSchema={formSchema}
         formFields={formFields}

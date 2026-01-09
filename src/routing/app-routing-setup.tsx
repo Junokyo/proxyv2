@@ -50,6 +50,8 @@ import ProxyTypeCategoryPage from '@/pages/category/proxy-type-category/page';
 import TopupCategoryPage from '@/pages/category/topup-category/page';
 import IPListCategoryPage from '@/pages/category/ip-list-category/page';
 import LoyalCategoryPage from '@/pages/category/loyal-category/page';
+import LoyalHistoryCategoryPage from '@/pages/category/loyal-history-category/page';
+import OrderCategoryPage from '@/pages/category/order-category/page';
 import PromotionCategoryPage from '@/pages/category/promotion-category/page';
 import LogsCategoryPage from '@/pages/category/log-category/page';
 import ProxyPackageCategoryPage from '@/pages/category/proxy-package-category/page';
@@ -174,6 +176,11 @@ export function AppRoutingSetup() {
           />
           <Route path="/topup-category" element={<TopupCategoryPage />} />
           <Route path="/loyal-category" element={<LoyalCategoryPage />} />
+          <Route
+            path="/loyal-history-category"
+            element={<LoyalHistoryCategoryPage />}
+          />
+          <Route path="/order-category" element={<OrderCategoryPage />} />
           <Route
             path="/promotion-category"
             element={<PromotionCategoryPage />}

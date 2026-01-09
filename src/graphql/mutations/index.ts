@@ -10,6 +10,9 @@ export * from './countries';
 // Loyals module
 export * from './loyals';
 
+// Loyal Histories module
+export * from './loyal-histories';
+
 // Promotions module
 export * from './promotions';
 
@@ -22,8 +25,14 @@ export * from './proxy-types';
 // Topups module
 export * from './topups';
 
+// Orders module
+export * from './orders';
+
 // Overview module
 export * from './overview';
+
+// Users module
+export * from './users';
 
 // Add more module exports here as you create them
 // Example:

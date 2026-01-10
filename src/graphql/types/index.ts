@@ -13,3 +13,4 @@ export * from './topups.types';
 export * from './common.types';
 export * from './users.types';
 export * from './wallets.types';
+export * from './wallet-transactions.types';

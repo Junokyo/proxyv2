@@ -12,13 +12,14 @@ import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
 import useTable from '@/hooks/use-table';
 import { CategoryPage, FormFieldConfig } from '@/components/category-page';
+import { WalletTransactionsDialog } from './components/WalletTransactionsDialog';
 
 // 1. Schema - chỉ các fields theo yêu cầu
 const walletSchema = z.object({
   id: z.string().optional(),
   userId: z.string().min(1, 'User ID là bắt buộc'),
-  coin: z.number().optional(),
-  promotion: z.number().optional(),
+  coin: z.coerce.number().optional(),
+  promotion: z.coerce.number().optional(),
   active: z.boolean().optional(),
 });
 
@@ -133,6 +134,10 @@ export function WalletCategoryView() {
   });
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isTransactionsDialogOpen, setIsTransactionsDialogOpen] =
+    useState(false);
 
   const columns: ColumnDef<Wallet>[] = useMemo(() => {
     return baseColumns;
@@ -209,26 +214,46 @@ export function WalletCategoryView() {
   // Get totalCount from GraphQL response for server-side pagination
   const totalCount = walletsData?.wallets?.totalCount;
 
+  // Handle row click to open transactions dialog
+  const handleRowClick = (wallet: Wallet) => {
+    setSelectedWalletId(wallet.id);
+    setSelectedUserId(wallet.userId);
+    setIsTransactionsDialogOpen(true);
+  };
+
   return (
-    <div className="w-full py-4 px-3 sm:py-6 sm:px-4 md:py-8 md:px-6 lg:px-8">
-      <CategoryPage<Wallet>
-        data={wallets}
-        columns={columns}
-        table={table}
-        totalCount={totalCount}
-        title="Danh mục ví"
-        description="Quản lý danh sách ví của người dùng"
-        formSchema={walletSchema}
-        formFields={formFields}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Tìm kiếm ví..."
-        addDialogTitle="Thêm ví mới"
-        addDialogDescription="Điền thông tin để tạo ví mới"
-        isLoading={walletsLoading || creating || updating}
-      />
-    </div>
+    <>
+      <div className="w-full py-4 px-3 sm:py-6 sm:px-4 md:py-8 md:px-6 lg:px-8">
+        <CategoryPage<Wallet>
+          data={wallets}
+          columns={columns}
+          table={table}
+          totalCount={totalCount}
+          title="Danh mục ví"
+          description="Quản lý danh sách ví của người dùng"
+          formSchema={walletSchema}
+          formFields={formFields}
+          onAdd={handleAdd}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Tìm kiếm ví..."
+          addDialogTitle="Thêm ví mới"
+          addDialogDescription="Điền thông tin để tạo ví mới"
+          isLoading={walletsLoading || creating || updating}
+          onRowClick={handleRowClick}
+        />
+      </div>
+
+      {/* Wallet Transactions Dialog */}
+      {selectedWalletId && (
+        <WalletTransactionsDialog
+          open={isTransactionsDialogOpen}
+          onOpenChange={setIsTransactionsDialogOpen}
+          walletId={selectedWalletId}
+          userId={selectedUserId || undefined}
+        />
+      )}
+    </>
   );
 }

@@ -16,6 +16,7 @@ export * from './topups';
 export * from './overview';
 export * from './users';
 export * from './wallets';
+export * from './wallet-transactions';
 
 // Add more module exports here as you create them
 // Example:

@@ -35,6 +35,9 @@ export * from './users';
 // Wallets module
 export * from './wallets';
 
+// Wallet Transactions module
+export * from './wallet-transactions';
+
 export * from './use-graphql-query';
 export * from './use-graphql-mutation';
 export * from './use-graphql-lazy-query';

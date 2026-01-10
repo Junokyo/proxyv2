@@ -1,6 +1,6 @@
 /**
  * GraphQL Mutations Export
- * 
+ *
  * Central export point for all mutations organized by module
  */
 
@@ -34,9 +34,11 @@ export * from './overview';
 // Users module
 export * from './users';
 
+// Wallets module
+export * from './wallets';
+
 // Add more module exports here as you create them
 // Example:
 // export * from './account';
 // export * from './wallet';
 // export * from './store-client';
-

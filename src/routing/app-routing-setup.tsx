@@ -45,18 +45,19 @@ import {
 } from '@/pages/auth';
 import BillingHistoryCategoryPage from '@/pages/category/billing-history-category/page';
 import CountryCategoryPage from '@/pages/category/country-category/page';
-import ProxyProviderCategoryPage from '@/pages/category/proxy-provider-category/page';
-import ProxyTypeCategoryPage from '@/pages/category/proxy-type-category/page';
-import TopupCategoryPage from '@/pages/category/topup-category/page';
 import IPListCategoryPage from '@/pages/category/ip-list-category/page';
+import LogsCategoryPage from '@/pages/category/log-category/page';
 import LoyalCategoryPage from '@/pages/category/loyal-category/page';
 import LoyalHistoryCategoryPage from '@/pages/category/loyal-history-category/page';
 import OrderCategoryPage from '@/pages/category/order-category/page';
 import PromotionCategoryPage from '@/pages/category/promotion-category/page';
-import LogsCategoryPage from '@/pages/category/log-category/page';
 import ProxyPackageCategoryPage from '@/pages/category/proxy-package-category/page';
+import ProxyProviderCategoryPage from '@/pages/category/proxy-provider-category/page';
+import ProxyTypeCategoryPage from '@/pages/category/proxy-type-category/page';
 import SettingsCategoryPage from '@/pages/category/setting-category/page';
+import TopupCategoryPage from '@/pages/category/topup-category/page';
 import UserCategoryPage from '@/pages/category/user-category/page';
+import WalletCategoryPage from '@/pages/category/wallet-category/page';
 import { DefaultPage, Demo1DarkSidebarPage } from '@/pages/dashboards';
 import DepositPage from '@/pages/deposit/page';
 import FacebookServicesPage from '@/pages/facebook-services/page';
@@ -185,6 +186,7 @@ export function AppRoutingSetup() {
             path="/promotion-category"
             element={<PromotionCategoryPage />}
           />
+          <Route path="/wallet-category" element={<WalletCategoryPage />} />
           {/* ------------ */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route

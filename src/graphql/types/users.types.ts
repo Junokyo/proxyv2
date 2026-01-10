@@ -88,11 +88,6 @@ export interface UserMutationResponse {
   active: boolean;
 }
 
-export interface DeleteResponse {
-  success: boolean;
-  message: string;
-}
-
 // Lazy query types
 export interface GetUserByIdVariables {
   id: string;
@@ -101,4 +96,3 @@ export interface GetUserByIdVariables {
 export interface GetUserByIdResponse {
   user: UserMutationResponse;
 }
-

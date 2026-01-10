@@ -5,6 +5,7 @@
  */
 
 import { Response } from '../interfaces/base/response.interface';
+import { DeleteResponse } from './common.types';
 
 // Countries specific types
 export interface CountryItem {
@@ -56,11 +57,6 @@ export interface CountryMutationResponse {
   id: string;
   name: string;
   code: string;
-}
-
-export interface DeleteResponse {
-  success: boolean;
-  message: string;
 }
 
 export interface BulkDeleteResponse extends DeleteResponse {

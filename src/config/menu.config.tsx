@@ -234,6 +234,10 @@ export const MENU_SIDEBAR: MenuConfig = [
         title: 'Danh mục khuyến mãi',
         path: '/promotion-category',
       },
+      {
+        title: 'Danh mục ví',
+        path: '/wallet-category',
+      },
     ],
   },
 ];

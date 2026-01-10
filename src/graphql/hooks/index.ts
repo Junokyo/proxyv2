@@ -32,6 +32,9 @@ export * from './notifications';
 // Users module
 export * from './users';
 
+// Wallets module
+export * from './wallets';
+
 export * from './use-graphql-query';
 export * from './use-graphql-mutation';
 export * from './use-graphql-lazy-query';

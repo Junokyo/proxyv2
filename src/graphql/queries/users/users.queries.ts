@@ -53,3 +53,23 @@ export const GET_USER_BY_ID = gql`
     }
   }
 `;
+
+// Get Profile Query
+export const GET_PROFILE_QUERY = gql`
+  query Profile {
+    profile {
+      id
+      providerId
+      username
+      email
+      roles
+      lastLogin
+      createdAt
+      updatedAt
+      phone
+      avatarUrl
+      loyalLevelId
+      active
+    }
+  }
+`;

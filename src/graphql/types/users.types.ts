@@ -96,3 +96,34 @@ export interface GetUserByIdVariables {
 export interface GetUserByIdResponse {
   user: UserMutationResponse;
 }
+
+// Balance operations types
+export interface AddBalanceInput {
+  userId: string;
+  amount: number;
+  description?: string;
+  reference?: string;
+}
+
+export interface DeductBalanceInput {
+  userId: string;
+  amount: number;
+  description?: string;
+  reference?: string;
+}
+
+export interface BalanceOperationResponse {
+  userId: string;
+  previousBalance: number;
+  amount: number;
+  newBalance: number;
+  transactionType: string;
+}
+
+export interface AddBalanceVariables {
+  input: AddBalanceInput;
+}
+
+export interface DeductBalanceVariables {
+  input: DeductBalanceInput;
+}

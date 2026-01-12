@@ -19,7 +19,6 @@ export const GET_USERS_QUERY = gql`
         providerId
         username
         email
-        balance
         roles
         lastLogin
         createdAt
@@ -54,4 +53,3 @@ export const GET_USER_BY_ID = gql`
     }
   }
 `;
-

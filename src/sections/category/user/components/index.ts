@@ -1,2 +1,2 @@
-export { BalanceActionsPopover } from './BalanceActionsPopover';
-export { BalanceOperationsDialog } from './BalanceOperationsDialog';
+export * from './BalanceActionsPopover';
+export * from './BalanceOperationsDialog';

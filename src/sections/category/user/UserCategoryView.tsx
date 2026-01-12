@@ -13,6 +13,10 @@ import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
 import useTable from '@/hooks/use-table';
 import { CategoryPage, FormFieldConfig } from '@/components/category-page';
+import {
+  BalanceActionsPopover,
+  BalanceOperationsDialog,
+} from './components';
 
 // 1. Schema - matching GraphQL mutations
 // Note: roles is handled as string in form (comma-separated) and converted to array
@@ -186,6 +190,12 @@ export function UserCategoryView() {
   });
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [balanceDialogOpen, setBalanceDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
+  const [operationType, setOperationType] = useState<'add' | 'deduct' | null>(
+    null
+  );
 
   const columns: ColumnDef<User>[] = useMemo(() => {
     return baseColumns;
@@ -303,6 +313,25 @@ export function UserCategoryView() {
   // Get totalCount from GraphQL response for server-side pagination
   const totalCount = usersData?.users?.totalCount;
 
+  // Handle balance operations
+  const handleAddBalance = (user: User) => {
+    setSelectedUserId(user.id);
+    setSelectedUsername(user.username);
+    setOperationType('add');
+    setBalanceDialogOpen(true);
+  };
+
+  const handleDeductBalance = (user: User) => {
+    setSelectedUserId(user.id);
+    setSelectedUsername(user.username);
+    setOperationType('deduct');
+    setBalanceDialogOpen(true);
+  };
+
+  const handleBalanceOperationSuccess = () => {
+    refetch();
+  };
+
   return (
     <div className="w-full py-4 px-3 sm:py-6 sm:px-4 md:py-8 md:px-6 lg:px-8">
       <CategoryPage<User>
@@ -327,6 +356,21 @@ export function UserCategoryView() {
         deleteDialogDescription="Bạn có chắc chắn muốn xóa người dùng này?"
         isLoading={usersLoading || creating || updating || deleting}
         transformInitialValues={transformUserForForm}
+        customActions={(user) => (
+          <BalanceActionsPopover
+            onAddBalance={() => handleAddBalance(user)}
+            onDeductBalance={() => handleDeductBalance(user)}
+          />
+        )}
+      />
+
+      <BalanceOperationsDialog
+        open={balanceDialogOpen}
+        onOpenChange={setBalanceDialogOpen}
+        userId={selectedUserId}
+        username={selectedUsername}
+        operationType={operationType}
+        onSuccess={handleBalanceOperationSuccess}
       />
     </div>
   );

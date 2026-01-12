@@ -249,6 +249,8 @@ export function CategoryPage<TData extends { id: string | number }>(
     isLoading = false,
     onRowClick,
     totalCount,
+    transformInitialValues,
+    customActions,
   } = props;
 
   // Use provided table instance or create a new one
@@ -324,6 +326,7 @@ export function CategoryPage<TData extends { id: string | number }>(
       cell: ({ row }: { row: Row<TData> }) => {
         return (
           <div className="flex items-center gap-2">
+            {customActions && customActions(row.original)}
             <Button
               variant="ghost"
               size="sm"
@@ -357,7 +360,7 @@ export function CategoryPage<TData extends { id: string | number }>(
     };
 
     return [...columns, actionColumn];
-  }, [columns]);
+  }, [columns, customActions]);
 
   const tableInstance = useReactTable({
     columns: columnsWithActions,
@@ -509,7 +512,13 @@ export function CategoryPage<TData extends { id: string | number }>(
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         mode="edit"
-        initialValues={selectedItem as any}
+        initialValues={
+          selectedItem
+            ? transformInitialValues
+              ? transformInitialValues(selectedItem)
+              : (selectedItem as any)
+            : {}
+        }
         onSubmit={handleEdit}
         formSchema={formSchema}
         formFields={formFields}

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { useAuth } from '@/auth/store/auth.store';
+import { useGraphQLQuery } from '@/graphql/hooks/use-graphql-query';
+import { GET_WALLET_STATS_QUERY } from '@/graphql/queries/wallets';
 import { Icon } from '@iconify/react';
-import { BankSelection } from './BankSelection';
-import { AmountInput } from './AmountInput';
-import { TransferInfo } from './TransferInfo';
 import { useNotification } from '@/providers/notification-provider';
 import {
   AlertDialog,
@@ -14,16 +14,40 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { AmountInput } from './AmountInput';
+import { BankSelection } from './BankSelection';
+import { TransferInfo } from './TransferInfo';
 
 const DepositForm: React.FC = () => {
   const [selectedBank, setSelectedBank] = useState('');
   const [amount, setAmount] = useState(100000);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { addNotification } = useNotification();
+  const { user } = useAuth();
+
+  // Fetch wallet stats
+  const { data: walletStatsData, loading: walletStatsLoading } =
+    useGraphQLQuery<{
+      walletStats: {
+        userId: string;
+        currentBalance: number;
+        totalDeposited: number;
+        totalSpent: number;
+        totalPromotion: number;
+      };
+    }>({
+      query: GET_WALLET_STATS_QUERY,
+      variables: {
+        userId: user?.id || '',
+      },
+      skip: !user?.id,
+    });
 
   const formatVND = (value: number): string => {
     return new Intl.NumberFormat('vi-VN').format(value);
   };
+
+  const currentBalance = walletStatsData?.walletStats?.currentBalance || 0;
 
   const canSubmit = selectedBank && amount >= 100000;
 
@@ -38,7 +62,7 @@ const DepositForm: React.FC = () => {
 
     // Add notification
     addNotification({
-      type: 'deposit',
+      type: 'topup',
       title: 'Yêu cầu nạp tiền đã được ghi nhận',
       description: `Đơn nạp ${formatVND(amount)} VNĐ qua ${selectedBank} đang được xử lý. Mã GD: ${transactionCode}`,
       time: 'Vừa xong',
@@ -54,7 +78,7 @@ const DepositForm: React.FC = () => {
 
     // Show success message
     alert(
-      `✅ Đã ghi nhận yêu cầu nạp tiền!\n\nMã giao dịch: ${transactionCode}\nSố tiền: ${formatVND(amount)} VNĐ\nNgân hàng: ${selectedBank}\n\nVui lòng chuyển khoản theo thông tin bên dưới.\nGiao dịch sẽ được xử lý tự động trong 5-10 phút.`
+      `✅ Đã ghi nhận yêu cầu nạp tiền!\n\nMã giao dịch: ${transactionCode}\nSố tiền: ${formatVND(amount)} VNĐ\nNgân hàng: ${selectedBank}\n\nVui lòng chuyển khoản theo thông tin bên dưới.\nGiao dịch sẽ được xử lý tự động trong 5-10 phút.`,
     );
   };
 
@@ -65,7 +89,11 @@ const DepositForm: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs opacity-90">Số dư tài khoản</p>
-            <p className="text-2xl font-bold mt-1">0 VNĐ</p>
+            <p className="text-2xl font-bold mt-1">
+              {walletStatsLoading
+                ? 'Đang tải...'
+                : `${formatVND(currentBalance)} VNĐ`}
+            </p>
           </div>
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
             <Icon icon="mdi:wallet" className="h-6 w-6" />
@@ -213,4 +241,3 @@ const DepositForm: React.FC = () => {
 };
 
 export default DepositForm;
-

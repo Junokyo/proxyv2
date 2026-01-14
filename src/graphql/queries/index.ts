@@ -5,6 +5,7 @@
  */
 
 // Overview module
+export * from './bank-accounts';
 export * from './countries';
 export * from './loyals';
 export * from './loyal-histories';

@@ -2,32 +2,42 @@
 
 import { useState } from 'react';
 import { ContactDialog } from '@/components/contact/ContactDialog';
+import { Button } from '@/components/ui/button';
+import Iconify from '@/components/iconify';
 
 export const CustomPlanCard: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <>
-      <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white px-6 pb-6 pt-6 shadow-sm">
-        <div className="text-sm font-medium text-slate-700">Custom</div>
-        <div className="mt-2 text-xl font-semibold text-slate-900">
-          Get a quote
-        </div>
+      <div className="flex h-full min-h-[230px] flex-col rounded-xl border border-border bg-card px-4 pb-4 pt-5">
+        <div className="text-sm font-medium text-foreground">Custom</div>
+        <div className="mt-2 text-xl font-bold text-foreground">Get a quote</div>
 
-        <ul className="mt-4 space-y-2 text-xs text-slate-600">
-          <li>• Higher concurrency</li>
-          <li>• Greater bandwidth</li>
-          <li>• Better prices</li>
+        <ul className="mt-4 space-y-2 text-xs text-muted-foreground">
+          <li className="flex items-center gap-1.5">
+            <span className="text-primary">•</span>
+            Higher concurrency
+          </li>
+          <li className="flex items-center gap-1.5">
+            <span className="text-primary">•</span>
+            Greater bandwidth
+          </li>
+          <li className="flex items-center gap-1.5">
+            <span className="text-primary">•</span>
+            Better prices
+          </li>
         </ul>
 
-        <div className="mt-auto pt-6">
-          <button
+        <div className="mt-auto pt-4">
+          <Button
+            variant="outline"
             onClick={() => setIsDialogOpen(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-blue-500 bg-blue-50 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-100"
+            className="h-9 w-full gap-2 text-xs"
           >
-            <span className="text-[12px]">📩</span>
-            <span>Contact Us</span>
-          </button>
+            <Iconify icon="mdi:email-outline" width={14} />
+            Contact Us
+          </Button>
         </div>
       </div>
       <ContactDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />

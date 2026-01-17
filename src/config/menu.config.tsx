@@ -79,10 +79,12 @@ export const MENU_SIDEBAR: MenuConfig = [
     requireAuth: REQUIRE_AUTH,
     children: [
       { title: 'Proxy dân cư', path: '/residential-proxies' },
+      { title: 'Proxy xoay', path: '/rotating-proxies' },
       { title: 'Proxy không giới hạn', path: '/ulimited-proxies' },
       // { title: 'ISP Proxies', path: '#' },
       // { title: 'Datacenter Proxies', path: '#' },
-      { title: 'Proxy ISP xoay vòng', path: '/rotating-isp' },
+      { title: 'Proxy ISP', path: '/isp-proxies' },
+      { title: 'Proxy IPv4 Private', path: '/private-ipv4' },
     ],
   },
   {

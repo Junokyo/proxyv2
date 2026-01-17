@@ -1,6 +1,10 @@
-// ConversionPanel.tsx
+'use client';
+
 import React, { useMemo, useState } from 'react';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import Iconify from '@/components/iconify/iconify';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export type PlanKey = 'residential' | 'rotating' | 'isp' | 'datacenter';
 
@@ -13,58 +17,77 @@ const PLAN_CONFIG: Record<
   PlanKey,
   {
     title: string;
+    shortTitle: string;
     subLabel: string;
     unitPrice: number;
     unitText: string;
-    conversionTitle: string;
+    description: string;
     icon: string;
+    bgGradient: string;
+    iconBg: string;
+    borderColor: string;
   }
 > = {
   residential: {
     title: 'Residential Proxies',
+    shortTitle: 'Residential',
     subLabel: '$0.77/GB',
     unitPrice: 0.77,
     unitText: 'GB',
-    conversionTitle: 'Qui Đổi Residential Proxies',
+    description: 'Quy đổi trực tiếp từ ví sang gói Residential Proxies',
     icon: 'mdi:home-city-outline',
+    bgGradient: 'from-blue-500/10 to-blue-600/5',
+    iconBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
+    borderColor: 'border-blue-500/50',
   },
   rotating: {
     title: 'Rotating ISP Proxies',
+    shortTitle: 'Rotating ISP',
     subLabel: '$0.4/GB',
     unitPrice: 0.4,
     unitText: 'GB',
-    conversionTitle: 'Qui Đổi Rotating ISP Proxies',
+    description: 'Quy đổi trực tiếp từ ví sang gói Rotating ISP Proxies',
     icon: 'mdi:cached',
+    bgGradient: 'from-emerald-500/10 to-emerald-600/5',
+    iconBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
+    borderColor: 'border-emerald-500/50',
   },
   isp: {
     title: 'ISP Proxies',
+    shortTitle: 'ISP',
     subLabel: '$0.17/IP/Ngày',
-    unitPrice: 0.17 * 30, // 1 gói 30 ngày
+    unitPrice: 0.17 * 30,
     unitText: 'IP (30 Ngày)',
-    conversionTitle: 'Qui Đổi ISP Proxies',
+    description: 'Quy đổi trực tiếp từ ví sang gói ISP Proxies',
     icon: 'mdi:server-network',
+    bgGradient: 'from-violet-500/10 to-violet-600/5',
+    iconBg: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
+    borderColor: 'border-violet-500/50',
   },
   datacenter: {
     title: 'Datacenter Proxies',
+    shortTitle: 'Datacenter',
     subLabel: '$0.11/IP/Ngày',
     unitPrice: 0.11 * 30,
     unitText: 'IP (30 Ngày)',
-    conversionTitle: 'Qui Đổi Datacenter Proxies',
+    description: 'Quy đổi trực tiếp từ ví sang gói Datacenter Proxies',
     icon: 'mdi:database',
+    bgGradient: 'from-amber-500/10 to-amber-600/5',
+    iconBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+    borderColor: 'border-amber-500/50',
   },
 };
 
-// Các gói dung lượng mẫu
 const PRESET_PACKAGES = [
   { value: 5, label: '5GB' },
   { value: 10, label: '10GB' },
   { value: 45, label: '45GB' },
   { value: 120, label: '120GB' },
   { value: 280, label: '280GB' },
-  { value: 1000, label: '1000GB' },
-  { value: 2000, label: '2000GB' },
-  { value: 3000, label: '3000GB' },
-  { value: 5000, label: '5000GB' },
+  { value: 1000, label: '1TB' },
+  { value: 2000, label: '2TB' },
+  { value: 3000, label: '3TB' },
+  { value: 5000, label: '5TB' },
 ];
 
 const tabs: { key: PlanKey }[] = [
@@ -79,221 +102,267 @@ const ConversionPanel: React.FC<ConversionPanelProps> = ({
   onChangePlan,
 }) => {
   const [quantity, setQuantity] = useState<number>(1);
-  const [isCustom, setIsCustom] = useState<boolean>(false);
+  const [isCustom, setIsCustom] = useState<boolean>(true);
 
   const currentPlan = PLAN_CONFIG[selectedPlan];
 
   const exchangeAmount = useMemo(
     () => (quantity > 0 ? quantity * currentPlan.unitPrice : 0),
-    [quantity, currentPlan.unitPrice],
+    [quantity, currentPlan.unitPrice]
   );
 
-  // Xử lý click vào gói preset
   const handlePresetClick = (value: number) => {
     setQuantity(value);
     setIsCustom(false);
   };
 
-  // Xử lý chuyển sang chế độ tùy chỉnh
   const handleCustomClick = () => {
     setIsCustom(true);
     setQuantity(1);
   };
 
-  // Giả định số dư hiện tại
   const currentBalance = 1250.5;
+  const canConvert = exchangeAmount <= currentBalance && exchangeAmount > 0;
 
   return (
-    <div className="space-y-3 sm:space-y-4 rounded-2xl bg-white p-3 sm:p-4 md:p-6 shadow-sm max-w-full overflow-hidden">
-      {/* TABS CHỌN GÓI */}
-      <div className="grid gap-1.5 sm:gap-2 md:gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
-        {tabs.map(({ key }) => {
-          const plan = PLAN_CONFIG[key];
-          const active = key === selectedPlan;
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => onChangePlan(key)}
-              className={`flex flex-col rounded-lg sm:rounded-xl border px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs sm:text-sm transition min-w-0
-                ${
-                  active
-                    ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300'
-                }`}
-            >
-              <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 min-w-0">
-                <span
-                  className={`h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                    active
-                      ? 'border-blue-500 bg-blue-500'
-                      : 'border-slate-300 bg-white'
-                  }`}
-                >
-                  {active && (
-                    <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-white" />
-                  )}
-                </span>
-                <Iconify icon={plan.icon} width={12} className="flex-shrink-0 sm:w-3.5 lg:w-[18px]" />
-                <span className="font-medium text-[10px] sm:text-xs lg:text-sm truncate min-w-0">{plan.title}</span>
-              </div>
-              <span className="mt-0.5 sm:mt-1 ml-4 sm:ml-5 lg:ml-6 text-[9px] sm:text-xs text-slate-500 truncate">
-                {plan.subLabel}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* PHẦN QUI ĐỔI CHÍNH */}
-      <div className="mt-3 sm:mt-4 flex flex-col lg:flex-row gap-3 sm:gap-4 md:gap-5">
-        {/* Số dư hiện tại */}
-        <div className="w-full lg:w-[280px] flex-shrink-0 flex flex-col justify-between rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-white px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
-          <div>
-            <div className="mb-2 sm:mb-3 lg:mb-4 flex h-9 w-9 sm:h-10 sm:w-10 lg:h-12 lg:w-12 items-center justify-center rounded-xl bg-blue-500 shadow-lg">
-              <Iconify
-                icon="mdi:wallet-outline"
-                width={18}
-                className="text-white sm:w-5 lg:w-6"
-              />
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(300px,1fr)] items-start">
+      {/* Main Content */}
+      <div className="min-w-0 space-y-6">
+        {/* Proxy Type Selection */}
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Iconify icon="mdi:package-variant" width={16} className="text-primary" />
+              <span className="text-sm font-medium text-foreground">Chọn loại Proxy</span>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-slate-600">Số Dư Hiện Tại</p>
-            <p className="mt-1 sm:mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
-              ${currentBalance.toFixed(2)}
-            </p>
           </div>
+          <LayoutGroup>
+          <div className="grid gap-2 grid-cols-2 lg:grid-cols-4">
+            {tabs.map(({ key }) => {
+              const plan = PLAN_CONFIG[key];
+              const isActive = key === selectedPlan;
 
-          <button
-            onClick={() => window.location.href = '/deposit'}
-            className="mt-3 sm:mt-4 lg:mt-6 w-full rounded-lg bg-blue-500 px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm font-semibold text-white hover:bg-blue-600 transition shadow-sm flex items-center justify-center gap-1 sm:gap-1.5 lg:gap-2"
-          >
-            <Iconify icon="mdi:plus-circle-outline" width={14} className="sm:w-4" />
-            Nạp Tiền
-          </button>
+              return (
+                <motion.button
+                  key={key}
+                  type="button"
+                  onClick={() => onChangePlan(key)}
+                  whileTap={{ scale: 0.98 }}
+                  className={cn(
+                    'group relative flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition-all',
+                    isActive
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border bg-card hover:border-primary/40'
+                  )}
+                >
+                  <div className={cn(
+                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all',
+                    isActive ? plan.iconBg : 'bg-muted/50 text-muted-foreground'
+                  )}>
+                    <Iconify icon={plan.icon} width={16} />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs font-semibold text-foreground truncate">{plan.shortTitle}</h4>
+                    <p className="text-[11px] text-muted-foreground">{plan.subLabel}</p>
+                  </div>
+
+                  {isActive && (
+                    <Iconify icon="mdi:check-circle" width={16} className="shrink-0 text-primary" />
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+          </LayoutGroup>
         </div>
 
-        {/* Panel qui đổi */}
-        <div className="flex-1 flex flex-col rounded-lg border border-slate-200 bg-white px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 min-w-0">
-          {/* header */}
-          <div className="mb-3 sm:mb-4 flex items-start gap-2 sm:gap-3">
-            <div className="flex h-9 w-9 sm:h-10 sm:w-10 lg:h-12 lg:w-12 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 flex-shrink-0">
-              <Iconify icon="mdi:swap-horizontal" width={18} className="text-blue-500 sm:w-5 lg:w-6" />
+        {/* Conversion Panel */}
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Iconify icon="mdi:swap-horizontal" width={16} className="text-primary" />
+              <span className="text-sm font-medium text-foreground">Quy Đổi {currentPlan.shortTitle}</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm sm:text-base font-semibold text-slate-900">
-                {currentPlan.conversionTitle}
-              </p>
-              <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-slate-500">
-                Qui đổi trực tiếp từ ví sang gói proxy, sử dụng ngay sau khi qui đổi thành công.
-              </p>
-            </div>
+            <span className="text-xs text-muted-foreground">{currentPlan.subLabel}</span>
           </div>
 
-          <div className="mb-3 sm:mb-4 h-px w-full bg-slate-200" />
+          {/* Package Selection */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            <button
+              type="button"
+              onClick={handleCustomClick}
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-all',
+                isCustom
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+              )}
+            >
+              <Iconify icon="mdi:pencil-outline" width={12} />
+              Tùy chỉnh
+            </button>
 
-          {/* Chọn dung lượng */}
-          <div className="mb-3 sm:mb-4">
-            <p className="mb-2 sm:mb-3 text-xs sm:text-sm font-semibold text-slate-700">
-              Chọn Dung Lượng Qui Đổi
-            </p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-1.5 sm:gap-2">
-              {/* Nút Custom */}
+            {PRESET_PACKAGES.map((pkg) => (
               <button
+                key={pkg.value}
                 type="button"
-                onClick={handleCustomClick}
-                className={`rounded-lg border px-2 sm:px-2.5 lg:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium transition ${
-                  isCustom
-                    ? 'border-blue-500 bg-blue-50 text-blue-600'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
-                }`}
+                onClick={() => handlePresetClick(pkg.value)}
+                className={cn(
+                  'rounded-full border px-2.5 py-1 text-xs font-medium transition-all',
+                  !isCustom && quantity === pkg.value
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+                )}
               >
-                <Iconify icon="mdi:pencil-outline" width={10} className="inline mr-0.5 sm:mr-1 sm:w-3" />
-                <span className="hidden sm:inline">Tùy Chỉnh</span>
-                <span className="sm:hidden">TT</span>
+                {pkg.label}
               </button>
+            ))}
+          </div>
 
-              {/* Các gói preset */}
-              {PRESET_PACKAGES.map((pkg) => (
-                <button
-                  key={pkg.value}
-                  type="button"
-                  onClick={() => handlePresetClick(pkg.value)}
-                  className={`rounded-lg border px-2 sm:px-2.5 lg:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium transition whitespace-nowrap ${
-                    !isCustom && quantity === pkg.value
-                      ? 'border-blue-500 bg-blue-50 text-blue-600'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
-                  }`}
+          {/* Input Section */}
+          <div className="flex flex-wrap items-center gap-3 rounded-lg bg-muted/40 p-3">
+            <div className="flex items-center rounded-md border border-border bg-card overflow-hidden">
+              <input
+                type="number"
+                min={1}
+                value={quantity}
+                onChange={(e) => {
+                  setQuantity(Math.max(1, Number(e.target.value) || 1));
+                  setIsCustom(true);
+                }}
+                className="w-16 border-none bg-transparent px-3 py-2 text-sm font-semibold text-foreground outline-none"
+              />
+              <span className="border-l border-border bg-muted/50 px-2.5 py-2 text-[11px] text-muted-foreground">
+                {currentPlan.unitText}
+              </span>
+            </div>
+
+            <Iconify icon="mdi:arrow-right" width={16} className="text-muted-foreground" />
+
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] text-muted-foreground">Tổng:</span>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={exchangeAmount}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-base font-bold text-foreground"
                 >
-                  {pkg.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Input tùy chỉnh và tính toán */}
-          <div className="flex flex-col gap-3 sm:gap-4 bg-slate-50 rounded-lg p-3 sm:p-4">
-            {/* Input số lượng */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-              <div className="flex items-center rounded-lg border border-slate-300 bg-white px-2 sm:px-3 py-2 flex-1 sm:flex-initial">
-                <input
-                  type="number"
-                  min={1}
-                  value={quantity}
-                  onChange={(e) => {
-                    setQuantity(Math.max(1, Number(e.target.value) || 1));
-                    setIsCustom(true);
-                  }}
-                  className="w-full sm:w-16 lg:w-20 border-none bg-transparent text-xs sm:text-sm font-medium text-slate-700 outline-none"
-                />
-                <span className="ml-1.5 sm:ml-2 border-l border-slate-200 pl-2 sm:pl-3 text-[10px] sm:text-xs text-slate-600 whitespace-nowrap">
-                  {currentPlan.unitText}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500">
-                <Iconify icon="mdi:information-outline" width={12} className="sm:w-3.5 flex-shrink-0" />
-                <span>Đơn giá: {currentPlan.subLabel}</span>
-              </div>
-            </div>
-
-            {/* Tổng tiền và nút hành động */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <div className="flex flex-col items-center sm:items-end justify-center px-3 sm:px-4 py-2 bg-white rounded-lg border border-slate-200 flex-1 sm:flex-initial">
-                <span className="text-[10px] sm:text-xs text-slate-500">Tổng chi phí</span>
-                <span className="text-base sm:text-lg lg:text-xl font-bold text-slate-900">
                   ${exchangeAmount.toFixed(2)}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm font-semibold text-white hover:from-blue-600 hover:to-blue-700 transition shadow-sm flex items-center justify-center gap-1.5 sm:gap-2"
-              >
-                <Iconify icon="mdi:check-circle-outline" width={14} className="sm:w-4" />
-                <span>Qui Đổi Ngay</span>
-              </button>
+                </motion.span>
+              </AnimatePresence>
             </div>
+
+            <Button
+              disabled={!canConvert}
+              className="gap-1.5 h-9 px-4 text-xs ml-auto"
+            >
+              <Iconify icon="mdi:lightning-bolt" width={14} />
+              Quy Đổi
+            </Button>
           </div>
 
-          {/* Nút mua gói proxy */}
-          <div className="mt-3 sm:mt-4 flex justify-center sm:justify-end">
+          {/* Buy Package Link */}
+          <div className="mt-3 pt-3 border-t border-border">
             <button
               type="button"
               onClick={() => {
-                // Chuyển đến trang proxy tương ứng
                 const routes: Record<PlanKey, string> = {
                   residential: '/residential-proxies',
                   rotating: '/rotating-isp',
-                  isp: '/residential-proxies',
-                  datacenter: '/residential-proxies',
+                  isp: '/isp-proxies',
+                  datacenter: '/datacenter-proxies',
                 };
                 window.location.href = routes[selectedPlan];
               }}
-              className="w-full sm:w-auto rounded-lg border border-slate-300 bg-white px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-700 hover:border-blue-400 hover:text-blue-600 transition flex items-center justify-center gap-1.5 sm:gap-2"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
             >
-              <Iconify icon="mdi:shopping-outline" width={14} className="sm:w-4" />
-              <span className="truncate">Mua Gói {currentPlan.title}</span>
+              <Iconify icon="mdi:shopping-outline" width={14} />
+              Mua gói {currentPlan.shortTitle} với ưu đãi
+              <Iconify icon="mdi:arrow-right" width={12} />
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Sidebar - Wallet */}
+      <div className="space-y-3">
+        {/* Balance Card */}
+        <div className="rounded-xl bg-gradient-to-br from-primary to-primary/90 p-4 text-primary-foreground">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-[11px] opacity-80">Số dư ví</p>
+              <p className="text-xl font-bold">${currentBalance.toFixed(2)}</p>
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20">
+              <Iconify icon="mdi:wallet" width={18} />
+            </div>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="w-full gap-1.5 bg-white/95 text-primary hover:bg-white text-xs h-8"
+            onClick={() => (window.location.href = '/deposit')}
+          >
+            <Iconify icon="mdi:plus-circle" width={14} />
+            Nạp Tiền
+          </Button>
+        </div>
+
+        {/* Conversion Summary */}
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="mb-3 text-sm font-semibold text-foreground">Chi tiết quy đổi</div>
+
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Loại Proxy</span>
+              <span className="font-medium text-foreground">{currentPlan.shortTitle}</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Dung lượng</span>
+              <span className="font-medium text-foreground">{quantity} {currentPlan.unitText}</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Đơn giá</span>
+              <span className="font-medium text-foreground">{currentPlan.subLabel}</span>
+            </div>
+
+            <div className="border-t border-border pt-2 mt-2">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Tổng thanh toán</span>
+                <span className="text-base font-bold text-primary">${exchangeAmount.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-md bg-muted/50 px-2 py-1.5">
+              <span className="text-muted-foreground text-[11px]">Số dư còn lại</span>
+              <span className={cn(
+                'text-xs font-bold',
+                canConvert ? 'text-emerald-600' : 'text-destructive'
+              )}>
+                ${Math.max(0, currentBalance - exchangeAmount).toFixed(2)}
+              </span>
+            </div>
+          </div>
+
+          {!canConvert && exchangeAmount > 0 && (
+            <div className="mt-3 rounded-md bg-destructive/10 px-2.5 py-2 text-[11px] text-destructive">
+              <div className="flex items-start gap-1.5">
+                <Iconify icon="mdi:alert-circle" width={14} className="shrink-0 mt-0.5" />
+                <p>Số dư không đủ. Cần nạp thêm ${(exchangeAmount - currentBalance).toFixed(2)}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Info Card */}
+        <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2.5 text-[11px] text-emerald-700 dark:text-emerald-400">
+          <div className="flex items-center gap-2">
+            <Iconify icon="mdi:lightning-bolt" width={14} className="shrink-0" />
+            <p>Proxy kích hoạt ngay sau khi quy đổi</p>
           </div>
         </div>
       </div>
@@ -302,4 +371,3 @@ const ConversionPanel: React.FC<ConversionPanelProps> = ({
 };
 
 export default ConversionPanel;
-

@@ -102,7 +102,9 @@ import {
   ProjectColumn3Page,
 } from '@/pages/public-profile';
 import ResidentialProxiesPage from '@/pages/residential-proxies/page';
+import RotatingProxiesPage from '@/pages/rotating-proxies/page';
 import RotatingIspPage from '@/pages/rotating-isp/page';
+import PrivateIpv4Page from '@/pages/private-ipv4/page';
 import { AllProductsPage, DashboardPage } from '@/pages/store-admin';
 import {
   MyOrdersPage,
@@ -122,6 +124,7 @@ import UnlimitedProxiesPage from '@/pages/ulimited-proxies/page';
 import UniversalScrapingApiPage from '@/pages/universal-scraping-api/page';
 import VideoDownloaderPage from '@/pages/video-downloader/page';
 import WalletPage from '@/pages/wallet/page';
+import TestDatePicker from '@/pages/test-datepicker';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 export function AppRoutingSetup() {
@@ -133,6 +136,7 @@ export function AppRoutingSetup() {
       <Route element={<Demo1Layout />}>
         <Route path="/" element={<OverviewPage />} />
         <Route path="/overview" element={<OverviewPage />} />
+        <Route path="/test-datepicker" element={<TestDatePicker />} />
 
         <Route element={requireAuth ? <RequireAuth /> : undefined}>
           {/* ------------ */}
@@ -148,12 +152,17 @@ export function AppRoutingSetup() {
             element={<ResidentialProxiesPage />}
           />
           <Route
+            path="/rotating-proxies"
+            element={<RotatingProxiesPage />}
+          />
+          <Route
             path="/universal-scraping-api"
             element={<UniversalScrapingApiPage />}
           />
           <Route path="/video-downloader" element={<VideoDownloaderPage />} />
           <Route path="/ulimited-proxies" element={<UnlimitedProxiesPage />} />
-          <Route path="/rotating-isp" element={<RotatingIspPage />} />
+          <Route path="/isp-proxies" element={<RotatingIspPage />} />
+          <Route path="/private-ipv4" element={<PrivateIpv4Page />} />
           <Route path="/member-ship" element={<MemberShipPage />} />
           <Route path="/user-category" element={<UserCategoryPage />} />
           <Route

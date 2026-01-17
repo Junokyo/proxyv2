@@ -1,27 +1,48 @@
-// ConversionSection.tsx
+'use client';
+
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import ExchangeDetailsTable from './ExchangeDetailsTable';
 import ConversionPanel, { PlanKey } from './ConversionPanel';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: 'easeOut' },
+  },
+};
 
 const ConversionSection: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>('residential');
 
   return (
-    <div className="w-full bg-slate-50">
-      {/* padding responsive */}
-      <div className="w-full px-2 sm:px-3 md:px-4 lg:px-6 py-3 sm:py-4 md:py-6 lg:py-8 space-y-3 sm:space-y-4 md:space-y-6">
-        {/* PHẦN QUI ĐỔI */}
-        <ConversionPanel
-          selectedPlan={selectedPlan}
-          onChangePlan={setSelectedPlan}
-        />
+    <motion.div
+      className="w-full space-y-6"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {/* Conversion Panel */}
+      <motion.div variants={itemVariants}>
+        <ConversionPanel selectedPlan={selectedPlan} onChangePlan={setSelectedPlan} />
+      </motion.div>
 
-        {/* PHẦN TABLE EXCHANGE DETAILS */}
+      {/* Exchange Details Table */}
+      <motion.div variants={itemVariants}>
         <ExchangeDetailsTable selectedPlan={selectedPlan} />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
 export default ConversionSection;
-

@@ -1,60 +1,124 @@
-import { useCallback, useState } from 'react';
-import ProxiesView from './proxies/proxies-view';
+'use client';
+
+import { useCallback, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+
+import {
+  ProxyTypeTabs,
+  ProxyTypeCards,
+  ProductInfoCard,
+  TrafficLineChart,
+  ExchangeCDKeyWidget,
+  AffiliateWidget,
+  ContactWidget,
+} from './components';
+import {
+  PROXY_TYPES,
+  TRAFFIC_CHART_DATA,
+  AFFILIATE_DATA,
+  MAIN_TABS,
+} from './data/mock-data';
 import UniversalApiView from './universal-api/universal-api-view';
 
-// Tabs configuration for overview page
-const TABS_DATA = [
-  { value: 'proxies', label: 'Proxies', color: '#f97316' },
-  { value: 'scraping', label: 'Scraping Solutions', color: '#14b8a6' },
-];
-
 export default function OverviewView() {
+  // Main tab state (Proxies / Scraping API)
   const [currentTab, setCurrentTab] = useState<string>('proxies');
 
-  const handleChangeTab = useCallback((value: string) => {
+  // Active proxy type
+  const [activeProxyType, setActiveProxyType] = useState<string>('residential');
+
+  // Get current proxy data
+  const currentProxy = useMemo(
+    () => PROXY_TYPES.find((p) => p.value === activeProxyType) || PROXY_TYPES[0],
+    [activeProxyType]
+  );
+
+  const handleMainTabChange = useCallback((value: string) => {
     setCurrentTab(value);
   }, []);
 
+  const handleProxyTypeChange = useCallback((value: string) => {
+    setActiveProxyType(value);
+  }, []);
+
+  const handleCDKeyExchange = useCallback((cdkey: string) => {
+    console.log('Exchange CDKey:', cdkey);
+    // TODO: Implement API call
+  }, []);
+
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-2 sm:px-5 max-w-full">
-        {/* Tab group */}
-        <div className="flex flex-wrap items-center rounded-2xl border border-slate-200 bg-slate-50 px-1 py-1 w-full sm:w-auto max-w-full gap-1">
-          {TABS_DATA.map((tab) => (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => handleChangeTab(tab.value)}
-              className={
-                'rounded-xl px-3 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition whitespace-nowrap ' +
-                (currentTab === tab.value
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'bg-transparent text-slate-500 hover:text-slate-900')
-              }
-            >
-              {tab.label}
-            </button>
-          ))}
+    <div className="w-full">
+      {/* Main Layout: Content + Sidebar */}
+      <div className="flex flex-col xl:flex-row gap-6">
+        {/* Main Content */}
+        <div className="flex-1 min-w-0 space-y-5">
+          {/* Main Tabs */}
+          <ProxyTypeTabs
+            tabs={MAIN_TABS}
+            activeTab={currentTab}
+            onTabChange={handleMainTabChange}
+          />
+
+          {/* Tab Content */}
+          <AnimatePresence mode="wait">
+            {currentTab === 'proxies' && (
+              <motion.div
+                key="proxies"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-5"
+              >
+                {/* Proxy Type Cards */}
+                <ProxyTypeCards
+                  proxyTypes={PROXY_TYPES}
+                  activeType={activeProxyType}
+                  onTypeChange={handleProxyTypeChange}
+                />
+
+                {/* Product Info Card */}
+                <ProductInfoCard proxy={currentProxy} />
+
+                {/* Traffic Chart */}
+                <TrafficLineChart
+                  data={TRAFFIC_CHART_DATA}
+                  title="Total traffic"
+                  subtitle="Last 30 days:"
+                />
+              </motion.div>
+            )}
+
+            {currentTab === 'scraping' && (
+              <motion.div
+                key="scraping"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <UniversalApiView />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Free Trial pill */}
-        {/* <span className="ml-3 rounded-full bg-emerald-50 px-4 py-1 text-xs font-semibold text-emerald-600">
-          Free Trial
-        </span> */}
-      </div>
+        {/* Sidebar */}
+        <div className="w-full xl:w-[300px] shrink-0 space-y-4">
+          {/* Exchange CDKey */}
+          <ExchangeCDKeyWidget onExchange={handleCDKeyExchange} />
 
-      {/* Tab content */}
-      <div className="mt-4 text-sm text-slate-600 w-full max-w-full overflow-x-hidden">
-        {currentTab === 'proxies' && (
-          <div className="bg-white p-3 sm:p-5 w-full max-w-full overflow-x-hidden">
-            <ProxiesView />
-          </div>
-        )}
-        {currentTab === 'scraping' && (
-          <div className="bg-white p-3 sm:p-5 w-full max-w-full overflow-x-hidden">
-            <UniversalApiView />
-          </div>
-        )}
+          {/* Affiliate Program */}
+          <AffiliateWidget
+            invitationCode={AFFILIATE_DATA.invitationCode}
+            invitationLink={AFFILIATE_DATA.invitationLink}
+            commission={AFFILIATE_DATA.commission}
+            withdrawable={AFFILIATE_DATA.withdrawable}
+          />
+
+          {/* Contact */}
+          <ContactWidget />
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ import {
   GET_BANK_ACCOUNTS_QUERY,
   GET_BANK_ACCOUNT_BY_CODE_QUERY,
 } from '@/graphql/queries/bank-accounts';
-import { GET_WALLET_STATS_QUERY } from '@/graphql/queries/wallets';
 import { Icon } from '@iconify/react';
 import { useNotification } from '@/providers/notification-provider';
 import {
@@ -19,37 +18,107 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { AmountInput } from './AmountInput';
-import { BankSelection } from './BankSelection';
-import { TransferInfo } from './TransferInfo';
-import { TopupPackages } from './TopupPackages';
 import { GET_TOPUPS_QUERY } from '@/graphql/queries/topups';
+import { cn } from '@/lib/utils';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+
+// Mock data for demo
+const MOCK_BANK_ACCOUNTS = [
+  {
+    id: '1',
+    bankCode: 'VCB',
+    bankName: 'Vietcombank',
+    bankLogoUrl: 'https://api.vietqr.io/img/VCB.png',
+    apiType: 'manual',
+    accountNumber: '1234567890123',
+    accountName: 'CONG TY TNHH PROXY VN',
+    branch: null,
+    active: true,
+    isDefault: true,
+    note: null,
+    sortOrder: 1,
+  },
+  {
+    id: '2',
+    bankCode: 'TCB',
+    bankName: 'Techcombank',
+    bankLogoUrl: 'https://api.vietqr.io/img/TCB.png',
+    apiType: 'manual',
+    accountNumber: '9876543210987',
+    accountName: 'CONG TY TNHH PROXY VN',
+    branch: null,
+    active: true,
+    isDefault: false,
+    note: null,
+    sortOrder: 2,
+  },
+  {
+    id: '3',
+    bankCode: 'MB',
+    bankName: 'MB Bank',
+    bankLogoUrl: 'https://api.vietqr.io/img/MB.png',
+    apiType: 'manual',
+    accountNumber: '5555666677778888',
+    accountName: 'CONG TY TNHH PROXY VN',
+    branch: null,
+    active: true,
+    isDefault: false,
+    note: null,
+    sortOrder: 3,
+  },
+  {
+    id: '4',
+    bankCode: 'VPB',
+    bankName: 'VPBank',
+    bankLogoUrl: 'https://api.vietqr.io/img/VPB.png',
+    apiType: 'manual',
+    accountNumber: '1111222233334444',
+    accountName: 'CONG TY TNHH PROXY VN',
+    branch: null,
+    active: true,
+    isDefault: false,
+    note: null,
+    sortOrder: 4,
+  },
+  {
+    id: '5',
+    bankCode: 'ACB',
+    bankName: 'ACB',
+    bankLogoUrl: 'https://api.vietqr.io/img/ACB.png',
+    apiType: 'manual',
+    accountNumber: '9999888877776666',
+    accountName: 'CONG TY TNHH PROXY VN',
+    branch: null,
+    active: true,
+    isDefault: false,
+    note: null,
+    sortOrder: 5,
+  },
+  {
+    id: '6',
+    bankCode: 'BIDV',
+    bankName: 'BIDV',
+    bankLogoUrl: 'https://api.vietqr.io/img/BIDV.png',
+    apiType: 'manual',
+    accountNumber: '4444333322221111',
+    accountName: 'CONG TY TNHH PROXY VN',
+    branch: null,
+    active: true,
+    isDefault: false,
+    note: null,
+    sortOrder: 6,
+  },
+];
 
 const DepositForm: React.FC = () => {
   const [selectedBankCode, setSelectedBankCode] = useState<string>('');
   const [amount, setAmount] = useState(100000);
   const [selectedTopupId, setSelectedTopupId] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const { addNotification } = useNotification();
   const { user } = useAuth();
-
-  // Fetch wallet stats
-  const { data: walletStatsData, loading: walletStatsLoading } =
-    useGraphQLQuery<{
-      walletStats: {
-        userId: string;
-        currentBalance: number;
-        totalDeposited: number;
-        totalSpent: number;
-        totalPromotion: number;
-      };
-    }>({
-      query: GET_WALLET_STATS_QUERY,
-      variables: {
-        userId: user?.id || '',
-      },
-      skip: !user?.id,
-    });
+  const { copyToClipboard } = useCopyToClipboard();
 
   // Fetch bank accounts - only active ones
   const { data: bankAccountsData, loading: bankAccountsLoading } =
@@ -69,8 +138,6 @@ const DepositForm: React.FC = () => {
           isDefault: boolean;
           note: string | null;
           sortOrder: number;
-          createdAt: string;
-          updatedAt: string;
         }>;
       };
     }>({
@@ -89,43 +156,42 @@ const DepositForm: React.FC = () => {
     });
 
   const bankAccounts = useMemo(
-    () => bankAccountsData?.bankAccounts?.items || [],
+    () => {
+      const apiData = bankAccountsData?.bankAccounts?.items || [];
+      // Use mock data for demo if no API data
+      return apiData.length > 0 ? apiData : MOCK_BANK_ACCOUNTS;
+    },
     [bankAccountsData],
   );
 
   // Fetch selected bank account by code
-  const { data: bankAccountByCodeData, loading: bankAccountByCodeLoading } =
-    useGraphQLQuery<{
-      bankAccountByCode: {
-        id: string;
-        bankCode: string;
-        bankName: string;
-        bankLogoUrl: string | null;
-        apiType: string;
-        accountNumber: string;
-        accountName: string;
-        branch: string | null;
-        active: boolean;
-        isDefault: boolean;
-        note: string | null;
-        sortOrder: number;
-        createdAt: string;
-        updatedAt: string;
-      };
-    }>({
-      query: GET_BANK_ACCOUNT_BY_CODE_QUERY,
-      variables: {
-        bankCode: selectedBankCode,
-      },
-      skip: !selectedBankCode,
-    });
+  const { data: bankAccountByCodeData } = useGraphQLQuery<{
+    bankAccountByCode: {
+      id: string;
+      bankCode: string;
+      bankName: string;
+      bankLogoUrl: string | null;
+      accountNumber: string;
+      accountName: string;
+    };
+  }>({
+    query: GET_BANK_ACCOUNT_BY_CODE_QUERY,
+    variables: { bankCode: selectedBankCode },
+    skip: !selectedBankCode,
+  });
 
-  const selectedBankAccount = bankAccountByCodeData?.bankAccountByCode || null;
+  const selectedBankAccount = useMemo(() => {
+    // First check API data
+    if (bankAccountByCodeData?.bankAccountByCode) {
+      return bankAccountByCodeData.bankAccountByCode;
+    }
+    // Fallback to mock data
+    return bankAccounts.find(bank => bank.bankCode === selectedBankCode) || null;
+  }, [bankAccountByCodeData, bankAccounts, selectedBankCode]);
 
   // Fetch topup packages
-  const { data: topupsData, loading: topupsLoading } = useGraphQLQuery<{
+  const { data: topupsData } = useGraphQLQuery<{
     topups: {
-      totalCount: number;
       items: Array<{
         id: string;
         name: string;
@@ -139,44 +205,23 @@ const DepositForm: React.FC = () => {
   });
 
   const topupPackages = useMemo(
-    () => topupsData?.topups?.items || [],
+    () => [...(topupsData?.topups?.items || [])].sort((a, b) => a.max - b.max),
     [topupsData],
   );
 
-  // Handle topup package selection
-  const handleSelectTopupPackage = (pkg: {
-    id: string;
-    name: string;
-    max: number;
-    percent: number;
-  }) => {
-    setSelectedTopupId(pkg.id);
-    setAmount(pkg.max);
-  };
-
-  // Calculate bonus amount if topup package is selected
+  // Calculate bonus
   const selectedTopup = useMemo(
     () => topupPackages.find((pkg) => pkg.id === selectedTopupId) || null,
     [topupPackages, selectedTopupId],
   );
-  // Bonus chỉ áp dụng khi amount = max của gói đã chọn (hoặc có thể tính theo amount thực tế nếu muốn linh hoạt)
-  // Ở đây tôi tính bonus dựa trên amount thực tế, nhưng chỉ khi có selectedTopup
-  const bonusAmount =
-    selectedTopup && amount <= selectedTopup.max
-      ? (amount * selectedTopup.percent) / 100
-      : 0;
-  const totalAmountWithBonus = amount + bonusAmount;
 
-  // Auto-select default bank account when data loads
+  const bonusPercent = selectedTopup?.percent || 0;
+
+  // Auto-select default bank
   useEffect(() => {
     if (!bankAccountsLoading && bankAccounts.length > 0 && !selectedBankCode) {
       const defaultBank = bankAccounts.find((bank) => bank.isDefault);
-      if (defaultBank) {
-        setSelectedBankCode(defaultBank.bankCode);
-      } else {
-        // If no default, select the first one (already sorted by sortOrder)
-        setSelectedBankCode(bankAccounts[0].bankCode);
-      }
+      setSelectedBankCode(defaultBank?.bankCode || bankAccounts[0].bankCode);
     }
   }, [bankAccountsLoading, bankAccounts, selectedBankCode]);
 
@@ -184,9 +229,14 @@ const DepositForm: React.FC = () => {
     return new Intl.NumberFormat('vi-VN').format(value);
   };
 
-  const currentBalance = walletStatsData?.walletStats?.currentBalance || 0;
+  const canSubmit = selectedBankCode && amount >= 50000;
+  const transactionCode = `NP${Date.now().toString().slice(-8)}`;
 
-  const canSubmit = selectedBankCode && amount >= 100000;
+  const handleCopy = (text: string, field: string) => {
+    copyToClipboard(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   const handleConfirmDeposit = () => {
     if (!canSubmit) return;
@@ -194,206 +244,262 @@ const DepositForm: React.FC = () => {
   };
 
   const handleSubmitDeposit = () => {
-    // Tạo mã giao dịch
-    const transactionCode = `NP${Date.now().toString().slice(-8)}`;
-
-    // Add notification
+    const txCode = `NP${Date.now().toString().slice(-8)}`;
     addNotification({
       type: 'topup',
       title: 'Yêu cầu nạp tiền đã được ghi nhận',
-      description: `Đơn nạp ${formatVND(amount)} VNĐ qua ${selectedBankAccount?.bankName || selectedBankAccount?.bankCode} đang được xử lý. Mã GD: ${transactionCode}`,
+      description: `Đơn nạp ${formatVND(amount)} VNĐ đang được xử lý. Mã GD: ${txCode}`,
       time: 'Vừa xong',
       amount: amount,
-      paymentMethod:
-        selectedBankAccount?.bankName || selectedBankAccount?.bankCode || '',
+      paymentMethod: selectedBankAccount?.bankName || '',
     });
-
     setShowConfirmDialog(false);
-
-    // Reset form
-    // setSelectedBank('');
-    // setAmount(100000);
-
-    // Show success message
-    alert(
-      `✅ Đã ghi nhận yêu cầu nạp tiền!\n\nMã giao dịch: ${transactionCode}\nSố tiền: ${formatVND(amount)} VNĐ\nNgân hàng: ${selectedBankAccount?.bankName || selectedBankAccount?.bankCode}\n\nVui lòng chuyển khoản theo thông tin bên dưới.\nGiao dịch sẽ được xử lý tự động trong 5-10 phút.`,
-    );
+    alert(`✅ Đã ghi nhận yêu cầu nạp tiền!\n\nMã giao dịch: ${txCode}\nSố tiền: ${formatVND(amount)} VNĐ`);
   };
 
+  const QUICK_AMOUNTS = [50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000];
+
   return (
-    <div className="space-y-4">
-      {/* Current Balance Card - Full Width */}
-      <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-5 text-white shadow-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs opacity-90">Số dư tài khoản</p>
-            <p className="text-2xl font-bold mt-1">
-              {walletStatsLoading
-                ? 'Đang tải...'
-                : `${formatVND(currentBalance)} VNĐ`}
-            </p>
+    <div className="grid lg:grid-cols-[1fr_400px] gap-6 items-stretch">
+      {/* Left Column - Form Steps */}
+      <div className="space-y-6 flex flex-col">
+        {/* Step 1: Bank Selection */}
+        <div className="rounded-xl border border-border bg-card">
+          <div className="flex items-center gap-3 p-4 border-b border-border">
+            <div className="flex items-center gap-2">
+              <Icon icon="mdi:bank-outline" className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">Chọn ngân hàng</span>
+            </div>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+              1
+            </span>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
-            <Icon icon="mdi:wallet" className="h-6 w-6" />
-          </div>
-        </div>
-      </div>
-
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left Column - Input Section */}
-        <div className="space-y-4">
-          {/* Topup Packages */}
-          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-            <TopupPackages
-              packages={topupPackages}
-              loading={topupsLoading}
-              selectedPackageId={selectedTopupId}
-              onSelectPackage={handleSelectTopupPackage}
-            />
-          </div>
-
-          {/* Bank Selection */}
-          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-            <BankSelection
-              bankAccounts={bankAccounts}
-              loading={bankAccountsLoading}
-              selectedBankCode={selectedBankCode}
-              onSelectBank={setSelectedBankCode}
-            />
-          </div>
-
-          {/* Amount Input */}
-          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-            <AmountInput amount={amount} onChangeAmount={setAmount} />
-            {selectedTopup && bonusAmount > 0 && (
-              <div className="mt-3 rounded-lg bg-green-50 border border-green-200 p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon icon="mdi:gift" className="h-4 w-4 text-green-600" />
-                    <span className="text-xs font-medium text-green-700">
-                      Khuyến mãi {selectedTopup.percent}%
-                    </span>
-                  </div>
-                  <span className="text-xs font-semibold text-green-600">
-                    +{formatVND(bonusAmount)} VNĐ
-                  </span>
-                </div>
-                <div className="mt-2 pt-2 border-t border-green-200 flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-700">
-                    Tổng nhận được:
-                  </span>
-                  <span className="text-base font-bold text-green-600">
-                    {formatVND(totalAmountWithBonus)} VNĐ
-                  </span>
-                </div>
+          <div className="p-4">
+            {bankAccountsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Icon icon="mdi:loading" className="h-6 w-6 text-primary animate-spin" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {bankAccounts.map((bank) => (
+                  <button
+                    key={bank.id}
+                    type="button"
+                    onClick={() => setSelectedBankCode(bank.bankCode)}
+                    className={cn(
+                      'flex items-center gap-3 rounded-xl border-2 p-4 transition-all',
+                      selectedBankCode === bank.bankCode
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/30'
+                    )}
+                  >
+                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                      {bank.bankLogoUrl ? (
+                        <img src={bank.bankLogoUrl} alt={bank.bankName} className="h-6 w-6 object-contain" />
+                      ) : (
+                        <Icon icon="mdi:bank" className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-foreground text-left flex-1">{bank.bankName}</span>
+                    <div className={cn(
+                      'h-5 w-5 rounded-full border-2 flex items-center justify-center',
+                      selectedBankCode === bank.bankCode ? 'border-primary bg-primary' : 'border-muted-foreground/30'
+                    )}>
+                      {selectedBankCode === bank.bankCode && (
+                        <div className="h-2 w-2 rounded-full bg-white" />
+                      )}
+                    </div>
+                  </button>
+                ))}
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Column - Transfer Info */}
-        <div className="lg:sticky lg:top-4 lg:self-start">
-          {selectedBankAccount ? (
-            <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-              <TransferInfo bankAccount={selectedBankAccount} amount={amount} />
+        {/* Step 2: Amount Input */}
+        <div className="rounded-xl border border-border bg-card">
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Icon icon="mdi:cash-multiple" className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Nhập số tiền</span>
+              </div>
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                2
+              </span>
             </div>
-          ) : (
-            <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center h-full flex items-center justify-center">
-              <div>
-                <Icon
-                  icon="mdi:arrow-left-circle-outline"
-                  className="mx-auto h-12 w-12 text-slate-300 mb-3"
-                />
-                <p className="text-sm font-medium text-slate-500">
-                  Chọn ngân hàng để xem thông tin
-                </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Thông tin chuyển khoản sẽ hiển thị ở đây
-                </p>
+            {bonusPercent > 0 && (
+              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                <Icon icon="mdi:gift" className="h-4 w-4" />
+                +{bonusPercent}%
+              </span>
+            )}
+          </div>
+          <div className="p-4 space-y-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-2 block">Số tiền cần nạp (VND)</label>
+              <input
+                type="text"
+                value={amount > 0 ? formatVND(amount) : ''}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, '');
+                  setAmount(Number(val) || 0);
+                }}
+                placeholder="Nhập số tiền..."
+                className="w-full h-12 px-4 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Chọn nhanh:</p>
+              <div className="grid grid-cols-4 gap-2">
+                {QUICK_AMOUNTS.map((q) => (
+                  <button
+                    key={q}
+                    type="button"
+                    onClick={() => setAmount(q)}
+                    className={cn(
+                      'py-2.5 rounded-lg text-sm font-medium border transition-all',
+                      amount === q
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border hover:border-primary/50 text-foreground'
+                    )}
+                  >
+                    {formatVND(q)}
+                  </button>
+                ))}
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Submit Button */}
-      <div className="sticky bottom-4 rounded-xl bg-white border-2 border-slate-200 p-3 shadow-lg z-10">
-        <button
-          onClick={handleConfirmDeposit}
-          disabled={!canSubmit}
-          className={`
-            w-full flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all
-            ${
-              canSubmit
-                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-            }
-          `}
-        >
-          <Icon icon="mdi:check-circle" className="h-5 w-5" />
-          Xác nhận đã chuyển khoản
-        </button>
+      {/* Right Column - Transfer Info */}
+      <div className="flex flex-col">
+        <div className="rounded-xl border border-border bg-card flex-1 flex flex-col">
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Icon icon="mdi:bank-transfer" className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Thông tin chuyển khoản</span>
+              </div>
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                3
+              </span>
+            </div>
+          </div>
 
-        {!canSubmit && (
-          <p className="text-center text-xs text-slate-500 mt-1.5">
-            {!selectedBankCode
-              ? 'Vui lòng chọn ngân hàng'
-              : 'Số tiền tối thiểu 100,000 VNĐ'}
-          </p>
-        )}
+          <div className="p-4 flex-1 flex flex-col">
+            {selectedBankAccount ? (
+              <div className="flex-1 flex flex-col justify-between">
+                {/* QR Code */}
+                <div className="flex justify-center py-4">
+                  <div className="p-3 bg-white rounded-xl shadow-sm border">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
+                        `${selectedBankAccount.bankName}|${selectedBankAccount.accountNumber}|${selectedBankAccount.accountName}|${amount}|${transactionCode}`
+                      )}`}
+                      alt="QR Code"
+                      className="w-40 h-40"
+                    />
+                  </div>
+                </div>
+
+                {/* Transfer Details */}
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Số TK:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">{selectedBankAccount.accountNumber}</span>
+                      <button
+                        onClick={() => handleCopy(selectedBankAccount.accountNumber, 'stk')}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        <Icon icon={copiedField === 'stk' ? 'mdi:check' : 'mdi:content-copy'} className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Tên TK:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-foreground">{selectedBankAccount.accountName}</span>
+                      <button
+                        onClick={() => handleCopy(selectedBankAccount.accountName, 'name')}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        <Icon icon={copiedField === 'name' ? 'mdi:check' : 'mdi:content-copy'} className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Số tiền:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-emerald-600">{formatVND(amount)} ₫</span>
+                      <button
+                        onClick={() => handleCopy(amount.toString(), 'amount')}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        <Icon icon={copiedField === 'amount' ? 'mdi:check' : 'mdi:content-copy'} className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Nội dung:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-amber-600 font-mono">{transactionCode}</span>
+                      <button
+                        onClick={() => handleCopy(transactionCode, 'content')}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        <Icon icon={copiedField === 'content' ? 'mdi:check' : 'mdi:content-copy'} className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  onClick={handleConfirmDeposit}
+                  disabled={!canSubmit}
+                  className={cn(
+                    'w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-4',
+                    canSubmit
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                      : 'bg-muted text-muted-foreground cursor-not-allowed'
+                  )}
+                >
+                  <Icon icon="mdi:check-circle" className="h-5 w-5" />
+                  Hoàn tất
+                </button>
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <Icon icon="mdi:qrcode" className="h-16 w-16 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">Vui lòng chọn ngân hàng</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Icon
-                icon="mdi:check-decagram"
-                className="h-6 w-6 text-blue-500"
-              />
-              Xác nhận yêu cầu nạp tiền
-            </AlertDialogTitle>
+            <AlertDialogTitle>Xác nhận nạp tiền</AlertDialogTitle>
             <AlertDialogDescription>
-              <div className="space-y-4 mt-4">
-                <p className="text-slate-700">
-                  Bạn đã chuyển khoản với thông tin sau:
-                </p>
-
-                <div className="bg-slate-50 rounded-lg p-4 space-y-3 border border-slate-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 text-sm">Ngân hàng:</span>
-                    <span className="font-semibold text-slate-900">
-                      {selectedBankAccount?.bankName ||
-                        selectedBankAccount?.bankCode}
-                    </span>
+              <div className="space-y-3 mt-4">
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Ngân hàng</span>
+                    <span className="font-medium text-foreground">{selectedBankAccount?.bankName}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 text-sm">Số tiền:</span>
-                    <span className="font-bold text-green-600 text-lg">
-                      {formatVND(amount)} VNĐ
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                  <div className="flex gap-2">
-                    <Icon
-                      icon="mdi:alert"
-                      className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5"
-                    />
-                    <div className="text-xs text-amber-700">
-                      <p className="font-semibold mb-1">Lưu ý:</p>
-                      <ul className="space-y-1 list-disc list-inside">
-                        <li>Chỉ xác nhận khi bạn đã chuyển khoản thành công</li>
-                        <li>Giao dịch sẽ được xử lý trong 5-10 phút</li>
-                        <li>
-                          Nếu chưa chuyển, vui lòng chuyển khoản trước khi xác
-                          nhận
-                        </li>
-                      </ul>
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Số tiền</span>
+                    <span className="font-bold text-emerald-600">{formatVND(amount)} ₫</span>
                   </div>
                 </div>
               </div>
@@ -401,12 +507,7 @@ const DepositForm: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleSubmitDeposit}
-              className="bg-blue-500 hover:bg-blue-600"
-            >
-              Xác nhận đã chuyển khoản
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleSubmitDeposit}>Xác nhận</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

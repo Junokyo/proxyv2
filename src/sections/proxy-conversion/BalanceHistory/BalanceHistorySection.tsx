@@ -291,98 +291,62 @@ const BalanceHistorySection: React.FC = () => {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4 lg:space-y-5 max-w-full overflow-hidden">
-      {/* Summary Cards - TRƯỚC bảng */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5">
-        <div className="rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 p-2.5 sm:p-3 lg:p-4 border border-green-100 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <div className="flex h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 items-center justify-center rounded-lg bg-green-100">
-                <Iconify
-                  icon="mdi:plus-circle"
-                  width={16}
-                  className="text-green-600 sm:w-[18px] lg:w-5"
-                />
-              </div>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="rounded-2xl bg-white p-4 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-50">
+              <Iconify icon="mdi:chart-line" width={22} className="text-blue-500" />
             </div>
-            <span className="text-[8px] sm:text-[9px] lg:text-xs font-medium text-green-700 bg-green-100 px-1 py-0.5 sm:px-1.5 sm:py-0.5 rounded-full whitespace-nowrap">
-              {stats.successCount} GD
-            </span>
+            <div>
+              <p className="text-sm text-slate-500">Tổng Nạp Tiền</p>
+              <p className="text-xl font-bold text-slate-900">
+                ${stats.totalDeposit.toFixed(2)}
+              </p>
+            </div>
           </div>
-          <p className="text-[9px] sm:text-[10px] lg:text-xs font-medium text-green-700 mb-0.5">
-            Tổng Nạp Tiền
-          </p>
-          <p className="text-base sm:text-lg lg:text-xl font-bold text-green-900">
-            ${stats.totalDeposit.toFixed(2)}
-          </p>
         </div>
 
-        <div className="rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 p-2.5 sm:p-3 lg:p-4 border border-orange-100 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <div className="flex h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 items-center justify-center rounded-lg bg-orange-100">
-                <Iconify
-                  icon="mdi:minus-circle"
-                  width={16}
-                  className="text-orange-600 sm:w-[18px] lg:w-5"
-                />
-              </div>
+        <div className="rounded-2xl bg-white p-4 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50">
+              <Iconify icon="mdi:database" width={22} className="text-emerald-500" />
             </div>
-            <span className="text-[8px] sm:text-[9px] lg:text-xs font-medium text-orange-700 bg-orange-100 px-1 py-0.5 sm:px-1.5 sm:py-0.5 rounded-full whitespace-nowrap">
-              Rút tiền
-            </span>
+            <div>
+              <p className="text-sm text-slate-500">Tổng Rút Tiền</p>
+              <p className="text-xl font-bold text-slate-900">
+                ${stats.totalWithdraw.toFixed(2)}
+              </p>
+            </div>
           </div>
-          <p className="text-[9px] sm:text-[10px] lg:text-xs font-medium text-orange-700 mb-0.5">
-            Tổng Rút Tiền
-          </p>
-          <p className="text-base sm:text-lg lg:text-xl font-bold text-orange-900">
-            ${stats.totalWithdraw.toFixed(2)}
-          </p>
         </div>
 
-        <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-2.5 sm:p-3 lg:p-4 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <div className="flex h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 items-center justify-center rounded-lg bg-blue-100">
-                <Iconify
-                  icon="mdi:shopping"
-                  width={16}
-                  className="text-blue-600 sm:w-[18px] lg:w-5"
-                />
-              </div>
+        <div className="rounded-2xl bg-white p-4 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-50">
+              <Iconify icon="mdi:account-group" width={22} className="text-orange-500" />
             </div>
-            <span className="text-[8px] sm:text-[9px] lg:text-xs font-medium text-blue-700 bg-blue-100 px-1 py-0.5 sm:px-1.5 sm:py-0.5 rounded-full whitespace-nowrap">
-              Chi tiêu
-            </span>
+            <div>
+              <p className="text-sm text-slate-500">Tổng Chi Tiêu</p>
+              <p className="text-xl font-bold text-slate-900">
+                ${stats.totalSpent.toFixed(2)}
+              </p>
+            </div>
           </div>
-          <p className="text-[9px] sm:text-[10px] lg:text-xs font-medium text-blue-700 mb-0.5">
-            Tổng Chi Tiêu
-          </p>
-          <p className="text-base sm:text-lg lg:text-xl font-bold text-blue-900">
-            ${stats.totalSpent.toFixed(2)}
-          </p>
         </div>
 
-        <div className="rounded-xl bg-gradient-to-br from-teal-50 to-cyan-50 p-2.5 sm:p-3 lg:p-4 border border-teal-100 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <div className="flex h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 items-center justify-center rounded-lg bg-teal-100">
-                <Iconify
-                  icon="mdi:cash-refund"
-                  width={16}
-                  className="text-teal-600 sm:w-[18px] lg:w-5"
-                />
-              </div>
+        <div className="rounded-2xl bg-white p-4 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-50">
+              <Iconify icon="mdi:swap-horizontal" width={22} className="text-violet-500" />
             </div>
-            <span className="text-[8px] sm:text-[9px] lg:text-xs font-medium text-teal-700 bg-teal-100 px-1 py-0.5 sm:px-1.5 sm:py-0.5 rounded-full whitespace-nowrap">
-              Hoàn tiền
-            </span>
+            <div>
+              <p className="text-sm text-slate-500">Tổng Hoàn Tiền</p>
+              <p className="text-xl font-bold text-slate-900">
+                ${stats.totalRefund.toFixed(2)}
+              </p>
+            </div>
           </div>
-          <p className="text-[9px] sm:text-[10px] lg:text-xs font-medium text-teal-700 mb-0.5">
-            Tổng Hoàn Tiền
-          </p>
-          <p className="text-base sm:text-lg lg:text-xl font-bold text-teal-900">
-            ${stats.totalRefund.toFixed(2)}
-          </p>
         </div>
       </div>
 

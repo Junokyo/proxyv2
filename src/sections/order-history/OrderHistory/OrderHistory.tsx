@@ -6,15 +6,7 @@ import { useGraphQLQuery } from '@/graphql/hooks/use-graphql-query';
 import { GET_ORDERS_QUERY, GET_ORDER_DETAILS_QUERY } from '@/graphql/queries/orders';
 import { OrderDetailModal } from './OrderDetailModal';
 import { format } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
 
 const formatVND = (amount: number): string => {
   return new Intl.NumberFormat('vi-VN').format(amount);
@@ -54,9 +46,12 @@ interface OrderDetail {
   expiredDate: string;
 }
 
-const OrderHistory: React.FC = () => {
+interface OrderHistoryProps {
+  selectedDate?: Date;
+}
+
+const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedDate }) => {
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
@@ -148,67 +143,8 @@ const OrderHistory: React.FC = () => {
     setSelectedOrderId(null);
   };
 
-  const handleDateReset = () => {
-    setSelectedDate(undefined);
-  };
-
   return (
-    <div className="w-full rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Lịch sử đơn hàng
-        </h2>
-        <p className="text-sm text-slate-500 mt-1">
-          Xem lại các đơn hàng của bạn
-        </p>
-      </div>
-
-      {/* Filters */}
-      <div className="mb-4 flex flex-col sm:flex-row gap-3">
-        {/* Date Filter */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              mode="input"
-              variant="outline"
-              id="date"
-              className={cn(
-                'h-10 justify-start text-left font-normal',
-                !selectedDate && 'text-muted-foreground',
-              )}
-            >
-              <CalendarDays className="mr-2 h-4 w-4" />
-              {selectedDate ? (
-                format(selectedDate, 'dd/MM/yyyy')
-              ) : (
-                <span>Chọn ngày</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              initialFocus
-            />
-            {selectedDate && (
-              <div className="p-3 border-t">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDateReset}
-                  className="w-full"
-                >
-                  Xóa bộ lọc ngày
-                </Button>
-              </div>
-            )}
-          </PopoverContent>
-        </Popover>
-      </div>
-
+    <div className="w-full rounded-2xl bg-white pt-2 px-4 pb-4 shadow-sm sm:pt-3 sm:px-6 sm:pb-6">
       {/* Table - Desktop */}
       <div className="hidden lg:block overflow-x-auto">
         <table className="min-w-full text-left text-sm">

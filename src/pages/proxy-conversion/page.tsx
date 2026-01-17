@@ -2,7 +2,7 @@ import ProxyConversionView from '@/sections/proxy-conversion/proxy-conversion-vi
 
 export default function ProxyConversionPage() {
   return (
-    <div className="p-1">
+    <div className="p-6">
       <ProxyConversionView />
     </div>
   );

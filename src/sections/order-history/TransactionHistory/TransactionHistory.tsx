@@ -79,7 +79,11 @@ const formatDateTime = (dateString: string): string => {
   });
 };
 
-const TransactionHistory: React.FC = () => {
+interface TransactionHistoryProps {
+  selectedDate?: Date;
+}
+
+const TransactionHistory: React.FC<TransactionHistoryProps> = ({ selectedDate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedTransaction, setSelectedTransaction] =
@@ -142,17 +146,7 @@ const TransactionHistory: React.FC = () => {
   };
 
   return (
-    <div className="w-full rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Lịch sử giao dịch
-        </h2>
-        <p className="text-sm text-slate-500 mt-1">
-          Xem lại các giao dịch của bạn
-        </p>
-      </div>
-
+    <div className="w-full rounded-2xl bg-white pt-2 px-4 pb-4 shadow-sm sm:pt-3 sm:px-6 sm:pb-6">
       {/* Filters */}
       <div className="mb-4 flex flex-col sm:flex-row gap-3">
         {/* Search */}
@@ -332,56 +326,6 @@ const TransactionHistory: React.FC = () => {
           ))
         )}
       </div>
-
-      {/* Stats Summary */}
-      {filteredData.length > 0 && (
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-lg bg-green-50 border border-green-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-green-600">Thành công</p>
-                <p className="text-2xl font-bold text-green-700 mt-1">
-                  {filteredData.filter((r) => r.status === 'success').length}
-                </p>
-              </div>
-              <Icon
-                icon="mdi:check-circle"
-                className="h-10 w-10 text-green-400"
-              />
-            </div>
-          </div>
-
-          <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-yellow-600">Đang chờ</p>
-                <p className="text-2xl font-bold text-yellow-700 mt-1">
-                  {filteredData.filter((r) => r.status === 'pending').length}
-                </p>
-              </div>
-              <Icon
-                icon="mdi:clock-outline"
-                className="h-10 w-10 text-yellow-400"
-              />
-            </div>
-          </div>
-
-          <div className="rounded-lg bg-red-50 border border-red-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-red-600">Thất bại</p>
-                <p className="text-2xl font-bold text-red-700 mt-1">
-                  {filteredData.filter((r) => r.status === 'failed').length}
-                </p>
-              </div>
-              <Icon
-                icon="mdi:close-circle"
-                className="h-10 w-10 text-red-400"
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Detail Modal */}
       <TransactionDetailModal

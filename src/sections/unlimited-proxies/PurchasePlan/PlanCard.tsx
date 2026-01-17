@@ -1,76 +1,99 @@
+'use client';
+
+import { cn } from '@/lib/utils';
 import { Plan } from './PurchasePlanSection';
 
 interface PlanCardProps {
   plan: Plan;
   isActive: boolean;
   onSelect: () => void;
+  bandwidth: string;
+  onBandwidthChange: (value: string) => void;
+  bandwidthOptions: string[];
 }
 
 export const PlanCard: React.FC<PlanCardProps> = ({
   plan,
   isActive,
   onSelect,
+  bandwidth,
+  onBandwidthChange,
+  bandwidthOptions,
 }) => {
-  const perDayOriginal =
-    plan.id === '1d' ? plan.originalPrice : Math.round(plan.originalPrice / 30);
+  const isHighlightBadge = plan.discountLabel.includes('Extra');
 
   return (
     <button
       type="button"
       onClick={onSelect}
-      className={`flex h-full min-h-[220px] w-full flex-col justify-between rounded-2xl border bg-white px-4 pb-4 pt-3 text-left text-sm shadow-sm transition
-      ${
+      className={cn(
+        'flex h-full min-h-[230px] w-full flex-col justify-between rounded-xl border bg-card px-4 pb-4 pt-3 text-left transition-all',
         isActive
-          ? 'border-red-400 shadow-md'
-          : 'border-slate-200 hover:border-slate-300'
-      }`}
+          ? plan.isHighlighted
+            ? 'border-primary shadow-md ring-1 ring-primary/20'
+            : 'border-primary shadow-md'
+          : 'border-border hover:border-primary/50'
+      )}
     >
-      {/* TOP: badge + info + price */}
+      {/* TOP: Badge + Info + Price */}
       <div>
-        {/* badge */}
+        {/* Discount Badge */}
         <div className="flex justify-center">
-          <span className="rounded-b-md bg-rose-50 px-3 py-1 text-[10px] font-semibold text-rose-500 whitespace-nowrap">
+          <span
+            className={cn(
+              'rounded-b-md px-2.5 py-1 text-[10px] font-semibold whitespace-nowrap',
+              isHighlightBadge
+                ? 'bg-primary/10 text-primary'
+                : 'bg-primary/10 text-primary'
+            )}
+          >
             {plan.discountLabel}
           </span>
         </div>
 
-        {/* label */}
-        <div className="mt-4 text-xs font-medium text-slate-700 md:text-sm">
-          {plan.label}
-        </div>
+        {/* Plan Label */}
+        <div className="mt-4 text-sm font-medium text-foreground">{plan.label}</div>
 
-        {/* price */}
+        {/* Price Section */}
         <div className="mt-3 space-y-1">
-          <div className="text-[11px] text-slate-400 line-through whitespace-nowrap">
+          <div className="text-xs text-muted-foreground line-through">
             ${plan.originalPrice}
           </div>
 
           <div
-            className={`text-2xl font-semibold md:text-3xl ${
-              isActive ? 'text-red-500' : 'text-slate-900'
-            }`}
+            className={cn(
+              'text-2xl font-bold',
+              isActive && plan.isHighlighted ? 'text-primary' : 'text-foreground'
+            )}
           >
             ${plan.price}
           </div>
 
-          <div className="text-[11px] text-slate-500 whitespace-nowrap">
-            <span className="mr-1 line-through text-slate-400">
-              ${perDayOriginal}/Day
-            </span>
-            {plan.perDayText}
+          <div className="text-[11px] text-muted-foreground whitespace-nowrap">
+            <span className="mr-1 line-through">${plan.perDayOriginal}/Day</span>
+            <span className="text-foreground font-medium">${plan.perDayPrice}/Day</span>
           </div>
         </div>
       </div>
 
-      {/* BOTTOM: bandwidth */}
+      {/* BOTTOM: Bandwidth Selector */}
       <div className="mt-4">
-        <div className="text-[11px] text-slate-600">Bandwidth:</div>
-        <div className="mt-2">
-          <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[11px]">
-            <span>200Mbps</span>
-            <span className="text-[10px] text-slate-400">▼</span>
-          </div>
-        </div>
+        <div className="text-[11px] text-muted-foreground mb-1.5">Bandwidth:</div>
+        <select
+          value={bandwidth}
+          onChange={(e) => {
+            e.stopPropagation();
+            onBandwidthChange(e.target.value);
+          }}
+          onClick={(e) => e.stopPropagation()}
+          className="w-full rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-foreground outline-none transition hover:border-primary/50 focus:border-primary focus:ring-1 focus:ring-primary"
+        >
+          {bandwidthOptions.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
       </div>
     </button>
   );

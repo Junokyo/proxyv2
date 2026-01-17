@@ -93,36 +93,15 @@ const PLANS: Plan[] = [
     gb: 1000,
     type: 'fixed',
     savingsLabel: 'Save 76%',
-    highlighted: true,
     pricePerGb: 0.77,
     basePricePerGb: 3.3,
     discountPercent: 0.76,
   },
   {
-    id: '2000',
-    label: '2000 GB',
-    gb: 2000,
-    type: 'fixed',
-    savingsLabel: 'Save 71%',
-    pricePerGb: 0.7,
-    basePricePerGb: 2.4,
-    discountPercent: 0.71,
-  },
-  {
-    id: '3000',
-    label: '3000 GB',
-    gb: 3000,
-    type: 'adjustable',
-    savingsLabel: 'Save 78%',
-    pricePerGb: 0.65,
-    basePricePerGb: 3.0,
-    discountPercent: 0.78,
-  },
-  {
     id: '5000',
     label: '5000 GB',
     gb: 5000,
-    type: 'adjustable',
+    type: 'fixed',
     savingsLabel: 'Save 80%',
     pricePerGb: 0.6,
     basePricePerGb: 3.0,
@@ -138,9 +117,9 @@ const PLANS: Plan[] = [
   },
 ];
 
-const FEATURES_LEFT = ['Unused GBs roll over', 'HTTP(S)/SOCKS5 support'];
-
-const FEATURES_RIGHT = [
+const FEATURES = [
+  'Unused GBs roll over',
+  'HTTP(S)/SOCKS5 support',
   'IP persistence for 90 minutes',
   '99.9% fast response time',
   'No charge for invalid IPs',
@@ -226,50 +205,58 @@ export const PurchasePlanLeft: React.FC<PurchasePlansProps> = ({
     if (plan.type === 'adjustable') {
       const value = adjustableValues[plan.id] ?? plan.gb ?? 0;
       return (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAdjust(plan.id, -1);
-            }}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-xs hover:bg-gray-100"
-          >
-            −
-          </button>
+        <div className="flex flex-col items-center gap-1">
           <span className="text-2xl font-semibold text-slate-900">
             {value.toLocaleString()} GB
           </span>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAdjust(plan.id, 1);
-            }}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-xs hover:bg-gray-100"
-          >
-            +
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAdjust(plan.id, -1);
+              }}
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 text-xs hover:bg-gray-100"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAdjust(plan.id, 1);
+              }}
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 text-xs hover:bg-gray-100"
+            >
+              +
+            </button>
+          </div>
         </div>
       );
     }
 
     if (plan.type === 'custom') {
+      const isCustomSelected = selectedPlanId === 'custom';
+      if (isCustomSelected) {
+        return (
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              min={1}
+              value={customGb}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => {
+                const v = Math.max(1, Number(e.target.value) || 1);
+                setCustomGb(v);
+              }}
+              className="w-16 rounded border border-slate-300 bg-transparent px-1 py-0.5 text-center text-xl font-semibold text-slate-900 outline-none"
+            />
+            <span className="text-2xl font-semibold text-slate-900">GB</span>
+          </div>
+        );
+      }
       return (
-        <div className="flex items-center justify-center gap-1">
-          <input
-            type="number"
-            min={1}
-            value={customGb}
-            onClick={(e) => e.stopPropagation()}
-            onChange={(e) => {
-              const v = Math.max(1, Number(e.target.value) || 1);
-              setCustomGb(v);
-            }}
-            className="w-16 rounded border border-slate-300 bg-transparent px-1 py-1 text-center text-sm text-slate-900 outline-none"
-          />
-          <span className="text-xl font-semibold text-slate-900">GB</span>
-        </div>
+        <span className="text-2xl font-semibold text-slate-900">Custom</span>
       );
     }
 
@@ -282,11 +269,11 @@ export const PurchasePlanLeft: React.FC<PurchasePlansProps> = ({
   };
 
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border-0 bg-card p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
       {/* Header */}
-      <div className="mb-4 space-y-1">
-        <h2 className="text-lg font-semibold">Residential Proxies</h2>
-        <p className="text-sm text-slate-500">
+      <div className="mb-5 space-y-2">
+        <h2 className="text-lg font-bold text-foreground">Residential Proxies</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Each residential IP is a real mobile or desktop device that can be
           pinpointed to a certain physical location. Residential proxy networks
           are extremely effective and are not susceptible to blocks and
@@ -295,15 +282,15 @@ export const PurchasePlanLeft: React.FC<PurchasePlansProps> = ({
       </div>
 
       {/* Subscription title */}
-      <div className="mb-4 flex items-center gap-2">
-        <span className="text-sm font-semibold">Subscription</span>
-        <span className="rounded-[999px] bg-red-500 px-3 py-0.5 text-xs font-semibold text-white">
+      <div className="mb-5 flex items-center gap-3">
+        <span className="text-sm font-semibold text-foreground">Subscription</span>
+        <span className="rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
           Extra 10% Off
         </span>
       </div>
 
       {/* Plans grid */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {PLANS.map((plan) => {
           const isSelected = selectedPlanId === plan.id;
           const isHighlighted = plan.highlighted;
@@ -314,15 +301,15 @@ export const PurchasePlanLeft: React.FC<PurchasePlansProps> = ({
               type="button"
               onClick={() => handleSelect(plan.id)}
               className={[
-                'group relative flex flex-col items-center justify-center rounded-md border bg-white px-3 py-4 text-center transition-all',
+                'group relative flex flex-col items-center justify-center rounded-xl border-2 bg-card px-3 py-4 text-center transition-all h-[100px]',
                 isSelected
-                  ? 'border-red-500 shadow-[0_0_0_1px_rgba(248,113,113,0.35)]'
-                  : 'border-slate-200 hover:border-red-300 hover:bg-red-50/20',
-                !isSelected && isHighlighted ? 'bg-red-50/40' : '',
+                  ? 'border-primary shadow-[0_0_0_1px_rgba(59,130,246,0.2)]'
+                  : 'border-transparent shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:border-primary/30 hover:shadow-md',
+                !isSelected && isHighlighted ? 'bg-primary/5' : '',
               ].join(' ')}
             >
               {plan.savingsLabel && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-[999px] border border-red-200 bg-red-50 px-2.5 py-0.5 text-[10px] font-semibold text-red-500  whitespace-nowrap  tracking-wide ">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-600 whitespace-nowrap tracking-wide">
                   {plan.savingsLabel}
                 </span>
               )}
@@ -342,18 +329,18 @@ export const PurchasePlanLeft: React.FC<PurchasePlansProps> = ({
                 >
                   {plan.basePricePerGb &&
                     plan.basePricePerGb !== plan.pricePerGb && (
-                      <span className="mr-1 text-slate-300 line-through">
+                      <span className="mr-1 text-muted-foreground/50 line-through">
                         ${plan.basePricePerGb.toFixed(2)}/GB
                       </span>
                     )}
-                  <span className="text-slate-600">
+                  <span className="text-muted-foreground">
                     ${plan.pricePerGb.toFixed(2)}/GB
                   </span>
                 </div>
               )}
 
               {plan.popular && (
-                <span className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-red-500">
+                <span className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-primary">
                   Most popular
                 </span>
               )}
@@ -363,23 +350,23 @@ export const PurchasePlanLeft: React.FC<PurchasePlansProps> = ({
       </div>
 
       {/* Features */}
-      <div className="mt-6 border-top border-slate-200 pt-4">
-        <div className="grid gap-3 md:grid-cols-2">
-          <ul className="space-y-2 text-sm">
-            {FEATURES_LEFT.map((f) => (
+      <div className="mt-6 border-t border-border pt-5">
+        <div className="grid gap-4 md:grid-cols-2">
+          <ul className="space-y-2.5 text-xs text-foreground">
+            {FEATURES.slice(0, 3).map((f) => (
               <li key={f} className="flex items-center gap-2">
-                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white">
-                  ✓
+                <span className="flex h-3 w-3 items-center justify-center rounded-full bg-emerald-500 shrink-0">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
                 </span>
                 <span>{f}</span>
               </li>
             ))}
           </ul>
-          <ul className="space-y-2 text-sm">
-            {FEATURES_RIGHT.map((f) => (
+          <ul className="space-y-2.5 text-xs text-foreground">
+            {FEATURES.slice(3, 6).map((f) => (
               <li key={f} className="flex items-center gap-2">
-                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white">
-                  ✓
+                <span className="flex h-3 w-3 items-center justify-center rounded-full bg-emerald-500 shrink-0">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
                 </span>
                 <span>{f}</span>
               </li>

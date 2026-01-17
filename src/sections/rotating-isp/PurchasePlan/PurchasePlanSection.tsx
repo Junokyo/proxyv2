@@ -1,273 +1,426 @@
 'use client';
 
-import { useState } from 'react';
-import { ContactDialog } from '@/components/contact/ContactDialog';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Iconify from '@/components/iconify';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-type RotatingPlanId =
-  | '1gb'
-  | '10gb'
-  | '40gb'
-  | '100gb'
-  | '350gb'
-  | '650gb'
-  | '1000gb'
-  | '3000gb'
-  | 'custom';
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
 
-interface RotatingPlan {
-  id: RotatingPlanId;
-  label: string; // text hiển thị trong card: 1 GB, 10 GB, ...
-  gb?: number; // số GB, custom thì undefined
-  pricePerGb?: number; // giá mỗi GB
-  durationDays: number; // 30 Day
-  mostPopular?: boolean;
-}
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: 'easeOut' },
+  },
+};
 
-// data mock – chỉnh giá lại theo BE nếu cần
-const ROTATING_PLANS: RotatingPlan[] = [
-  { id: '1gb', label: '1 GB', gb: 1, pricePerGb: 0.7, durationDays: 30 },
-  { id: '10gb', label: '10 GB', gb: 10, pricePerGb: 0.6, durationDays: 30 },
-  { id: '40gb', label: '40 GB', gb: 40, pricePerGb: 0.52, durationDays: 30 },
-  { id: '100gb', label: '100 GB', gb: 100, pricePerGb: 0.48, durationDays: 30 },
-  {
-    id: '350gb',
-    label: '350 GB',
-    gb: 350,
-    pricePerGb: 0.45,
-    durationDays: 30,
-    mostPopular: true,
-  },
-  { id: '650gb', label: '650 GB', gb: 650, pricePerGb: 0.43, durationDays: 30 },
-  {
-    id: '1000gb',
-    label: '1000 GB',
-    gb: 1000,
-    pricePerGb: 0.4,
-    durationDays: 30,
-  },
-  {
-    id: '3000gb',
-    label: '3000 GB',
-    gb: 3000,
-    pricePerGb: 0.38,
-    durationDays: 30,
-  },
-  // custom: để user nhập riêng, ở đây chỉ render card
-  { id: 'custom', label: 'Custom', durationDays: 30 },
+// Duration options with discounts
+const DURATION_OPTIONS = [
+  { value: 7, label: '7 Days', discount: null, icon: 'mdi:calendar-week' },
+  { value: 14, label: '14 Days', discount: '5%', icon: 'mdi:calendar-week' },
+  { value: 30, label: '30 Days', discount: '10%', icon: 'mdi:calendar-month' },
+  { value: 60, label: '60 Days', discount: '15%', icon: 'mdi:calendar-month' },
+  { value: 90, label: '90 Days', discount: '20%', icon: 'mdi:calendar-month' },
 ];
 
-export default function RotatingIspPurchasePlanSection() {
-  const [selectedId, setSelectedId] = useState<RotatingPlanId>('350gb');
-  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
+// Country data
+interface Country {
+  code: string;
+  name: string;
+  flag: string;
+  pricePerIp: number;
+  continent: 'asia' | 'europe' | 'other';
+}
 
-  const selectedPlan =
-    ROTATING_PLANS.find((p) => p.id === selectedId) ?? ROTATING_PLANS[0];
+const COUNTRIES: Country[] = [
+  // Asia
+  { code: 'tr', name: 'Türkiye', flag: '🇹🇷', pricePerIp: 2.4, continent: 'asia' },
+  { code: 'jp', name: 'Japan', flag: '🇯🇵', pricePerIp: 2.4, continent: 'asia' },
+  { code: 'il', name: 'Israel', flag: '🇮🇱', pricePerIp: 2.4, continent: 'asia' },
+  { code: 'tw', name: 'Taiwan', flag: '🇹🇼', pricePerIp: 2.4, continent: 'asia' },
+  { code: 'kr', name: 'South Korea', flag: '🇰🇷', pricePerIp: 2.4, continent: 'asia' },
+  { code: 'sg', name: 'Singapore', flag: '🇸🇬', pricePerIp: 2.4, continent: 'asia' },
+  { code: 'hk', name: 'Hong Kong', flag: '🇭🇰', pricePerIp: 2.4, continent: 'asia' },
+  { code: 'th', name: 'Thailand', flag: '🇹🇭', pricePerIp: 2.4, continent: 'asia' },
+  { code: 'in', name: 'India', flag: '🇮🇳', pricePerIp: 2.4, continent: 'asia' },
+  // Europe
+  { code: 'pl', name: 'Poland', flag: '🇵🇱', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'nl', name: 'Netherlands', flag: '🇳🇱', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'lv', name: 'Latvia', flag: '🇱🇻', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'fr', name: 'France', flag: '🇫🇷', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'ro', name: 'Romania', flag: '🇷🇴', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'at', name: 'Austria', flag: '🇦🇹', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'gb', name: 'United Kingdom', flag: '🇬🇧', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'ua', name: 'Ukraine', flag: '🇺🇦', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'es', name: 'Spain', flag: '🇪🇸', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'de', name: 'Germany', flag: '🇩🇪', pricePerIp: 2.4, continent: 'europe' },
+  { code: 'it', name: 'Italy', flag: '🇮🇹', pricePerIp: 2.4, continent: 'europe' },
+  // Other Regions
+  { code: 'us', name: 'United States', flag: '🇺🇸', pricePerIp: 2.4, continent: 'other' },
+  { code: 'br', name: 'Brazil', flag: '🇧🇷', pricePerIp: 2.4, continent: 'other' },
+  { code: 'ca', name: 'Canada', flag: '🇨🇦', pricePerIp: 2.4, continent: 'other' },
+];
 
-  const subtotal =
-    selectedPlan.gb && selectedPlan.pricePerGb
-      ? selectedPlan.gb * selectedPlan.pricePerGb
-      : 0;
+// Cart item interface
+interface CartItem {
+  country: Country;
+  quantity: number;
+}
 
-  const handlePlanClick = (planId: RotatingPlanId) => {
-    if (planId === 'custom') {
-      setIsContactDialogOpen(true);
+export default function IspPurchasePlanSection() {
+  const [duration, setDuration] = useState(30);
+  const [cart, setCart] = useState<CartItem[]>([]);
+
+  // Group countries by continent
+  const groupedCountries = useMemo(() => {
+    const groups: Record<string, Country[]> = {
+      asia: [],
+      europe: [],
+      other: [],
+    };
+    COUNTRIES.forEach((country) => {
+      groups[country.continent].push(country);
+    });
+    return groups;
+  }, []);
+
+  // Calculate totals
+  const { subtotal, totalQuantity, discountAmount, total } = useMemo(() => {
+    const sub = cart.reduce((sum, item) => sum + item.country.pricePerIp * item.quantity, 0);
+    const qty = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const durationOption = DURATION_OPTIONS.find((d) => d.value === duration);
+    const discountPercent = durationOption?.discount ? parseInt(durationOption.discount) / 100 : 0;
+    const discount = sub * discountPercent;
+    return {
+      subtotal: sub,
+      totalQuantity: qty,
+      discountAmount: discount,
+      total: sub - discount,
+    };
+  }, [cart, duration]);
+
+  // Toggle country in cart
+  const toggleCountry = (country: Country) => {
+    const existingIndex = cart.findIndex((item) => item.country.code === country.code);
+    if (existingIndex >= 0) {
+      setCart(cart.filter((_, i) => i !== existingIndex));
     } else {
-      setSelectedId(planId);
+      setCart([...cart, { country, quantity: 1 }]);
     }
   };
 
-  return (
-    <div className="w-full space-y-4">
-      {/* Header */}
-      <div className="rounded-2xl border border-slate-100 bg-white px-5 py-4 shadow-sm">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-base font-semibold text-slate-900 md:text-lg">
-            Rotating ISP proxies
-          </h1>
-          <p className="text-xs text-slate-500 md:text-sm">
-            Choose the billing type that suits your use case and get started in
-            minutes.
-          </p>
-        </div>
-      </div>
+  // Update quantity
+  const updateQuantity = (code: string, delta: number) => {
+    setCart(
+      cart.map((item) => {
+        if (item.country.code === code) {
+          const newQty = Math.max(1, item.quantity + delta);
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      })
+    );
+  };
 
-      {/* Main content */}
-      <div className="w-full space-y-6">
-        {/* top: subscription + order summary */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* LEFT: subscription cards */}
-          <div className="lg:col-span-2">
-            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-              <div className="mb-4 flex items-baseline gap-2 text-sm">
-                <span className="font-semibold text-slate-900">
-                  Subscription
-                </span>
+  const isInCart = (code: string) => cart.some((item) => item.country.code === code);
+  const getQuantity = (code: string) => cart.find((item) => item.country.code === code)?.quantity || 0;
+
+  const continentLabels: Record<string, string> = {
+    asia: 'Asia',
+    europe: 'Europe',
+    other: 'Other Regions',
+  };
+
+  const continentIcons: Record<string, string> = {
+    asia: 'mdi:earth-asia',
+    europe: 'mdi:earth',
+    other: 'mdi:earth-americas',
+  };
+
+  const durationLabel = DURATION_OPTIONS.find((d) => d.value === duration)?.label || '';
+  const discountPercent = DURATION_OPTIONS.find((d) => d.value === duration)?.discount
+    ? parseInt(DURATION_OPTIONS.find((d) => d.value === duration)!.discount!) / 100
+    : 0;
+
+  return (
+    <motion.div
+      className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(300px,1fr)] items-start"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {/* Main Content */}
+      <div className="min-w-0 space-y-6">
+        {/* Configuration Panel */}
+        <motion.div className="rounded-xl border border-border bg-card p-4" variants={itemVariants}>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+              <Iconify icon="mdi:calendar-clock" width={14} className="text-primary" />
+              Duration:
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {DURATION_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setDuration(opt.value)}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-all',
+                    duration === opt.value
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-primary/5'
+                  )}
+                >
+                  <span className="font-medium">{opt.label}</span>
+                  {opt.discount && (
+                    <span className={cn(
+                      'rounded-full px-1.5 py-0.5 text-[10px] font-semibold',
+                      duration === opt.value ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    )}>
+                      -{opt.discount}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Section Title */}
+        <motion.div className="flex items-center justify-between" variants={itemVariants}>
+          <div>
+            <h2 className="text-base font-semibold text-foreground">Select Region & Quantity</h2>
+            <p className="text-sm text-muted-foreground">Choose countries and set IP quantity for each</p>
+          </div>
+          <button className="hidden items-center gap-1.5 text-xs text-primary hover:underline sm:flex">
+            <Iconify icon="mdi:message-question-outline" width={14} />
+            Haven't found the locations you need? Contact us
+          </button>
+        </motion.div>
+
+        {/* Country Selection by Region */}
+        <div className="space-y-4">
+          {Object.entries(groupedCountries).map(([cont, countries]) => (
+            <motion.div
+              key={cont}
+              className="rounded-xl border border-border bg-card p-4"
+              variants={itemVariants}
+            >
+              {/* Region Header */}
+              <div className="mb-3 flex items-center gap-2">
+                <Iconify icon={continentIcons[cont]} width={16} className="text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">{continentLabels[cont]}</h3>
+                <span className="text-xs text-muted-foreground">({countries.length})</span>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {ROTATING_PLANS.map((plan) => {
-                  const isActive = plan.id === selectedId;
-                  const isCustom = plan.id === 'custom';
-                  return (
-                    <button
-                      key={plan.id}
-                      type="button"
-                      onClick={() => handlePlanClick(plan.id)}
-                      className={[
-                        'relative flex h-24 flex-col items-center justify-center rounded-xl border text-sm font-medium transition',
-                        isActive && !isCustom
-                          ? 'border-indigo-500 bg-indigo-50/60 shadow-[0_0_0_1px_rgba(79,70,229,0.4)] text-indigo-700'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:text-indigo-600',
-                      ].join(' ')}
-                    >
-                      {/* Badge MOST POPULAR */}
-                      {plan.mostPopular && (
-                        <span className="absolute -top-3 rounded-full bg-rose-500 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                          Most popular
-                        </span>
-                      )}
+              {/* Country Chips */}
+              <div className="flex flex-wrap gap-2">
+                {countries.map((country) => {
+                  const inCart = isInCart(country.code);
+                  const qty = getQuantity(country.code);
 
-                      <span className="text-base font-semibold">
-                        {plan.label}
-                      </span>
-                      {!isCustom && plan.pricePerGb && (
-                        <span className="mt-1 text-xs font-normal text-slate-500">
-                          ${plan.pricePerGb.toFixed(2)}/GB
-                        </span>
-                      )}
-                      {isCustom && (
-                        <span className="mt-1 text-xs font-normal text-slate-400">
-                          Enter custom quota later
-                        </span>
-                      )}
+                  return inCart ? (
+                    <motion.div
+                      key={country.code}
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary bg-primary/10 py-1 pl-2.5 pr-1"
+                    >
+                      <span className="text-sm">{country.flag}</span>
+                      <span className="text-xs font-medium text-foreground">{country.name}</span>
+                      <span className="text-xs text-primary">${country.pricePerIp.toFixed(2)}</span>
+                      <div className="flex items-center gap-0.5 rounded-full bg-card px-1">
+                        <button
+                          onClick={() => updateQuantity(country.code, -1)}
+                          className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
+                          <Iconify icon="mdi:minus" width={12} />
+                        </button>
+                        <span className="min-w-[16px] text-center text-xs font-semibold">{qty}</span>
+                        <button
+                          onClick={() => updateQuantity(country.code, 1)}
+                          className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
+                          <Iconify icon="mdi:plus" width={12} />
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => toggleCountry(country)}
+                        className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Iconify icon="mdi:close" width={12} />
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <button
+                      key={country.code}
+                      onClick={() => toggleCountry(country)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs transition-all hover:border-primary/50 hover:bg-primary/5"
+                    >
+                      <span className="text-sm">{country.flag}</span>
+                      <span className="font-medium text-foreground">{country.name}</span>
+                      <span className="text-primary">${country.pricePerIp.toFixed(2)}</span>
                     </button>
                   );
                 })}
               </div>
-            </div>
-          </div>
-
-          {/* RIGHT: order summary */}
-          <div>
-            <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Order Summary
-              </h2>
-
-              <div className="mt-3 space-y-2 text-xs text-slate-600">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Plan</span>
-                  <span className="font-medium text-slate-900">
-                    ISP Proxies
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Quantity</span>
-                  <span className="font-medium text-slate-900">
-                    {selectedPlan.gb
-                      ? `${selectedPlan.gb.toLocaleString()} GB`
-                      : 'Custom'}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Duration</span>
-                  <span className="font-medium text-slate-900">
-                    {selectedPlan.durationDays} Day
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Price per GB</span>
-                  <span className="font-medium text-slate-900">
-                    {selectedPlan.pricePerGb
-                      ? `$${selectedPlan.pricePerGb.toFixed(2)}`
-                      : '--'}
-                  </span>
-                </div>
-
-                <div className="flex justify-between pt-1">
-                  <span className="text-slate-500">Subtotal</span>
-                  <span className="font-medium text-slate-900">
-                    {selectedPlan.gb ? `$${subtotal.toFixed(2)}` : '--'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 border-t border-slate-200 pt-3 text-sm">
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="font-semibold text-slate-900">Total</span>
-                  <span className="text-lg font-semibold text-slate-900">
-                    {selectedPlan.gb ? `$${subtotal.toFixed(2)}` : '--'}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  className="inline-flex w-full items-center justify-center rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-                >
-                  Order Now
-                </button>
-              </div>
-
-              {/* payment methods mock */}
-              <div className="mt-4 border-t border-slate-100 pt-3">
-                <p className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">
-                  We accept these payment methods:
-                </p>
-                <div className="flex gap-2 text-xs text-slate-500">
-                  <span>VISA</span>
-                  <span>Mastercard</span>
-                  <span>AMEX</span>
-                  <span>…</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* bottom features */}
-        <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-          <div className="mb-2 flex items-center gap-2 text-sm">
-            <span className="font-semibold text-slate-900">
-              Features you can use with each plan
-            </span>
-            <span className="text-xs text-slate-400">Restricted Websites</span>
-          </div>
-
-          <div className="grid gap-x-8 gap-y-2 text-xs text-slate-600 md:grid-cols-3">
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-500">✔</span>
-              <span>Premium ISP providers</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-500">✔</span>
-              <span>195 popular locations</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-500">✔</span>
-              <span>Super high success rate</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-500">✔</span>
-              <span>Unlimited subaccounts</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-500">✔</span>
-              <span>500 whitelists</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-500">✔</span>
-              <span>Unlimited threads and concurrent sessions</span>
-            </div>
-          </div>
+            </motion.div>
+          ))}
         </div>
       </div>
-      <ContactDialog
-        open={isContactDialogOpen}
-        onOpenChange={setIsContactDialogOpen}
-      />
-    </div>
+
+      {/* Sidebar - Order Summary */}
+      <motion.div className="space-y-4" variants={itemVariants}>
+        <div className="rounded-xl border-0 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          <div className="mb-4 text-[15px] font-semibold text-foreground">Order Summary</div>
+
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Product</span>
+              <span className="font-medium text-foreground">ISP Proxies</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Countries</span>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={cart.length}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="font-medium text-foreground"
+                >
+                  {cart.length} selected
+                </motion.span>
+              </AnimatePresence>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Total IPs</span>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={totalQuantity}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="font-medium text-foreground"
+                >
+                  {totalQuantity} IPs
+                </motion.span>
+              </AnimatePresence>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Duration</span>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={duration}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="font-medium text-foreground"
+                >
+                  {durationLabel}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+
+            <div className="mt-3 space-y-2 border-t border-border pt-3">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={subtotal}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="font-medium text-foreground"
+                  >
+                    ${subtotal.toFixed(2)}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-emerald-600">
+                  <span>Discount ({Math.round(discountPercent * 100)}% off)</span>
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={discountAmount}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    >
+                      -${discountAmount.toFixed(2)}
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
+              )}
+
+              <div className="mt-3 flex items-center justify-between border-t border-dashed border-border pt-3 text-foreground font-bold text-base">
+                <span>Total</span>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={total}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200 }}
+                  >
+                    ${total.toFixed(2)}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+            </div>
+
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button className="mt-4 w-full h-10 gap-2">
+                <Iconify icon="mdi:cart" width={16} />
+                Order now
+              </Button>
+            </motion.div>
+          </div>
+
+          <div className="mt-5 text-[11px] text-muted-foreground space-y-2">
+            <div className="font-medium text-foreground">We accept these payment methods</div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {[
+                { icon: 'logos:visa', label: 'Visa' },
+                { icon: 'logos:mastercard', label: 'MC' },
+                { icon: 'logos:paypal', label: 'PayPal' },
+                { icon: 'mdi:currency-btc', label: 'Crypto' },
+              ].map((method, idx) => (
+                <motion.div
+                  key={method.label}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + idx * 0.1 }}
+                  className="flex items-center justify-center gap-1 rounded-md border border-border bg-muted/30 px-1.5 py-1"
+                >
+                  <Iconify icon={method.icon} width={method.icon.startsWith('logos') ? 18 : 16} />
+                  <span>{method.label}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Note card */}
+        <div className="rounded-xl border-0 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-[12px] text-amber-700 dark:text-amber-400 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          <div className="flex items-start gap-2">
+            <Iconify icon="mdi:information-outline" width={16} className="shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              For very large orders or custom plans, you can contact sales to negotiate dedicated pricing and payment options.
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useKC } from '@/auth/providers/keycloak.provider';
+import { useUser } from '@/graphql/hooks/users/use-users';
 import { StoreClientTopbar } from '@/pages/store-client/components/common/topbar';
 import { SearchDialog } from '@/partials/dialogs/search/search-dialog';
 import { AppsDropdownMenu } from '@/partials/topbar/apps-dropdown-menu';
@@ -13,6 +14,7 @@ import {
   MessageCircleMore,
   Search,
   SquareChevronRight,
+  Wallet,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { toAbsoluteUrl } from '@/lib/helpers';
@@ -33,13 +35,22 @@ import { MegaMenu } from './mega-menu';
 import { MegaMenuMobile } from './mega-menu-mobile';
 import { SidebarMenu } from './sidebar-menu';
 
+// Format VND
+const formatVND = (amount: number): string => {
+  return new Intl.NumberFormat('vi-VN').format(amount);
+};
+
 export function Header() {
   const [isSidebarSheetOpen, setIsSidebarSheetOpen] = useState(false);
   const [isMegaMenuSheetOpen, setIsMegaMenuSheetOpen] = useState(false);
 
   const { pathname } = useLocation();
   const mobileMode = useIsMobile();
-  const { authenticated, ready, login } = useKC();
+  const { authenticated, ready, login, user: kcUser } = useKC();
+
+  // Fetch user balance
+  const { data: userData, loading: balanceLoading } = useUser(kcUser?.id ?? '', !kcUser?.id || !authenticated);
+  const userBalance = userData?.user?.balance ?? 0;
 
   const scrollPosition = useScrollPosition();
   const headerSticky: boolean = scrollPosition > 0;
@@ -87,7 +98,26 @@ export function Header() {
                   <SheetBody className="p-0 overflow-y-auto flex-1">
                     <SidebarMenu />
                   </SheetBody>
-                  <div className="p-4 border-t border-border">
+                  <div className="p-4 border-t border-border space-y-3">
+                    {/* Mobile Wallet Balance */}
+                    {authenticated && (
+                      <Link
+                        to="/topup"
+                        className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-200"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Wallet className="size-5 text-emerald-600" />
+                          <span className="text-sm text-emerald-600">Số dư</span>
+                        </div>
+                        {balanceLoading ? (
+                          <span className="h-5 w-20 bg-emerald-100 rounded animate-pulse" />
+                        ) : (
+                          <span className="text-sm font-bold text-emerald-700">
+                            {formatVND(userBalance)}₫
+                          </span>
+                        )}
+                      </Link>
+                    )}
                     {!ready ? (
                       <div className="size-9 rounded-full bg-gray-200 animate-pulse shrink-0" />
                     ) : !authenticated ? (
@@ -205,6 +235,24 @@ export function Header() {
                   </Button>
                 }
               />
+              {/* Wallet Balance */}
+              {authenticated && (
+                <Link
+                  to="/topup"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-200"
+                >
+                  <Wallet className="size-4 text-emerald-600" />
+                  <div className="flex flex-col">
+                    {balanceLoading ? (
+                      <span className="h-4 w-16 bg-emerald-100 rounded animate-pulse" />
+                    ) : (
+                      <span className="text-sm font-semibold text-emerald-700">
+                        {formatVND(userBalance)}₫
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              )}
               {!ready ? (
                 <div className="size-9 rounded-full bg-gray-200 animate-pulse shrink-0" />
               ) : !authenticated ? (

@@ -43,92 +43,68 @@ export const BankSelection: React.FC<BankSelectionProps> = ({
 
   if (loading) {
     return (
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Icon icon="mdi:bank" className="h-5 w-5 text-slate-600" />
-          <h3 className="text-sm font-semibold text-slate-800">
-            Chọn ngân hàng
-          </h3>
+      <div className="space-y-2">
+        <div className="flex items-center gap-1.5">
+          <Icon icon="mdi:bank" className="h-3.5 w-3.5 text-primary" />
+          <h3 className="text-xs font-medium text-foreground">Chọn ngân hàng</h3>
         </div>
-        <div className="flex items-center justify-center py-8">
-          <Icon icon="mdi:loading" className="h-8 w-8 text-blue-500 animate-spin" />
+        <div className="flex items-center justify-center py-6">
+          <Icon icon="mdi:loading" className="h-6 w-6 text-primary animate-spin" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Icon icon="mdi:bank" className="h-5 w-5 text-slate-600" />
-        <h3 className="text-sm font-semibold text-slate-800">
-          Chọn ngân hàng
-        </h3>
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5">
+        <Icon icon="mdi:bank" className="h-3.5 w-3.5 text-primary" />
+        <h3 className="text-xs font-medium text-foreground">Chọn ngân hàng</h3>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-2 xl:grid-cols-3 gap-1.5">
         {sortedBanks.map((bank) => (
           <button
             key={bank.id}
             type="button"
             onClick={() => onSelectBank(bank.bankCode)}
             className={`
-              flex items-center gap-2 rounded-lg border-2 p-2.5 text-left transition-all
+              flex items-center gap-1.5 rounded-md border p-1.5 text-left transition-all
               ${
                 selectedBankCode === bank.bankCode
-                  ? 'border-blue-500 bg-blue-50 shadow-md'
-                  : 'bg-slate-50 border-slate-200 hover:border-blue-300 hover:shadow-sm'
+                  ? 'border-primary bg-primary/5'
+                  : 'bg-card border-border hover:border-primary/40'
               }
             `}
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white flex-shrink-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-muted/50 flex-shrink-0">
               {bank.bankLogoUrl ? (
                 <img
                   src={bank.bankLogoUrl}
                   alt={bank.bankName}
-                  className="h-5 w-5 object-contain"
+                  className="h-4 w-4 object-contain"
                 />
               ) : (
-                <Icon icon="mdi:bank" className="h-5 w-5 text-slate-600" />
+                <Icon icon="mdi:bank" className="h-3.5 w-3.5 text-muted-foreground" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-xs font-semibold ${
-                selectedBankCode === bank.bankCode ? 'text-blue-600' : 'text-slate-800'
+              <p className={`text-[11px] font-semibold truncate ${
+                selectedBankCode === bank.bankCode ? 'text-primary' : 'text-foreground'
               }`}>
                 {bank.bankName}
               </p>
-              <p className="text-[10px] text-slate-500 truncate leading-tight">
-                {bank.bankCode}
-              </p>
             </div>
             {selectedBankCode === bank.bankCode && (
-              <Icon
-                icon="mdi:check-circle"
-                className="h-4 w-4 text-blue-500 flex-shrink-0"
-              />
-            )}
-            {bank.isDefault && selectedBankCode !== bank.bankCode && (
-              <Icon
-                icon="mdi:star"
-                className="h-3 w-3 text-amber-500 flex-shrink-0"
-              />
+              <Icon icon="mdi:check-circle" className="h-3.5 w-3.5 text-primary flex-shrink-0" />
             )}
           </button>
         ))}
       </div>
 
       {sortedBanks.length === 0 && !loading && (
-        <div className="flex items-center justify-center py-8 text-slate-500 text-sm">
-          <p>Không có ngân hàng nào khả dụng</p>
-        </div>
-      )}
-      {sortedBanks.length > 0 && (
-        <div className="flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5 text-[11px] text-blue-700">
-          <Icon icon="mdi:information" className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-          <p>
-            Chọn ngân hàng để xem thông tin chuyển khoản
-          </p>
+        <div className="flex items-center justify-center py-4 text-muted-foreground text-xs">
+          <p>Không có ngân hàng nào</p>
         </div>
       )}
     </div>

@@ -6,13 +6,13 @@ import { PurchasePlanLeft, PurchasePlansSummary } from './purchase-plan-left';
 export const PurchasePlanView = () => {
   const [summary, setSummary] = useState<PurchasePlansSummary | null>(null);
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(320px,1fr)] items-start">
-      {/* LEFT: Plans + features */}
-      <div className="space-y-5">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(300px,1fr)] items-start">
+      {/* Main Content */}
+      <div className="min-w-0">
         <PurchasePlanLeft onChangeSummary={setSummary} />
       </div>
 
-      {/* RIGHT: Order summary */}
+      {/* Sidebar */}
       <div className="space-y-4">
         <OrderSummary
           productName="Residential Proxies"
@@ -25,11 +25,11 @@ export const PurchasePlanView = () => {
           total={summary?.total}
         />
 
-        {/* Optional: nhỏ nhỏ note */}
-        <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50 px-4 py-3 text-[11px] text-amber-800">
+        {/* Note card */}
+        <div className="rounded-xl border-0 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-[12px] text-amber-700 dark:text-amber-400 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           <div className="flex items-start gap-2">
-            <Iconify icon="mdi:information-outline" width={16} />
-            <p>
+            <Iconify icon="mdi:information-outline" width={16} className="shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
               For very large orders or custom plans, you can contact sales to
               negotiate dedicated pricing and payment options.
             </p>

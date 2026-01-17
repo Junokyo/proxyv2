@@ -1,186 +1,240 @@
+'use client';
+
+import { Icon } from '@iconify/react';
+
 interface GiftInfoProps {
   currentMembership?: string;
 }
 
-const GiftInfo = ({ currentMembership = 'VA' }: GiftInfoProps) => {
+const GiftInfo = ({ currentMembership = 'V0' }: GiftInfoProps) => {
   const residentialPackages = ['5GB', '10GB', '45GB', '120GB', '280GB'];
   const rotatingPackages = ['1GB', '10GB', '40GB', '100GB', '350GB', '650GB'];
 
   const giftRatios = [
-    { level: 'Vo', ratio: '0%' },
-    { level: 'VA', ratio: '20%' },
-    { level: 'VB', ratio: '15%' },
-    { level: 'VC', ratio: '10%' },
-    { level: 'VD', ratio: '5%' },
+    { level: 'V0', name: 'Starter', ratio: '0%', threshold: '$0' },
+    { level: 'V1', name: 'Bronze', ratio: '5%', threshold: '$1,000' },
+    { level: 'V2', name: 'Silver', ratio: '10%', threshold: '$3,000' },
+    { level: 'V3', name: 'Gold', ratio: '15%', threshold: '$10,000' },
+    { level: 'V4', name: 'Platinum', ratio: '20%', threshold: '$30,000' },
   ];
 
   const calculateExample = (packageSize: number, ratio: number) => {
     return packageSize + (packageSize * ratio) / 100;
   };
 
+  // Find current tier info
+  const currentTier = giftRatios.find((t) => t.level === currentMembership) || giftRatios[0];
+  const currentRatioValue = parseInt(currentTier.ratio) || 0;
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6">
-        Member Introduction
-      </h2>
-
-      {/* Benefits description */}
-      <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-3">
-          Benefits description
-        </h3>
-        <p className="text-gray-600 bg-blue-50 p-4 rounded-lg border border-blue-100">
-          Purchase designated packages and enjoy free top-up. The higher the
-          membership level, the higher the gift ratio, up to 20%
-        </p>
-      </div>
-
-      {/* Applicable packages */}
-      <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">
-          Applicable packages
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Residential Proxies */}
-          <div>
-            <h4 className="font-medium text-gray-700 mb-3">
-              Residential Proxies:
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {residentialPackages.map((pkg) => (
-                <span
-                  key={pkg}
-                  className="px-4 py-2 bg-gray-50 text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
-                >
-                  {pkg}
-                </span>
-              ))}
-            </div>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="p-6 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50">
+            <Icon icon="mdi:information-outline" className="text-xl text-teal-500" />
           </div>
-
-          {/* Rotating ISP Proxies */}
           <div>
-            <h4 className="font-medium text-gray-700 mb-3">
-              Rotating ISP Proxies:
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {rotatingPackages.map((pkg) => (
-                <span
-                  key={pkg}
-                  className="px-4 py-2 bg-gray-50 text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
-                >
-                  {pkg}
-                </span>
-              ))}
-            </div>
+            <h2 className="text-lg font-semibold text-slate-900">Member Benefits Guide</h2>
+            <p className="text-sm text-slate-500">Learn how to maximize your rewards</p>
           </div>
         </div>
       </div>
 
-      {/* Example description */}
-      <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-3">
-          Example description (For example {currentMembership} members)
-        </h3>
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100">
-          <p className="text-gray-700 mb-2">
-            If a {currentMembership} member purchases a 280G package, the actual
-            number of GB received is:
-          </p>
-          <div className="text-lg font-mono text-green-700 bg-white p-3 rounded-lg inline-block">
-            280G + (280G × 20%) = {calculateExample(280, 20)}G
+      <div className="p-6 space-y-8">
+        {/* Benefits Overview */}
+        <section>
+          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Icon icon="mdi:star-outline" className="text-amber-500" />
+            How It Works
+          </h3>
+          <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+            <p className="text-sm text-blue-800 leading-relaxed">
+              Purchase designated packages and receive <span className="font-semibold">free bonus traffic</span>.
+              The higher your membership level, the greater your gift ratio - up to <span className="font-semibold text-blue-900">20% bonus</span> on every purchase.
+            </p>
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Gift ratio table */}
-      <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">
-          Gift ratio (Based on membership level)
-        </h3>
-        <div className="overflow-hidden border border-gray-200 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Membership Level
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Gift Ratio
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {giftRatios.map((item) => (
-                <tr key={item.level} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        item.level === currentMembership
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {item.level}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-lg font-semibold text-gray-900">
-                    {item.ratio}
-                  </td>
+        {/* Applicable Packages */}
+        <section>
+          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+            <Icon icon="mdi:package-variant" className="text-indigo-500" />
+            Eligible Packages
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Residential Proxies */}
+            <div className="p-4 bg-slate-50 rounded-xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Icon icon="mdi:wifi" className="text-teal-500" />
+                <h4 className="text-sm font-medium text-slate-700">Residential Proxies</h4>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {residentialPackages.map((pkg) => (
+                  <span
+                    key={pkg}
+                    className="px-3 py-1.5 bg-white text-slate-700 text-sm font-medium rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50 transition-colors cursor-pointer"
+                  >
+                    {pkg}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Rotating ISP Proxies */}
+            <div className="p-4 bg-slate-50 rounded-xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Icon icon="mdi:rotate-3d-variant" className="text-indigo-500" />
+                <h4 className="text-sm font-medium text-slate-700">Rotating ISP Proxies</h4>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {rotatingPackages.map((pkg) => (
+                  <span
+                    key={pkg}
+                    className="px-3 py-1.5 bg-white text-slate-700 text-sm font-medium rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer"
+                  >
+                    {pkg}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Example Calculation */}
+        <section>
+          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Icon icon="mdi:calculator" className="text-amber-500" />
+            Example Calculation
+          </h3>
+          <div className="p-4 bg-teal-50 rounded-xl border border-teal-100">
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 shrink-0 mt-0.5">
+                <Icon icon="mdi:lightbulb-outline" className="text-teal-600" />
+              </div>
+              <div>
+                <p className="text-sm text-teal-800 mb-2">
+                  As a <span className="font-semibold">{currentTier.level} ({currentTier.name})</span> member with{' '}
+                  <span className="font-semibold">{currentTier.ratio}</span> gift ratio:
+                </p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-teal-200">
+                  <span className="text-sm text-slate-600">280GB purchase</span>
+                  <Icon icon="mdi:arrow-right" className="text-slate-400" />
+                  <span className="text-sm font-bold text-teal-700">
+                    {calculateExample(280, currentRatioValue)}GB received
+                  </span>
+                </div>
+                <p className="text-xs text-teal-600 mt-2">
+                  Formula: 280GB + (280GB x {currentTier.ratio}) = {calculateExample(280, currentRatioValue)}GB
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Gift Ratio Table */}
+        <section>
+          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+            <Icon icon="mdi:chart-timeline-variant" className="text-blue-500" />
+            Membership Tiers
+          </h3>
+          <div className="overflow-hidden border border-slate-200 rounded-xl">
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-slate-50">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Level
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Tier Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Threshold
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Gift Ratio
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {giftRatios.map((item) => (
+                  <tr
+                    key={item.level}
+                    className={`transition-colors ${
+                      item.level === currentMembership
+                        ? 'bg-blue-50'
+                        : 'hover:bg-slate-50'
+                    }`}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold ${
+                            item.level === currentMembership
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {item.level}
+                        </span>
+                        {item.level === currentMembership && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded-full uppercase">
+                            Current
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-sm text-slate-700">{item.name}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-sm text-slate-600">{item.threshold}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`text-sm font-semibold ${
+                          item.level === currentMembership
+                            ? 'text-blue-600'
+                            : 'text-teal-600'
+                        }`}
+                      >
+                        {item.ratio}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-      {/* Terms and conditions */}
-      <div className="bg-gray-50 p-5 rounded-lg border border-gray-200">
-        <ul className="space-y-3 text-sm text-gray-600">
-          <li className="flex items-start">
-            <svg
-              className="w-5 h-5 text-gray-400 mr-2 mt-0.5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>
-              If the order is rejected, the accumulated amount corresponding to
-              the order will be deducted, and the existing rights and interests
-              will not be affected, but the subsequent upgrade will require
-              recalculation of effective consumption.
-            </span>
-          </li>
-          <li className="flex items-start">
-            <svg
-              className="w-5 h-5 text-gray-400 mr-2 mt-0.5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>
-              The consumption amount of this member upgrade activity will not be
-              combined with other platform promotions, and the lowest unit price
-              activity will be automatically used. The actual effective order
-              amount shall prevail.
-            </span>
-          </li>
-        </ul>
+        {/* Terms */}
+        <section>
+          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Icon icon="mdi:file-document-outline" className="text-slate-500" />
+            Terms & Conditions
+          </h3>
+          <div className="p-4 bg-slate-50 rounded-xl space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 shrink-0 mt-0.5">
+                <span className="text-xs font-semibold text-slate-600">1</span>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                If an order is rejected, the accumulated amount will be deducted. Existing benefits remain unaffected,
+                but subsequent upgrades will require recalculation of effective consumption.
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 shrink-0 mt-0.5">
+                <span className="text-xs font-semibold text-slate-600">2</span>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Member upgrade benefits cannot be combined with other promotional offers.
+                The system automatically applies the most favorable pricing.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

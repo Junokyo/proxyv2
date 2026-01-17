@@ -1,77 +1,127 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import Iconify from '@/components/iconify';
+import { cn } from '@/lib/utils';
 import AutomaticRenewalSection from './AutomaticRenewal/AutomaticRenewalSection';
 import BalanceHistorySection from './BalanceHistory/BalanceHistorySection';
 import ConversionSection from './Conversion/ConversionSection';
 
 const TABS_DATA = [
-  { value: 'conversion', label: 'Qui Đổi Gói', color: '#f97316' },
-  { value: 'autoRenewal', label: 'Gia Hạn Tự Động', color: '#14b8a6' },
-  { value: 'balanceHistory', label: 'Biến Động Số Dư', color: '#8b5cf6' },
+  { value: 'conversion', label: 'Quy Đổi Gói', icon: 'mdi:swap-horizontal-circle' },
+  { value: 'autoRenewal', label: 'Gia Hạn Tự Động', icon: 'mdi:autorenew' },
+  { value: 'balanceHistory', label: 'Lịch Sử Giao Dịch', icon: 'mdi:history' },
 ];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: 'easeOut' },
+  },
+};
 
 export default function ProxyConversionView() {
   const [currentTab, setCurrentTab] = useState('conversion');
+
   const handleChangeTab = useCallback((value: string) => {
     setCurrentTab(value);
   }, []);
 
   return (
-    <div className="w-full min-w-0">
-      <div className="px-3 sm:px-5 lg:px-6">
-        {/* Header */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-lg font-semibold text-slate-900">
-            Qui Đổi Proxy
-          </h1>
+    <motion.div
+      className="w-full min-w-0"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="mb-4">
+        <h1 className="text-lg font-bold text-foreground">Quy Đổi Proxy</h1>
+        <p className="text-xs text-muted-foreground">
+          Quy đổi số dư thành gói proxy hoặc quản lý gia hạn
+        </p>
+      </motion.div>
 
-          {/* Divider */}
-          <div className="h-px w-full bg-slate-200 mt-2" />
-
-          {/* Responsive Tabs */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-            <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Chọn chức năng:
-            </p>
-            <div className="flex flex-wrap gap-2 sm:gap-6">
-              {TABS_DATA.map((tab) => (
-                <button
+      {/* Tabs */}
+      <motion.div variants={itemVariants} className="mb-4">
+        <LayoutGroup>
+          <div className="inline-flex gap-6 border-b border-border">
+            {TABS_DATA.map((tab) => {
+              const isActive = currentTab === tab.value;
+              return (
+                <motion.button
                   key={tab.value}
                   type="button"
                   onClick={() => handleChangeTab(tab.value)}
-                  className={
-                    'pb-2 text-xs sm:text-sm transition font-medium whitespace-nowrap ' +
-                    (currentTab === tab.value
-                      ? 'text-indigo-600 border-b-2 border-indigo-600'
-                      : 'text-slate-500 hover:text-slate-900 border-b-2 border-transparent')
-                  }
+                  className={cn(
+                    'relative inline-flex items-center gap-1.5 pb-2.5 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'text-primary'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
                 >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                      transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
+                    />
+                  )}
+                  <span>{tab.label}</span>
+                </motion.button>
+              );
+            })}
           </div>
-        </div>
-      </div>
+        </LayoutGroup>
+      </motion.div>
 
-      <div className="mt-4 text-sm text-slate-600">
+      {/* Content */}
+      <AnimatePresence mode="wait">
         {currentTab === 'conversion' && (
-          <div className="px-3 sm:px-5 lg:px-6">
+          <motion.div
+            key="conversion"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
             <ConversionSection />
-          </div>
+          </motion.div>
         )}
         {currentTab === 'autoRenewal' && (
-          <div className="px-3 sm:px-5 lg:px-6">
+          <motion.div
+            key="autoRenewal"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
             <AutomaticRenewalSection />
-          </div>
+          </motion.div>
         )}
         {currentTab === 'balanceHistory' && (
-          <div className="px-3 sm:px-5 lg:px-6">
+          <motion.div
+            key="balanceHistory"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
             <BalanceHistorySection />
-          </div>
+          </motion.div>
         )}
-      </div>
-    </div>
+      </AnimatePresence>
+    </motion.div>
   );
 }

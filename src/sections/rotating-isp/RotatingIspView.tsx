@@ -1,18 +1,19 @@
-// UnlimitedProxiesView.tsx
+// ISP Proxies View
 'use client';
 
 import {
   ProxyTabConfig,
   ProxyTabsLayout,
 } from '@/sections/proxies/components/ProxyTabsLayout';
-import RotatingIspPurchasePlanSection from './PurchasePlan/PurchasePlanSection';
+import IspPurchasePlanSection from './PurchasePlan/PurchasePlanSection';
 import UseSettingSection from './UseSetting/UseSettingSection';
+import ApiExampleSection from './ApiExample/ApiExampleSection';
 
-const unlimitedTabs: ProxyTabConfig[] = [
+const ispTabs: ProxyTabConfig[] = [
   {
     key: 'purchase',
     label: 'Purchase Plan',
-    content: <RotatingIspPurchasePlanSection />,
+    content: <IspPurchasePlanSection />,
   },
   {
     key: 'use-settings',
@@ -22,29 +23,17 @@ const unlimitedTabs: ProxyTabConfig[] = [
   {
     key: 'api-example',
     label: 'API Example',
-    content: '',
+    content: <ApiExampleSection />,
   },
-  // {
-  //   key: 'usage-record',
-  //   label: 'Usage Record',
-  //   content: '',
-  // },
 ];
 
 export default function RotatingIspView() {
   return (
     <ProxyTabsLayout
-      title="Rotating ISP Proxies"
-      subtitle="Choose the billing type that suits your use case and get started in minutes"
+      title="ISP Proxies"
+      subtitle="Equipped with ISP proxy, enjoy unparalleled speed and stability"
       rightLinkText=""
-      // introCard={
-      //   <ProxyIntroCard
-      //     icon={<Iconify icon="solar:infinity-outline" />}
-      //     title="Unlimited Proxies"
-      //     description="Take advantage of unlimited data for seamless browsing and crawling."
-      //   />
-      // }
-      tabs={unlimitedTabs}
+      tabs={ispTabs}
       defaultTabKey="purchase"
     />
   );

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { getBankAccount } from '@/mocks/banks.mock';
+import type { BankAccount } from './BankSelection';
 
 interface TransferInfoProps {
-  selectedBank: string;
+  bankAccount: BankAccount;
   amount: number;
 }
 
@@ -13,27 +13,11 @@ const formatVND = (amount: number): string => {
 };
 
 export const TransferInfo: React.FC<TransferInfoProps> = ({
-  selectedBank,
+  bankAccount,
   amount,
 }) => {
   const { copyToClipboard } = useCopyToClipboard();
   const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  const bankInfo = getBankAccount(selectedBank);
-
-  if (!bankInfo) {
-    return (
-      <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-        <Icon
-          icon="mdi:bank-remove"
-          className="mx-auto h-12 w-12 text-slate-300 mb-3"
-        />
-        <p className="text-sm text-slate-500">
-          Vui lòng chọn ngân hàng để xem thông tin chuyển khoản
-        </p>
-      </div>
-    );
-  }
 
   // Tạo mã giao dịch ngẫu nhiên
   const transactionCode = `NP${Date.now().toString().slice(-8)}`;
@@ -98,7 +82,7 @@ export const TransferInfo: React.FC<TransferInfoProps> = ({
               <div className="rounded-xl bg-white p-3 shadow-lg border-2 border-purple-100">
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-                    `Bank: ${selectedBank}\nAccount: ${bankInfo.accountNumber}\nName: ${bankInfo.accountName}\nAmount: ${formatVND(amount)} VND\nContent: ${transactionCode}`
+                    `Bank: ${bankAccount.bankName}\nAccount: ${bankAccount.accountNumber}\nName: ${bankAccount.accountName}\nAmount: ${formatVND(amount)} VND\nContent: ${transactionCode}`
                   )}`}
                   alt="QR Code"
                   className="w-36 h-36"
@@ -126,20 +110,28 @@ export const TransferInfo: React.FC<TransferInfoProps> = ({
             <div>
               <p className="text-[10px] text-slate-500 mb-0.5">Ngân hàng</p>
               <p className="text-sm font-semibold text-slate-900">
-                {selectedBank}
+                {bankAccount.bankName}
               </p>
             </div>
-            <Icon icon="mdi:bank" className="h-6 w-6 text-blue-500" />
+            {bankAccount.bankLogoUrl ? (
+              <img
+                src={bankAccount.bankLogoUrl}
+                alt={bankAccount.bankName}
+                className="h-6 w-6 object-contain"
+              />
+            ) : (
+              <Icon icon="mdi:bank" className="h-6 w-6 text-blue-500" />
+            )}
           </div>
 
           {/* Số tài khoản */}
           <div className="rounded-lg bg-white p-3 shadow-sm">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] text-slate-500">Số tài khoản</p>
-              <CopyButton text={bankInfo.accountNumber} field="account" />
+              <CopyButton text={bankAccount.accountNumber} field="account" />
             </div>
             <p className="text-base font-bold text-slate-900 tracking-wider">
-              {bankInfo.accountNumber}
+              {bankAccount.accountNumber}
             </p>
           </div>
 
@@ -147,20 +139,22 @@ export const TransferInfo: React.FC<TransferInfoProps> = ({
           <div className="rounded-lg bg-white p-3 shadow-sm">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] text-slate-500">Tên tài khoản</p>
-              <CopyButton text={bankInfo.accountName} field="name" />
+              <CopyButton text={bankAccount.accountName} field="name" />
             </div>
             <p className="text-sm font-semibold text-slate-900">
-              {bankInfo.accountName}
+              {bankAccount.accountName}
             </p>
           </div>
 
           {/* Chi nhánh */}
-          <div className="rounded-lg bg-white p-3 shadow-sm">
-            <p className="text-[10px] text-slate-500 mb-0.5">Chi nhánh</p>
-            <p className="text-xs font-medium text-slate-700">
-              {bankInfo.branch}
-            </p>
-          </div>
+          {bankAccount.branch && (
+            <div className="rounded-lg bg-white p-3 shadow-sm">
+              <p className="text-[10px] text-slate-500 mb-0.5">Chi nhánh</p>
+              <p className="text-xs font-medium text-slate-700">
+                {bankAccount.branch}
+              </p>
+            </div>
+          )}
 
           {/* Số tiền */}
           <div className="rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 p-3 shadow-sm">

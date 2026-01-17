@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/auth/store/auth.store';
+import { FilterOperator } from '@/constant';
+import { useGraphQLQuery } from '@/graphql/hooks/use-graphql-query';
+import { GET_BANK_ACCOUNTS_QUERY } from '@/graphql/queries/bank-accounts';
+import { GET_WALLET_STATS_QUERY } from '@/graphql/queries/wallets';
 import { Icon } from '@iconify/react';
-import { BankSelection } from './BankSelection';
-import { AmountInput } from './AmountInput';
-import { TransferInfo } from './TransferInfo';
 import { useNotification } from '@/providers/notification-provider';
 import {
   AlertDialog,
@@ -14,18 +16,101 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { AmountInput } from './AmountInput';
+import { BankSelection } from './BankSelection';
+import { TransferInfo } from './TransferInfo';
 
 const DepositForm: React.FC = () => {
-  const [selectedBank, setSelectedBank] = useState('');
+  const [selectedBankId, setSelectedBankId] = useState<string>('');
   const [amount, setAmount] = useState(100000);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { addNotification } = useNotification();
+  const { user } = useAuth();
+
+  // Fetch wallet stats
+  const { data: walletStatsData, loading: walletStatsLoading } =
+    useGraphQLQuery<{
+      walletStats: {
+        userId: string;
+        currentBalance: number;
+        totalDeposited: number;
+        totalSpent: number;
+        totalPromotion: number;
+      };
+    }>({
+      query: GET_WALLET_STATS_QUERY,
+      variables: {
+        userId: user?.id || '',
+      },
+      skip: !user?.id,
+    });
+
+  // Fetch bank accounts - only active ones
+  const { data: bankAccountsData, loading: bankAccountsLoading } =
+    useGraphQLQuery<{
+      bankAccounts: {
+        totalCount: number;
+        items: Array<{
+          id: string;
+          bankCode: string;
+          bankName: string;
+          bankLogoUrl: string | null;
+          apiType: string;
+          accountNumber: string;
+          accountName: string;
+          branch: string | null;
+          active: boolean;
+          isDefault: boolean;
+          note: string | null;
+          sortOrder: number;
+          createdAt: string;
+          updatedAt: string;
+        }>;
+      };
+    }>({
+      query: GET_BANK_ACCOUNTS_QUERY,
+      variables: {
+        filter: {
+          filters: [
+            {
+              field: 'active',
+              operator: FilterOperator.EQ,
+              value: 'true',
+            },
+          ],
+        },
+      },
+    });
+
+  const bankAccounts = useMemo(
+    () => bankAccountsData?.bankAccounts?.items || [],
+    [bankAccountsData],
+  );
+  const selectedBankAccount = useMemo(
+    () => bankAccounts.find((bank) => bank.id === selectedBankId),
+    [bankAccounts, selectedBankId],
+  );
+
+  // Auto-select default bank account when data loads
+  useEffect(() => {
+    if (!bankAccountsLoading && bankAccounts.length > 0 && !selectedBankId) {
+      const defaultBank = bankAccounts.find((bank) => bank.isDefault);
+      if (defaultBank) {
+        setSelectedBankId(defaultBank.id);
+      } else {
+        // If no default, select the first one (already sorted by sortOrder)
+        setSelectedBankId(bankAccounts[0].id);
+      }
+    }
+  }, [bankAccountsLoading, bankAccounts, selectedBankId]);
 
   const formatVND = (value: number): string => {
     return new Intl.NumberFormat('vi-VN').format(value);
   };
 
-  const canSubmit = selectedBank && amount >= 100000;
+  const currentBalance = walletStatsData?.walletStats?.currentBalance || 0;
+
+  const canSubmit = selectedBankId && amount >= 100000;
 
   const handleConfirmDeposit = () => {
     if (!canSubmit) return;
@@ -38,12 +123,13 @@ const DepositForm: React.FC = () => {
 
     // Add notification
     addNotification({
-      type: 'deposit',
+      type: 'topup',
       title: 'Yêu cầu nạp tiền đã được ghi nhận',
-      description: `Đơn nạp ${formatVND(amount)} VNĐ qua ${selectedBank} đang được xử lý. Mã GD: ${transactionCode}`,
+      description: `Đơn nạp ${formatVND(amount)} VNĐ qua ${selectedBankAccount?.bankName || selectedBankAccount?.bankCode} đang được xử lý. Mã GD: ${transactionCode}`,
       time: 'Vừa xong',
       amount: amount,
-      paymentMethod: selectedBank,
+      paymentMethod:
+        selectedBankAccount?.bankName || selectedBankAccount?.bankCode || '',
     });
 
     setShowConfirmDialog(false);
@@ -54,7 +140,7 @@ const DepositForm: React.FC = () => {
 
     // Show success message
     alert(
-      `✅ Đã ghi nhận yêu cầu nạp tiền!\n\nMã giao dịch: ${transactionCode}\nSố tiền: ${formatVND(amount)} VNĐ\nNgân hàng: ${selectedBank}\n\nVui lòng chuyển khoản theo thông tin bên dưới.\nGiao dịch sẽ được xử lý tự động trong 5-10 phút.`
+      `✅ Đã ghi nhận yêu cầu nạp tiền!\n\nMã giao dịch: ${transactionCode}\nSố tiền: ${formatVND(amount)} VNĐ\nNgân hàng: ${selectedBankAccount?.bankName || selectedBankAccount?.bankCode}\n\nVui lòng chuyển khoản theo thông tin bên dưới.\nGiao dịch sẽ được xử lý tự động trong 5-10 phút.`,
     );
   };
 
@@ -65,7 +151,11 @@ const DepositForm: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs opacity-90">Số dư tài khoản</p>
-            <p className="text-2xl font-bold mt-1">0 VNĐ</p>
+            <p className="text-2xl font-bold mt-1">
+              {walletStatsLoading
+                ? 'Đang tải...'
+                : `${formatVND(currentBalance)} VNĐ`}
+            </p>
           </div>
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
             <Icon icon="mdi:wallet" className="h-6 w-6" />
@@ -80,8 +170,10 @@ const DepositForm: React.FC = () => {
           {/* Bank Selection */}
           <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
             <BankSelection
-              selectedBank={selectedBank}
-              onSelectBank={setSelectedBank}
+              bankAccounts={bankAccounts}
+              loading={bankAccountsLoading}
+              selectedBankId={selectedBankId}
+              onSelectBank={setSelectedBankId}
             />
           </div>
 
@@ -93,9 +185,9 @@ const DepositForm: React.FC = () => {
 
         {/* Right Column - Transfer Info */}
         <div className="lg:sticky lg:top-4 lg:self-start">
-          {selectedBank ? (
+          {selectedBankAccount ? (
             <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
-              <TransferInfo selectedBank={selectedBank} amount={amount} />
+              <TransferInfo bankAccount={selectedBankAccount} amount={amount} />
             </div>
           ) : (
             <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center h-full flex items-center justify-center">
@@ -136,7 +228,7 @@ const DepositForm: React.FC = () => {
 
         {!canSubmit && (
           <p className="text-center text-xs text-slate-500 mt-1.5">
-            {!selectedBank
+            {!selectedBankId
               ? 'Vui lòng chọn ngân hàng'
               : 'Số tiền tối thiểu 100,000 VNĐ'}
           </p>
@@ -164,7 +256,8 @@ const DepositForm: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600 text-sm">Ngân hàng:</span>
                     <span className="font-semibold text-slate-900">
-                      {selectedBank}
+                      {selectedBankAccount?.bankName ||
+                        selectedBankAccount?.bankCode}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -213,4 +306,3 @@ const DepositForm: React.FC = () => {
 };
 
 export default DepositForm;
-

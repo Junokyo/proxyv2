@@ -4,6 +4,9 @@
  * Central export point for all mutations organized by module
  */
 
+// Bank Accounts module
+export * from './bank-accounts';
+
 // Countries module
 export * from './countries';
 

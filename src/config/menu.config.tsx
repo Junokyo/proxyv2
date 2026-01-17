@@ -238,6 +238,10 @@ export const MENU_SIDEBAR: MenuConfig = [
         title: 'Danh mục ví',
         path: '/wallet-category',
       },
+      {
+        title: 'Danh mục tài khoản ngân hàng',
+        path: '/bank-account-category',
+      },
     ],
   },
 ];

@@ -2,6 +2,7 @@
  * GraphQL Types Export
  */
 
+export * from './bank-accounts.types';
 export * from './countries.types';
 export * from './loyals.types';
 export * from './loyal-histories.types';

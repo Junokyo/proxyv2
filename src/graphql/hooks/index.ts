@@ -2,6 +2,9 @@
  * GraphQL Hooks Export
  */
 
+// Bank Accounts module
+export * from './bank-accounts';
+
 // Countries module
 export * from './countries';
 

@@ -43,6 +43,7 @@ import {
   AuthAccountDeactivatedPage,
   AuthWelcomeMessagePage,
 } from '@/pages/auth';
+import BankAccountCategoryPage from '@/pages/category/bank-account-category/page';
 import BillingHistoryCategoryPage from '@/pages/category/billing-history-category/page';
 import CountryCategoryPage from '@/pages/category/country-category/page';
 import IPListCategoryPage from '@/pages/category/ip-list-category/page';
@@ -187,6 +188,10 @@ export function AppRoutingSetup() {
             element={<PromotionCategoryPage />}
           />
           <Route path="/wallet-category" element={<WalletCategoryPage />} />
+          <Route
+            path="/bank-account-category"
+            element={<BankAccountCategoryPage />}
+          />
           {/* ------------ */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route

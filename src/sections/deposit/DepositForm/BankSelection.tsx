@@ -21,14 +21,14 @@ export interface BankAccount {
 interface BankSelectionProps {
   bankAccounts: BankAccount[];
   loading: boolean;
-  selectedBankId: string;
-  onSelectBank: (bankId: string) => void;
+  selectedBankCode: string;
+  onSelectBank: (bankCode: string) => void;
 }
 
 export const BankSelection: React.FC<BankSelectionProps> = ({
   bankAccounts,
   loading,
-  selectedBankId,
+  selectedBankCode,
   onSelectBank,
 }) => {
   // Sort banks by sortOrder, then by isDefault, then by bankName
@@ -71,11 +71,11 @@ export const BankSelection: React.FC<BankSelectionProps> = ({
           <button
             key={bank.id}
             type="button"
-            onClick={() => onSelectBank(bank.id)}
+            onClick={() => onSelectBank(bank.bankCode)}
             className={`
               flex items-center gap-2 rounded-lg border-2 p-2.5 text-left transition-all
               ${
-                selectedBankId === bank.id
+                selectedBankCode === bank.bankCode
                   ? 'border-blue-500 bg-blue-50 shadow-md'
                   : 'bg-slate-50 border-slate-200 hover:border-blue-300 hover:shadow-sm'
               }
@@ -94,7 +94,7 @@ export const BankSelection: React.FC<BankSelectionProps> = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className={`text-xs font-semibold ${
-                selectedBankId === bank.id ? 'text-blue-600' : 'text-slate-800'
+                selectedBankCode === bank.bankCode ? 'text-blue-600' : 'text-slate-800'
               }`}>
                 {bank.bankName}
               </p>
@@ -102,13 +102,13 @@ export const BankSelection: React.FC<BankSelectionProps> = ({
                 {bank.bankCode}
               </p>
             </div>
-            {selectedBankId === bank.id && (
+            {selectedBankCode === bank.bankCode && (
               <Icon
                 icon="mdi:check-circle"
                 className="h-4 w-4 text-blue-500 flex-shrink-0"
               />
             )}
-            {bank.isDefault && selectedBankId !== bank.id && (
+            {bank.isDefault && selectedBankCode !== bank.bankCode && (
               <Icon
                 icon="mdi:star"
                 className="h-3 w-3 text-amber-500 flex-shrink-0"

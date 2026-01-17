@@ -2,7 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/auth/store/auth.store';
 import { FilterOperator } from '@/constant';
 import { useGraphQLQuery } from '@/graphql/hooks/use-graphql-query';
-import { GET_BANK_ACCOUNTS_QUERY } from '@/graphql/queries/bank-accounts';
+import {
+  GET_BANK_ACCOUNTS_QUERY,
+  GET_BANK_ACCOUNT_BY_CODE_QUERY,
+} from '@/graphql/queries/bank-accounts';
 import { GET_WALLET_STATS_QUERY } from '@/graphql/queries/wallets';
 import { Icon } from '@iconify/react';
 import { useNotification } from '@/providers/notification-provider';
@@ -21,7 +24,7 @@ import { BankSelection } from './BankSelection';
 import { TransferInfo } from './TransferInfo';
 
 const DepositForm: React.FC = () => {
-  const [selectedBankId, setSelectedBankId] = useState<string>('');
+  const [selectedBankCode, setSelectedBankCode] = useState<string>('');
   const [amount, setAmount] = useState(100000);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { addNotification } = useNotification();
@@ -86,23 +89,48 @@ const DepositForm: React.FC = () => {
     () => bankAccountsData?.bankAccounts?.items || [],
     [bankAccountsData],
   );
-  const selectedBankAccount = useMemo(
-    () => bankAccounts.find((bank) => bank.id === selectedBankId),
-    [bankAccounts, selectedBankId],
-  );
+
+  // Fetch selected bank account by code
+  const { data: bankAccountByCodeData, loading: bankAccountByCodeLoading } =
+    useGraphQLQuery<{
+      bankAccountByCode: {
+        id: string;
+        bankCode: string;
+        bankName: string;
+        bankLogoUrl: string | null;
+        apiType: string;
+        accountNumber: string;
+        accountName: string;
+        branch: string | null;
+        active: boolean;
+        isDefault: boolean;
+        note: string | null;
+        sortOrder: number;
+        createdAt: string;
+        updatedAt: string;
+      };
+    }>({
+      query: GET_BANK_ACCOUNT_BY_CODE_QUERY,
+      variables: {
+        bankCode: selectedBankCode,
+      },
+      skip: !selectedBankCode,
+    });
+
+  const selectedBankAccount = bankAccountByCodeData?.bankAccountByCode || null;
 
   // Auto-select default bank account when data loads
   useEffect(() => {
-    if (!bankAccountsLoading && bankAccounts.length > 0 && !selectedBankId) {
+    if (!bankAccountsLoading && bankAccounts.length > 0 && !selectedBankCode) {
       const defaultBank = bankAccounts.find((bank) => bank.isDefault);
       if (defaultBank) {
-        setSelectedBankId(defaultBank.id);
+        setSelectedBankCode(defaultBank.bankCode);
       } else {
         // If no default, select the first one (already sorted by sortOrder)
-        setSelectedBankId(bankAccounts[0].id);
+        setSelectedBankCode(bankAccounts[0].bankCode);
       }
     }
-  }, [bankAccountsLoading, bankAccounts, selectedBankId]);
+  }, [bankAccountsLoading, bankAccounts, selectedBankCode]);
 
   const formatVND = (value: number): string => {
     return new Intl.NumberFormat('vi-VN').format(value);
@@ -110,7 +138,7 @@ const DepositForm: React.FC = () => {
 
   const currentBalance = walletStatsData?.walletStats?.currentBalance || 0;
 
-  const canSubmit = selectedBankId && amount >= 100000;
+  const canSubmit = selectedBankCode && amount >= 100000;
 
   const handleConfirmDeposit = () => {
     if (!canSubmit) return;
@@ -172,8 +200,8 @@ const DepositForm: React.FC = () => {
             <BankSelection
               bankAccounts={bankAccounts}
               loading={bankAccountsLoading}
-              selectedBankId={selectedBankId}
-              onSelectBank={setSelectedBankId}
+              selectedBankCode={selectedBankCode}
+              onSelectBank={setSelectedBankCode}
             />
           </div>
 
@@ -228,7 +256,7 @@ const DepositForm: React.FC = () => {
 
         {!canSubmit && (
           <p className="text-center text-xs text-slate-500 mt-1.5">
-            {!selectedBankId
+            {!selectedBankCode
               ? 'Vui lòng chọn ngân hàng'
               : 'Số tiền tối thiểu 100,000 VNĐ'}
           </p>

@@ -6,9 +6,9 @@ import OrderHistory from './OrderHistory/OrderHistory';
 import TransactionHistory from './TransactionHistory/TransactionHistory';
 
 const TABS_DATA = [
-  { value: 'transactions', label: 'Lịch sử giao dịch', color: '#f97316' },
   { value: 'orders', label: 'Lịch sử đơn hàng', color: '#14b8a6' },
-  { value: 'deposits', label: 'Lịch sử nạp tiền', color: '#8b5cf6' },
+  { value: 'transactions', label: 'Lịch sử giao dịch', color: '#f97316' },
+  // { value: 'deposits', label: 'Lịch sử nạp tiền', color: '#8b5cf6' },
 ];
 
 export default function OrderHistoryView() {

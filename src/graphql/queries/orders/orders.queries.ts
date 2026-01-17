@@ -41,3 +41,36 @@ export const GET_ORDER_BY_ID = gql`
   }
 `;
 
+// Get Order Details Query
+export const GET_ORDER_DETAILS_QUERY = gql`
+  query OrderDetails(
+    $filter: FilterRequest
+    $sorts: [Sort!]
+    $pagination: PaginationInput
+    $searchQuery: String
+  ) {
+    orderDetails(
+      filter: $filter
+      sorts: $sorts
+      pagination: $pagination
+      searchQuery: $searchQuery
+    ) {
+      items {
+        id
+        orderId
+        providerId
+        proxyTypeId
+        countryId
+        code
+        price
+        quantity
+        tranCode
+        detail
+        status
+        expiredDate
+      }
+      totalCount
+    }
+  }
+`;
+

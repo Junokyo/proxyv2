@@ -235,71 +235,71 @@ export function NotificationsSubscription() {
   ]);
 
   // Debug: Render subscription status for development
-  if (process.env.NODE_ENV === 'development') {
-    return (
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '10px',
-          right: '10px',
-          background: 'rgba(0,0,0,0.8)',
-          color: 'white',
-          padding: '8px',
-          borderRadius: '4px',
-          fontSize: '12px',
-          zIndex: 9999,
-          maxWidth: '300px',
-        }}
-      >
-        <div>📡 Subscription Debug:</div>
-        <div>Store Token: {storeHasToken ? '✅' : '❌'}</div>
-        <div>Store Token Ready: {storeTokenReady ? '✅' : '❌'}</div>
-        <div>Initialized: {isInitialized ? '✅' : '❌'}</div>
-        <div>Active: {subscriptionState.isActive ? '✅' : '❌'}</div>
-        <div>Loading: {subscriptionState.loading ? '⏳' : '✅'}</div>
-        <div>Error: {subscriptionState.error ? '❌' : '✅'}</div>
-        <div>Endpoint: {getWebSocketUri()}</div>
-        <div style={{ color: '#666', fontSize: '10px' }}>
-          VITE_GRAPHQL_ENDPOINT:{' '}
-          {import.meta.env.VITE_GRAPHQL_ENDPOINT || 'not set'}
-        </div>
-        <div style={{ color: '#666', fontSize: '10px' }}>
-          VITE_GRAPHQL_WS_ENDPOINT:{' '}
-          {import.meta.env.VITE_GRAPHQL_WS_ENDPOINT || 'not set'}
-        </div>
-        <div style={{ color: '#ff6b6b', fontSize: '10px' }}>
-          Error: auth.errors.unauthorized - Token rejected by server
-        </div>
-        <div style={{ color: '#ffa500', fontSize: '10px', marginTop: '5px' }}>
-          {shouldSkip
-            ? '⏸️ Waiting for store token...'
-            : '▶️ Subscription active'}
-        </div>
-        {subscriptionState.error && (
-          <div style={{ color: '#ff6b6b', fontSize: '10px' }}>
-            {subscriptionState.error.message}
-          </div>
-        )}
-        <button
-          onClick={() => {
-            console.log('🔄 Manual subscription test...');
-            window.location.reload(); // Force reload to test
-          }}
-          style={{
-            marginTop: '5px',
-            padding: '2px 5px',
-            fontSize: '10px',
-            background: '#007bff',
-            border: 'none',
-            borderRadius: '2px',
-            cursor: 'pointer',
-          }}
-        >
-          Test Reload
-        </button>
-      </div>
-    );
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   return (
+  //     <div
+  //       style={{
+  //         position: 'fixed',
+  //         bottom: '10px',
+  //         right: '10px',
+  //         background: 'rgba(0,0,0,0.8)',
+  //         color: 'white',
+  //         padding: '8px',
+  //         borderRadius: '4px',
+  //         fontSize: '12px',
+  //         zIndex: 9999,
+  //         maxWidth: '300px',
+  //       }}
+  //     >
+  //       <div>📡 Subscription Debug:</div>
+  //       <div>Store Token: {storeHasToken ? '✅' : '❌'}</div>
+  //       <div>Store Token Ready: {storeTokenReady ? '✅' : '❌'}</div>
+  //       <div>Initialized: {isInitialized ? '✅' : '❌'}</div>
+  //       <div>Active: {subscriptionState.isActive ? '✅' : '❌'}</div>
+  //       <div>Loading: {subscriptionState.loading ? '⏳' : '✅'}</div>
+  //       <div>Error: {subscriptionState.error ? '❌' : '✅'}</div>
+  //       <div>Endpoint: {getWebSocketUri()}</div>
+  //       <div style={{ color: '#666', fontSize: '10px' }}>
+  //         VITE_GRAPHQL_ENDPOINT:{' '}
+  //         {import.meta.env.VITE_GRAPHQL_ENDPOINT || 'not set'}
+  //       </div>
+  //       <div style={{ color: '#666', fontSize: '10px' }}>
+  //         VITE_GRAPHQL_WS_ENDPOINT:{' '}
+  //         {import.meta.env.VITE_GRAPHQL_WS_ENDPOINT || 'not set'}
+  //       </div>
+  //       <div style={{ color: '#ff6b6b', fontSize: '10px' }}>
+  //         Error: auth.errors.unauthorized - Token rejected by server
+  //       </div>
+  //       <div style={{ color: '#ffa500', fontSize: '10px', marginTop: '5px' }}>
+  //         {shouldSkip
+  //           ? '⏸️ Waiting for store token...'
+  //           : '▶️ Subscription active'}
+  //       </div>
+  //       {subscriptionState.error && (
+  //         <div style={{ color: '#ff6b6b', fontSize: '10px' }}>
+  //           {subscriptionState.error.message}
+  //         </div>
+  //       )}
+  //       <button
+  //         onClick={() => {
+  //           console.log('🔄 Manual subscription test...');
+  //           window.location.reload(); // Force reload to test
+  //         }}
+  //         style={{
+  //           marginTop: '5px',
+  //           padding: '2px 5px',
+  //           fontSize: '10px',
+  //           background: '#007bff',
+  //           border: 'none',
+  //           borderRadius: '2px',
+  //           cursor: 'pointer',
+  //         }}
+  //       >
+  //         Test Reload
+  //       </button>
+  //     </div>
+  //   );
+  // }
 
   // This component doesn't render anything - it just manages the subscription
   return null;

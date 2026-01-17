@@ -22,10 +22,13 @@ import {
 import { AmountInput } from './AmountInput';
 import { BankSelection } from './BankSelection';
 import { TransferInfo } from './TransferInfo';
+import { TopupPackages } from './TopupPackages';
+import { GET_TOPUPS_QUERY } from '@/graphql/queries/topups';
 
 const DepositForm: React.FC = () => {
   const [selectedBankCode, setSelectedBankCode] = useState<string>('');
   const [amount, setAmount] = useState(100000);
+  const [selectedTopupId, setSelectedTopupId] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { addNotification } = useNotification();
   const { user } = useAuth();
@@ -119,6 +122,51 @@ const DepositForm: React.FC = () => {
 
   const selectedBankAccount = bankAccountByCodeData?.bankAccountByCode || null;
 
+  // Fetch topup packages
+  const { data: topupsData, loading: topupsLoading } = useGraphQLQuery<{
+    topups: {
+      totalCount: number;
+      items: Array<{
+        id: string;
+        name: string;
+        max: number;
+        percent: number;
+      }>;
+    };
+  }>({
+    query: GET_TOPUPS_QUERY,
+    variables: {},
+  });
+
+  const topupPackages = useMemo(
+    () => topupsData?.topups?.items || [],
+    [topupsData],
+  );
+
+  // Handle topup package selection
+  const handleSelectTopupPackage = (pkg: {
+    id: string;
+    name: string;
+    max: number;
+    percent: number;
+  }) => {
+    setSelectedTopupId(pkg.id);
+    setAmount(pkg.max);
+  };
+
+  // Calculate bonus amount if topup package is selected
+  const selectedTopup = useMemo(
+    () => topupPackages.find((pkg) => pkg.id === selectedTopupId) || null,
+    [topupPackages, selectedTopupId],
+  );
+  // Bonus chỉ áp dụng khi amount = max của gói đã chọn (hoặc có thể tính theo amount thực tế nếu muốn linh hoạt)
+  // Ở đây tôi tính bonus dựa trên amount thực tế, nhưng chỉ khi có selectedTopup
+  const bonusAmount =
+    selectedTopup && amount <= selectedTopup.max
+      ? (amount * selectedTopup.percent) / 100
+      : 0;
+  const totalAmountWithBonus = amount + bonusAmount;
+
   // Auto-select default bank account when data loads
   useEffect(() => {
     if (!bankAccountsLoading && bankAccounts.length > 0 && !selectedBankCode) {
@@ -195,6 +243,16 @@ const DepositForm: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left Column - Input Section */}
         <div className="space-y-4">
+          {/* Topup Packages */}
+          <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
+            <TopupPackages
+              packages={topupPackages}
+              loading={topupsLoading}
+              selectedPackageId={selectedTopupId}
+              onSelectPackage={handleSelectTopupPackage}
+            />
+          </div>
+
           {/* Bank Selection */}
           <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
             <BankSelection
@@ -208,6 +266,29 @@ const DepositForm: React.FC = () => {
           {/* Amount Input */}
           <div className="rounded-xl bg-white border border-slate-200 p-5 shadow-sm">
             <AmountInput amount={amount} onChangeAmount={setAmount} />
+            {selectedTopup && bonusAmount > 0 && (
+              <div className="mt-3 rounded-lg bg-green-50 border border-green-200 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon icon="mdi:gift" className="h-4 w-4 text-green-600" />
+                    <span className="text-xs font-medium text-green-700">
+                      Khuyến mãi {selectedTopup.percent}%
+                    </span>
+                  </div>
+                  <span className="text-xs font-semibold text-green-600">
+                    +{formatVND(bonusAmount)} VNĐ
+                  </span>
+                </div>
+                <div className="mt-2 pt-2 border-t border-green-200 flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-700">
+                    Tổng nhận được:
+                  </span>
+                  <span className="text-base font-bold text-green-600">
+                    {formatVND(totalAmountWithBonus)} VNĐ
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -33,7 +33,6 @@ export const GET_WALLET_TRANSACTIONS = gql`
       items {
         id
         walletId
-        coin
         type
         description
         balanceAfter
@@ -50,7 +49,6 @@ export const GET_WALLET_TRANSACTION = gql`
     walletTransaction(id: $id) {
       id
       walletId
-      coin
       type
       description
       balanceAfter

@@ -17,11 +17,9 @@ export const GET_WALLETS_QUERY = gql`
       items {
         id
         userId
-        coin
         promotion
         createdAt
         updatedAt
-        active
       }
       totalCount
     }
@@ -34,11 +32,24 @@ export const GET_WALLET_BY_ID = gql`
     wallet(id: $id) {
       id
       userId
-      coin
       promotion
       createdAt
       updatedAt
-      active
+    }
+  }
+`;
+
+// Get Wallet by User ID Query
+export const GET_WALLET_BY_USER_ID = gql`
+  query WalletByUserId($userId: String!) {
+    walletByUserId(userId: $userId) {
+      id
+      userId
+      balance
+      sum
+      promotion
+      createdAt
+      updatedAt
     }
   }
 `;

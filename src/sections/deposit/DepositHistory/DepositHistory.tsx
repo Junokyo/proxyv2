@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Icon } from '@iconify/react';
-import { getDepositHistory } from '@/mocks/deposits.mock';
-import { DepositRecord } from '@/types/deposit.types';
+import { useAuth } from '@/auth/store/auth.store';
+import { useGraphQLQuery } from '@/graphql/hooks/use-graphql-query';
+import { GET_WALLET_BY_USER_ID } from '@/graphql/queries/wallets';
+import { GET_WALLET_TRANSACTIONS } from '@/graphql/queries/wallet-transactions';
 import { DepositDetailModal } from './DepositDetailModal';
 
 const formatVND = (amount: number): string => {
@@ -19,75 +21,100 @@ const formatDateTime = (dateString: string): string => {
 };
 
 const DepositHistory: React.FC = () => {
-  const [deposits, setDeposits] = useState<DepositRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedDeposit, setSelectedDeposit] = useState<DepositRecord | null>(null);
+  const [selectedDeposit, setSelectedDeposit] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
-  useEffect(() => {
-    const fetchDeposits = async () => {
-      try {
-        const data = await getDepositHistory();
-        setDeposits(data);
-      } catch (error) {
-        console.error('Error fetching deposits:', error);
-      } finally {
-        setLoading(false);
-      }
+  // Fetch wallet by userId
+  const { data: walletData, loading: walletLoading } = useGraphQLQuery<{
+    walletByUserId: {
+      id: string;
+      userId: string;
+      balance: number;
+      sum: number;
+      promotion: number;
+      createdAt: string;
+      updatedAt: string;
     };
-
-    fetchDeposits();
-  }, []);
-
-  // Filter data
-  const filteredData = deposits.filter((record) => {
-    const matchSearch =
-      record.transactionCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.bankCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.bankName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchStatus =
-      statusFilter === 'all' || record.status === statusFilter;
-    return matchSearch && matchStatus;
+  }>({
+    query: GET_WALLET_BY_USER_ID,
+    variables: {
+      userId: user?.id || '',
+    },
+    skip: !user?.id,
   });
 
-  const handleViewDetail = (deposit: DepositRecord) => {
+  const walletId = walletData?.walletByUserId?.id;
+
+  // Fetch wallet transactions
+  const { data: transactionsData, loading: transactionsLoading } = useGraphQLQuery<{
+    walletTransactions: {
+      totalCount: number;
+      items: Array<{
+        id: string;
+        walletId: string;
+        type: string;
+        description: string;
+        balanceAfter: number;
+        reference: string;
+        dateInput: string;
+      }>;
+    };
+  }>({
+    query: GET_WALLET_TRANSACTIONS,
+    variables: {
+      walletId: walletId || '',
+      pagination: {
+        page: currentPage,
+        limit: pageSize,
+      },
+      searchQuery: searchTerm || undefined,
+    },
+    skip: !walletId,
+  });
+
+  const loading = walletLoading || transactionsLoading;
+  const transactions = transactionsData?.walletTransactions?.items || [];
+  const totalCount = transactionsData?.walletTransactions?.totalCount || 0;
+
+  // Filter data by status filter
+  const filteredData = useMemo(() => {
+    if (statusFilter === 'all') {
+      return transactions;
+    }
+    return transactions.filter((record) => {
+      // Map transaction type to status
+      const status = record.type === 'DEPOSIT' ? 'success' : 'processing';
+      return status === statusFilter;
+    });
+  }, [transactions, statusFilter]);
+
+  const handleViewDetail = (deposit: any) => {
     setSelectedDeposit(deposit);
     setIsModalOpen(true);
   };
 
-  const getStatusBadge = (status: DepositRecord['status']) => {
-    switch (status) {
-      case 'success':
-        return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
-            <Icon icon="mdi:check-circle" className="h-4 w-4" />
-            Thành công
-          </span>
-        );
-      case 'processing':
-        return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
-            <Icon icon="mdi:autorenew" className="h-4 w-4" />
-            Đang xử lý
-          </span>
-        );
-      case 'pending':
-        return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-700">
-            <Icon icon="mdi:clock-outline" className="h-4 w-4" />
-            Chờ xử lý
-          </span>
-        );
-      case 'failed':
-        return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
-            <Icon icon="mdi:close-circle" className="h-4 w-4" />
-            Thất bại
-          </span>
-        );
+  const getStatusBadge = (type: string) => {
+    // Map transaction type to status display
+    if (type === 'DEPOSIT') {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+          <Icon icon="mdi:check-circle" className="h-4 w-4" />
+          Thành công
+        </span>
+      );
     }
+    
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
+        <Icon icon="mdi:autorenew" className="h-4 w-4" />
+        Đang xử lý
+      </span>
+    );
   };
 
   if (loading) {
@@ -147,7 +174,7 @@ const DepositHistory: React.FC = () => {
             <tr>
               <th className="px-4 py-3 rounded-tl-lg">Mã giao dịch</th>
               <th className="px-4 py-3">Số tiền</th>
-              <th className="px-4 py-3">Ngân hàng</th>
+              <th className="px-4 py-3">Loại</th>
               <th className="px-4 py-3">Trạng thái</th>
               <th className="px-4 py-3 rounded-tr-lg">Thời gian</th>
             </tr>
@@ -187,21 +214,21 @@ const DepositHistory: React.FC = () => {
                 >
                   <td className="px-4 py-4">
                     <code className="rounded bg-slate-100 px-2 py-1 text-xs font-mono font-semibold text-slate-700">
-                      {record.transactionCode}
+                      {record.reference || record.id}
                     </code>
                   </td>
                   <td className="px-4 py-4">
                     <span className="font-semibold text-slate-900">
-                      {formatVND(record.amount)} ₫
+                      {formatVND(record.balanceAfter)} ₫
                     </span>
                   </td>
                   <td className="px-4 py-4">
                     <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                      <Icon icon="mdi:bank" className="h-3.5 w-3.5" />
-                      {record.bankName}
+                      <Icon icon="mdi:swap-horizontal" className="h-3.5 w-3.5" />
+                      {record.type}
                     </span>
                   </td>
-                  <td className="px-4 py-4">{getStatusBadge(record.status)}</td>
+                  <td className="px-4 py-4">{getStatusBadge(record.type)}</td>
                   <td className="px-4 py-4 text-slate-600">
                     <div className="flex items-center gap-1.5">
                       <Icon
@@ -209,7 +236,7 @@ const DepositHistory: React.FC = () => {
                         className="h-4 w-4 text-slate-400"
                       />
                       <span className="text-xs">
-                        {formatDateTime(record.createdAt)}
+                        {formatDateTime(record.dateInput)}
                       </span>
                     </div>
                   </td>
@@ -251,24 +278,30 @@ const DepositHistory: React.FC = () => {
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <code className="rounded bg-slate-100 px-2 py-1 text-xs font-mono font-semibold text-slate-700">
-                    {record.transactionCode}
+                    {record.reference || record.id}
                   </code>
                   <p className="text-lg font-bold text-slate-900 mt-2">
-                    {formatVND(record.amount)} ₫
+                    {formatVND(record.balanceAfter)} ₫
                   </p>
                 </div>
-                <div>{getStatusBadge(record.status)}</div>
+                <div>{getStatusBadge(record.type)}</div>
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500">Ngân hàng:</span>
-                  <span className="font-medium text-slate-900">{record.bankName}</span>
+                  <span className="text-slate-500">Loại giao dịch:</span>
+                  <span className="font-medium text-slate-900">{record.type}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-500">Mô tả:</span>
+                  <span className="text-xs text-slate-600">
+                    {record.description || 'N/A'}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">Thời gian:</span>
                   <span className="text-xs text-slate-600">
-                    {formatDateTime(record.createdAt)}
+                    {formatDateTime(record.dateInput)}
                   </span>
                 </div>
               </div>
@@ -289,10 +322,10 @@ const DepositHistory: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-green-600">
-                  Thành công
+                  Nạp tiền
                 </p>
                 <p className="text-2xl font-bold text-green-700 mt-1">
-                  {filteredData.filter((r) => r.status === 'success').length}
+                  {filteredData.filter((r) => r.type === 'DEPOSIT').length}
                 </p>
               </div>
               <Icon
@@ -302,34 +335,34 @@ const DepositHistory: React.FC = () => {
             </div>
           </div>
 
-          <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4">
+          <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-yellow-600">
-                  Đang xử lý
+                <p className="text-xs font-medium text-blue-600">
+                  Tổng số dư
                 </p>
-                <p className="text-2xl font-bold text-yellow-700 mt-1">
-                  {filteredData.filter((r) => r.status === 'pending' || r.status === 'processing').length}
+                <p className="text-2xl font-bold text-blue-700 mt-1">
+                  {walletData?.walletByUserId?.balance ? formatVND(walletData.walletByUserId.balance) : '0'} ₫
                 </p>
               </div>
               <Icon
-                icon="mdi:clock-outline"
-                className="h-10 w-10 text-yellow-400"
+                icon="mdi:wallet"
+                className="h-10 w-10 text-blue-400"
               />
             </div>
           </div>
 
-          <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+          <div className="rounded-lg bg-purple-50 border border-purple-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-red-600">Thất bại</p>
-                <p className="text-2xl font-bold text-red-700 mt-1">
-                  {filteredData.filter((r) => r.status === 'failed').length}
+                <p className="text-xs font-medium text-purple-600">Khuyến mãi</p>
+                <p className="text-2xl font-bold text-purple-700 mt-1">
+                  {walletData?.walletByUserId?.promotion ? formatVND(walletData.walletByUserId.promotion) : '0'} ₫
                 </p>
               </div>
               <Icon
-                icon="mdi:close-circle"
-                className="h-10 w-10 text-red-400"
+                icon="mdi:gift"
+                className="h-10 w-10 text-purple-400"
               />
             </div>
           </div>
